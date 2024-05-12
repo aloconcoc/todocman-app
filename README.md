@@ -1,6 +1,11 @@
+git clone https://github.com/phantu820/sepApp.git
+cd sepApp
+npm start
 
+->Install Expo Go App in Google Play/App Store
+->Scan QR code to run the project
 ------------------------------------------------
-Setting up the development environment
+HOW TO CREATE A REACT NATIVE PROJECT WITH EXPO
 This page will help you install and build your first React Native app.
 
 If you are new to mobile development, the easiest way to get started is with Expo Go. Expo is a set of tools and services built around React Native and, while it has many features, the most relevant feature for us right now is that it can get you writing a React Native app within minutes. You will only need a recent version of Node.js and a phone or emulator. If you'd like to try out React Native directly in your web browser before installing any tools, you can try out Snack.
