@@ -1,9 +1,13 @@
 git clone https://github.com/phantu820/sepApp.git
+
 cd sepApp
+
 npm start
 
 ->Install Expo Go App in Google Play/App Store
+
 ->Scan QR code to run the project
+
 ------------------------------------------------
 HOW TO CREATE A REACT NATIVE PROJECT WITH EXPO
 This page will help you install and build your first React Native app.
