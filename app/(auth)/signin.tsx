@@ -8,7 +8,7 @@ export default function Login() {
         <Text style={styles.title}>Login</Text>
         <Button
         title="home"
-        onPress={() => router.navigate('(drawer)/settings')}
+        onPress={() => router.navigate('(drawer)/(tabs)/home')}
       />
       </View>
     );

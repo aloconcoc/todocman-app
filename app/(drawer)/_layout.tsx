@@ -51,6 +51,24 @@ const CustomDrawerContent = (props: any) => {
       />
       <DrawerItem
         icon={({ color, size }) => (
+          <MaterialIcons
+            name="favorite-outline"
+            size={size}
+            color={pathname == "/signature" ? "#fff" : "#000"}
+          />
+        )}
+        label={"Signature"}
+        labelStyle={[
+          styles.navItemLabel,
+          { color: pathname == "/signature" ? "#fff" : "#000" },
+        ]}
+        style={{ backgroundColor: pathname == "/signature" ? "#333" : "#fff" }}
+        onPress={() => {
+          router.push("/(drawer)/(tabs)/signature");
+        }}
+      />
+      <DrawerItem
+        icon={({ color, size }) => (
           <AntDesign
             name="user"
             size={size}
