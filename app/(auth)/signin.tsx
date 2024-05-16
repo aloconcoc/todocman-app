@@ -1,9 +1,15 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "@/components/Themed";
+import { StyleSheet, Button } from "react-native";
+import { router } from 'expo-router';
 
-export default function SignIn() {
+export default function Login() {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Sign in</Text>
+        <Text style={styles.title}>Login</Text>
+        <Button
+        title="home"
+        onPress={() => router.navigate('(drawer)/settings')}
+      />
       </View>
     );
   }
