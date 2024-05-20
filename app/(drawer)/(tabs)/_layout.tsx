@@ -24,17 +24,17 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
+        // headerShown: false,
       }}>
       <Tabs.Screen
         name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          tabBarIcon: ({ color }: any) => <TabBarIcon name="home" color={color} />,
           headerRight: () => (
             <Link href="/modal" asChild>
               <Pressable>
-                {({ pressed }) => (
+                {({ pressed }: any) => (
                   <FontAwesome
                     name="info-circle"
                     size={25}
@@ -45,27 +45,40 @@ export default function TabLayout() {
               </Pressable>
             </Link>
           ),
+          headerLeft: false,
         }}
       />
       <Tabs.Screen
         name="service"
         options={{
           title: 'Service',
-          tabBarIcon: ({ color }) => <TabBarIcon name="camera" color={color} />,
+          headerShown: false,
+          tabBarIcon: ({ color }: any) => <TabBarIcon name="camera" color={color} />,
         }}
       />
       <Tabs.Screen
         name="signature"
         options={{
           title: 'Signature',
-          tabBarIcon: ({ color }) => <TabBarIcon name="line-chart" color={color} />,
+          headerShown: false,
+          tabBarIcon: ({ color }: any) => <TabBarIcon name="line-chart" color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          headerShown: false,
+          tabBarIcon: ({ color }: any) => <TabBarIcon name="user" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="editProfile"
+        options={{
+          title: 'Edit Profile',
+          headerShown: false,
+          href: null,
+          presentation: 'modal'
         }}
       />
     </Tabs>

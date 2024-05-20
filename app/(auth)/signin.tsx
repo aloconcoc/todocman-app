@@ -1,4 +1,5 @@
 import {
+  Button,
   Image,
   StyleSheet,
   Text,
@@ -36,8 +37,8 @@ const LoginScreen = () => {
       </TouchableOpacity> */}
       <View style={styles.textContainer}>
         <Text style={styles.headingText}>Hey,</Text>
-        <Text style={styles.headingText}>Welcome</Text>
-        <Text style={styles.headingText}>Back</Text>
+        <Text style={styles.headingText}>Welcome Back</Text>
+        <Button title='logged' onPress={()=> router.navigate('(drawer)/(tabs)/home')}/>
       </View>
       {/* form  */}
       <View style={styles.formContainer}>
@@ -60,7 +61,7 @@ const LoginScreen = () => {
           />
           <TouchableOpacity
             onPress={() => {
-              setSecureEntery((prev) => !prev);
+              setSecureEntery((prev:any) => !prev);
             }}
           >
             <SimpleLineIcons name={"eye"} size={20} color={Colors.login_color.secondary} />
