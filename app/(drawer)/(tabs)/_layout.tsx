@@ -45,7 +45,6 @@ export default function TabLayout() {
               </Pressable>
             </Link>
           ),
-          headerLeft: false,
         }}
       />
       <Tabs.Screen
@@ -78,7 +77,6 @@ export default function TabLayout() {
           title: 'Edit Profile',
           headerShown: false,
           href: null,
-          presentation: 'modal'
         }}
       />
     </Tabs>
