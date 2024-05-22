@@ -11,7 +11,7 @@ const Sign = ({ text, onOK }:Iprops) => {
   const handleOK = (signature:string) => {
     console.log(signature);
     console.log("OK");
-    alert("OK");
+    // alert("OK");
     // onOK(signature); // Callback from Component props
   };
 

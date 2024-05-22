@@ -3,14 +3,16 @@ import { StyleSheet, Button } from 'react-native';
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import { router } from 'expo-router';
+import { getToken, removeToken } from '@/config/tokenUser';
 
 export default function TabOneScreen() {
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>logout</Text>
       <Button
         title="home"
-        onPress={() => router.navigate('/(auth)/signin')}
+        onPress={() =>{removeToken(); router.navigate('/(auth)/signin')}}
       />
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
     </View>

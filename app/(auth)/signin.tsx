@@ -1,93 +1,166 @@
 import {
   Button,
   Image,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
+  ToastAndroid,
   TouchableOpacity,
   View,
 } from "react-native";
 import React, { useState } from "react";
 import Colors from "@/constants/Colors";
-import {
-  SimpleLineIcons, Ionicons,
-} from "@expo/vector-icons";
+import { SimpleLineIcons, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
-
+import { setToken } from "@/config/tokenUser";
+import { useForm, Controller } from "react-hook-form";
+import { LoginRequest, login } from "@/services/user.service";
+import Logo from '../../assets/Tdocman.svg';
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [secureEntery, setSecureEntery] = useState(true);
 
-  // const handleGoBack = () => {
-  //   navigation.goBack();
-  // };
   const handleSignup = () => {
-    router.navigate('/(auth)/signup');
+    router.navigate("/(auth)/signup");
+  };
+
+  const handleLogin = async (data: LoginRequest) => {
+    try {
+      const response = await login(data);
+      if (response) {
+        setToken(response.access_token);
+        ToastAndroid.show("Request sent successfully!", ToastAndroid.SHORT);
+        router.navigate("(drawer)/(tabs)/home");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginRequest>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+  const onSubmit = async (data: LoginRequest) => {
+    try {
+      const response = await login(data);
+      if (response) {
+        setToken(response?.access_token);
+        ToastAndroid.show("Request sent successfully!", ToastAndroid.SHORT);
+        router.navigate("(drawer)/(tabs)/home");
+      } else {
+        ToastAndroid.show(
+          "Login failed! Please check your credencial",
+          ToastAndroid.SHORT
+        );
+      }
+    } catch (e) {
+      ToastAndroid.show(
+        "Login failed! Please check your credencial",
+        ToastAndroid.SHORT
+      );
+      console.log(e);
+    }
   };
 
   return (
     <View style={styles.container}>
-      {/* <TouchableOpacity style={styles.backButtonWrapper} onPress={handleGoBack}>
-        <Ionicons
-          name={"arrow-back-outline"}
-          color={Colors.login_color.primary}
-          size={25}
-        />
-      </TouchableOpacity> */}
       <View style={styles.textContainer}>
         <Text style={styles.headingText}>Hey,</Text>
         <Text style={styles.headingText}>Welcome Back</Text>
-        <Button title='logged' onPress={()=> router.navigate('(drawer)/(tabs)/home')}/>
       </View>
-      {/* form  */}
-      <View style={styles.formContainer}>
-        <View style={styles.inputContainer}>
-          <Ionicons name={"mail-outline"} size={30} color={Colors.login_color.secondary} />
-          <TextInput
-            style={styles.textInput}
-            placeholder="Enter your email"
-            placeholderTextColor={Colors.login_color.secondary}
-            keyboardType="email-address"
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <SimpleLineIcons name={"lock"} size={30} color={Colors.login_color.secondary} />
-          <TextInput
-            style={styles.textInput}
-            placeholder="Enter your password"
-            placeholderTextColor={Colors.login_color.secondary}
-            secureTextEntry={secureEntery}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              setSecureEntery((prev:any) => !prev);
-            }}
-          >
-            <SimpleLineIcons name={"eye"} size={20} color={Colors.login_color.secondary} />
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity>
-          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+      <Controller
+        control={control}
+        rules={{
+          required: true,
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <View style={styles.inputContainer}>
+            <Ionicons name={"mail-outline"} size={30} color="teal" />
+            <TextInput
+              placeholder="Email"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              style={styles.textInput}
+              placeholderTextColor="teal"
+              keyboardType="email-address"
+            />
+          </View>
+        )}
+        name="email"
+      />
+      {errors.email && <Text style={{ color: "red" }}>This is required.</Text>}
+
+      <Controller
+        control={control}
+        rules={{
+          maxLength: 100,
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <View style={styles.inputContainer}>
+            <SimpleLineIcons name={"lock"} size={30} color="teal" />
+            <TextInput
+              style={styles.textInput}
+              placeholder="Password"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              placeholderTextColor="teal"
+              secureTextEntry={secureEntery}
+            />
+            <TouchableOpacity
+              onPress={() => {
+                setSecureEntery((prev: any) => !prev);
+              }}
+            >
+              <SimpleLineIcons name={"eye"} size={20} color="teal" />
+            </TouchableOpacity>
+          </View>
+        )}
+        name="password"
+      />
+
+      <TouchableOpacity>
+        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+      </TouchableOpacity>
+
+      <View
+        style={{
+          backgroundColor: "teal",
+          borderRadius: 100,
+          marginTop: 10,
+          padding: 10,
+        }}
+      >
+        <Pressable onPress={handleSubmit(onSubmit)}>
+          <Text style={{ textAlign: "center", color: "white" }}>Login</Text>
+        </Pressable>
+        {/* <Button title="Submit" onPress={handleSubmit(onSubmit)} /> */}
+        
+      </View>
+        
+
+      <View style={styles.footerContainer}>
+        <Text style={styles.accountText}>Don’t have an account?</Text>
+        <TouchableOpacity onPress={handleSignup}>
+          <Text style={styles.signupText}>Sign up</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.loginButtonWrapper}>
-          <Text style={styles.loginText}>Login</Text>
-        </TouchableOpacity>
-        <Text style={styles.continueText}>or continue with</Text>
-        <TouchableOpacity style={styles.googleButtonContainer}>
+      </View>
+      <TouchableOpacity style={styles.googleButtonContainer}>
           <Image
-            source={require("@/assets/images/google.png")}
+            source={Logo}
             style={styles.googleImage}
           />
-          <Text style={styles.googleText}>Google</Text>
+          {/* <Text style={styles.googleText}>Google</Text> */}
         </TouchableOpacity>
-        <View style={styles.footerContainer}>
-          <Text style={styles.accountText}>Don’t have an account?</Text>
-          <TouchableOpacity onPress={handleSignup}>
-            <Text style={styles.signupText}>Sign up</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
     </View>
   );
 };
@@ -97,8 +170,14 @@ export default LoginScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.login_color.white,
+    backgroundColor: "honeydew",
     padding: 20,
+    margin: 20,
+    shadowColor: "plum",
+    borderRadius: 15,
+    shadowRadius: 150,
+    shadowOpacity: 0.8,
+    elevation: 50,
   },
   backButtonWrapper: {
     height: 40,
@@ -113,19 +192,20 @@ const styles = StyleSheet.create({
   },
   headingText: {
     fontSize: 32,
-    color: Colors.login_color.primary,
+    color: "teal",
+    fontWeight: "bold",
   },
   formContainer: {
     marginTop: 20,
   },
   inputContainer: {
     borderWidth: 1,
-    borderColor: Colors.login_color.secondary,
+    borderColor: "teal",
     borderRadius: 100,
     paddingHorizontal: 20,
     flexDirection: "row",
     alignItems: "center",
-    padding: 2,
+    padding: 10,
     marginVertical: 10,
   },
   textInput: {
@@ -134,13 +214,13 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     textAlign: "right",
-    color: Colors.login_color.primary,
+    color: "dimgrey",
     marginVertical: 10,
   },
   loginButtonWrapper: {
-    backgroundColor: Colors.login_color.primary,
-    borderRadius: 100,
-    marginTop: 20,
+    backgroundColor: "teal",
+    borderRadius: 500,
+    marginTop: 10,
   },
   loginText: {
     color: Colors.login_color.white,
@@ -156,8 +236,8 @@ const styles = StyleSheet.create({
   },
   googleButtonContainer: {
     flexDirection: "row",
-    borderWidth: 2,
-    borderColor: Colors.login_color.primary,
+    // borderWidth: 2,
+    borderColor: 'teal',
     borderRadius: 100,
     justifyContent: "center",
     alignItems: "center",
@@ -165,8 +245,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   googleImage: {
-    height: 20,
-    width: 20,
+    borderRadius: 100,
+    height: 140,
+    width: 140,
   },
   googleText: {
     fontSize: 20,
@@ -183,5 +264,7 @@ const styles = StyleSheet.create({
   },
   signupText: {
     color: Colors.login_color.primary,
+    fontSize: 15,
+    fontWeight: "bold",
   },
 });
