@@ -10,6 +10,7 @@ import {
   FlatList,
   Modal,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
@@ -63,11 +64,12 @@ export default function App() {
   const uploadImage = async (uri: string) => {
     setUploading(true);
 
-    await FileSystem.uploadAsync("http://192.168.1.52:8888/upload.php", uri, {
-      httpMethod: "POST",
-      uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-      fieldName: "file",
-    });
+    // await FileSystem.uploadAsync("http://192.168.1.52:8888/upload.php", uri, {
+    //   httpMethod: "POST",
+    //   uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+    //   fieldName: "file",
+    // });
+    alert("Uploaded image to server")
 
     setUploading(false);
   };
