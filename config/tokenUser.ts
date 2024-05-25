@@ -3,23 +3,25 @@ export const getToken = async () => {
   try {
     const value = await AsyncStorage.getItem("token");
     if (value !== null) {
+      console.log("token: ", value);
+
       return value;
     }
   } catch (e) {
     console.log(e);
   }
-}
-export const setToken = async (token:string) => {
+};
+export const setToken = async (token: string) => {
   try {
     await AsyncStorage.setItem("token", token);
   } catch (e) {
     console.log(e);
   }
-}
+};
 export const removeToken = async () => {
   try {
     await AsyncStorage.removeItem("token");
   } catch (e) {
     console.log(e);
   }
-}
+};

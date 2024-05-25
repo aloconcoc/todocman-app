@@ -19,3 +19,21 @@ export const login = async ({ email, password }: LoginRequest) => {
     console.log(e);
   }
 };
+
+export const getProfile = async (id: any) => {
+  try {
+    const response = await axiosInstant.get(`user/${id}`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateProfile = async (id: string, formData: any) => {
+  try {
+    const response = await axiosInstant.put(`user/${id}`, formData);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

@@ -17,7 +17,6 @@ import { router } from "expo-router";
 import { setToken } from "@/config/tokenUser";
 import { useForm, Controller } from "react-hook-form";
 import { LoginRequest, login } from "@/services/user.service";
-import Logo from '../../assets/Tdocman.svg';
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [secureEntery, setSecureEntery] = useState(true);
@@ -26,18 +25,6 @@ const LoginScreen = () => {
     router.navigate("/(auth)/signup");
   };
 
-  const handleLogin = async (data: LoginRequest) => {
-    try {
-      const response = await login(data);
-      if (response) {
-        setToken(response.access_token);
-        ToastAndroid.show("Request sent successfully!", ToastAndroid.SHORT);
-        router.navigate("(drawer)/(tabs)/home");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
   const {
     control,
     handleSubmit,
@@ -144,9 +131,7 @@ const LoginScreen = () => {
           <Text style={{ textAlign: "center", color: "white" }}>Login</Text>
         </Pressable>
         {/* <Button title="Submit" onPress={handleSubmit(onSubmit)} /> */}
-        
       </View>
-        
 
       <View style={styles.footerContainer}>
         <Text style={styles.accountText}>Don’t have an account?</Text>
@@ -154,13 +139,6 @@ const LoginScreen = () => {
           <Text style={styles.signupText}>Sign up</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.googleButtonContainer}>
-          <Image
-            source={Logo}
-            style={styles.googleImage}
-          />
-          {/* <Text style={styles.googleText}>Google</Text> */}
-        </TouchableOpacity>
     </View>
   );
 };
@@ -170,14 +148,13 @@ export default LoginScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "honeydew",
+    backgroundColor: "white",
     padding: 20,
     margin: 20,
-    shadowColor: "plum",
+    shadowColor: "slate",
     borderRadius: 15,
     shadowRadius: 150,
-    shadowOpacity: 0.8,
-    elevation: 50,
+    elevation: 100,
   },
   backButtonWrapper: {
     height: 40,
@@ -237,7 +214,7 @@ const styles = StyleSheet.create({
   googleButtonContainer: {
     flexDirection: "row",
     // borderWidth: 2,
-    borderColor: 'teal',
+    borderColor: "teal",
     borderRadius: 100,
     justifyContent: "center",
     alignItems: "center",

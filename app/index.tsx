@@ -1,31 +1,56 @@
-import React from 'react';
-import { ImageBackground, StyleSheet, View } from 'react-native';
-import { Redirect } from 'expo-router';
+import React, { useEffect, useState } from "react";
+import { ImageBackground, StyleSheet, View } from "react-native";
+import { Redirect } from "expo-router";
+import { getToken } from "@/config/tokenUser";
 
 export default function HomeScreen() {
-  return (
-    <ImageBackground
-      source={require('@/assets/images/load4.jpg')}
-      style={styles.background}
-    >
-      <View style={styles.container}>
-        <Redirect href={'/(auth)/signin'} />
-      </View>
-    </ImageBackground>
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Thêm biến isLoading
+
+  useEffect(() => {
+    const fetchAPI = async () => {
+      const token = await getToken();
+      if (token) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+      setIsLoading(false); // Cập nhật isLoading thành false khi useEffect được gọi
+    };
+    fetchAPI();
+  }, []); // Không cần dependency ở đây
+
+  if (isLoading) {
+    return (
+      <ImageBackground
+        source={require("@/assets/images/load4.jpg")}
+        style={styles.background}
+      >
+        <View style={styles.container}>
+          {/* Loading indicator can be placed here */}
+        </View>
+      </ImageBackground>
+    );
+  }
+
+  if (isLoggedIn) {
+    return <Redirect href="/(drawer)/(tabs)/home" />;
+  } else {
+    return <Redirect href={"/(auth)/signin"} />;
+  }
 }
 
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
