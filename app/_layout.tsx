@@ -14,6 +14,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useColorScheme } from "@/components/useColorScheme";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AppProvider } from "./Context/Context";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -60,19 +61,21 @@ function RootLayoutNav() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={client}>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
-          <Stack>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="(auth)"
-              options={{ headerTitle: "Authentication" }}
-            />
-            <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-          </Stack>
-        </ThemeProvider>
+        <AppProvider>
+          <ThemeProvider
+            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          >
+            <Stack>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="(auth)"
+                options={{ headerTitle: "Authentication" }}
+              />
+              <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+            </Stack>
+          </ThemeProvider>
+        </AppProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
   );

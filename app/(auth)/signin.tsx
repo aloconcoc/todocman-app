@@ -9,14 +9,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Colors from "@/constants/Colors";
 import { SimpleLineIcons, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
-import { setToken } from "@/config/tokenUser";
+import { setToken, setUser } from "@/config/tokenUser";
 import { useForm, Controller } from "react-hook-form";
 import { LoginRequest, login } from "@/services/user.service";
+import { AppContext } from "../Context/Context";
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [secureEntery, setSecureEntery] = useState(true);
@@ -24,6 +25,8 @@ const LoginScreen = () => {
   const handleSignup = () => {
     router.navigate("/(auth)/signup");
   };
+
+  const { userContext, setUserContext }: any = useContext(AppContext);
 
   const {
     control,
@@ -40,6 +43,8 @@ const LoginScreen = () => {
       const response = await login(data);
       if (response) {
         setToken(response?.access_token);
+        setUser(response?.user.id);
+        setUserContext(response?.user.id);
         ToastAndroid.show("Request sent successfully!", ToastAndroid.SHORT);
         router.navigate("(drawer)/(tabs)/home");
       } else {

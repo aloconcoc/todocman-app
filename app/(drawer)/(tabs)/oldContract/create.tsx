@@ -26,7 +26,7 @@ const ensureDirExists = async () => {
   }
 };
 
-export default function App() {
+export default function UploadOldContract() {
   const [uploading, setUploading] = useState(false);
   const [images, setImages] = useState<any[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -69,7 +69,7 @@ export default function App() {
     //   uploadType: FileSystem.FileSystemUploadType.MULTIPART,
     //   fieldName: "file",
     // });
-    alert("Uploaded image to server")
+    alert("Uploaded image to server");
 
     setUploading(false);
   };
@@ -154,7 +154,11 @@ export default function App() {
           }}
         >
           <Image style={{ width: 80, height: 80 }} source={{ uri: item }} />
-          <Text style={{ flex: 1 }}>{filename}</Text>
+          <Text style={{ flex: 1 }}>
+            {filename.length > 14
+              ? `${filename.substring(0, 12)}...jpeg`
+              : filename}
+          </Text>
           <Ionicons.Button
             name="cloud-upload"
             onPress={() => uploadImage(item)}
@@ -260,8 +264,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalImage: {
-    width: "85%",
-    height: "85%",
+    width: "80%",
+    height: "80%",
     resizeMode: "contain",
   },
   closeButton: {

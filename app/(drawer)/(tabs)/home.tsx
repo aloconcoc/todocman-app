@@ -8,14 +8,8 @@ import { getToken, removeToken } from "@/config/tokenUser";
 export default function TabOneScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>logout</Text>
-      <Button
-        title="Logout"
-        onPress={() => {
-          removeToken();
-          router.navigate("/(auth)/signin");
-        }}
-      />
+      <Text style={styles.title}>home</Text>
+
       <View
         style={styles.separator}
         lightColor="#eee"

@@ -7,42 +7,59 @@ import {
   FlatList,
   Pressable,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { ScrollView } from "react-native-gesture-handler";
 import { getProfile } from "@/services/user.service";
-import { getToken, removeToken } from "@/config/tokenUser";
+import { getToken, getUser, removeToken, removeUser } from "@/config/tokenUser";
 import LottieLoad from "@/assets/load.json";
 import LottieView from "lottie-react-native";
 import { useQuery } from "@tanstack/react-query";
+import { AppContext } from "@/app/Context/Context";
 
 const Profile = () => {
-  // const [data, setData] = React.useState(null);
-  // useEffect(() => {
-  //   const fetchAPI = async () => {
-  //     await getToken();
-  //     const data = await getProfile("5cd4539c-1563-405e-a3f8-d2a5cf037cea");
-  //     if (data) {
-  //       setData(data.object);
-  //     }
-  //   };
-  //   fetchAPI();
-  // }, []);
+  const { userContext, setUserContext }: any = useContext(AppContext);
+  console.log("userContext", userContext);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
-      await getToken();
-      const response = await getProfile("5cd4539c-1563-405e-a3f8-d2a5cf037cea");
+      const user = await getUser();
+      const response = await getProfile(userContext);
       return response.object;
     },
   });
 
   if (isLoading) {
-    return <Text>Loading...</Text>;
+    return (
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          alignItems: "center",
+          justifyContent: "center",
+          flex: 1,
+        }}
+      >
+        {/* <Image source={require('../../assets/images/load.jpg')} /> */}
+        <LottieView
+          autoPlay
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "white",
+          }}
+          // Find more Lottie files at https://lottiefiles.com/featured
+          source={require("@/assets/load.json")}
+        />
+      </View>
+    );
   }
 
   if (isError) {
@@ -128,19 +145,23 @@ const Profile = () => {
             }}
           >
             {" "}
-            Profile
+            Thông tin cá nhân
           </Text>
           <Image
-            source={require("@/assets/images/image.png")}
             resizeMode="cover"
             style={{
-              height: 228,
+              height: 100,
               width: "100%",
             }}
           />
         </View>
 
-        <View style={{ flex: 1, alignItems: "center" }}>
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+          }}
+        >
           <Image
             source={require("@/assets/images/c.jpg")}
             resizeMode="contain"
@@ -154,39 +175,66 @@ const Profile = () => {
             }}
           />
 
-          <Text
-            style={{
-              fontSize: 20,
-              color: "gray",
-              marginVertical: 8,
-            }}
-          >
-            {(data as { name: string }).name}
-          </Text>
-          <Text
-            style={{
-              color: "black",
-            }}
-          >
-            {(data as { role: string }).role}
-          </Text>
-
           <View
             style={{
-              flexDirection: "row",
-              marginVertical: 6,
               alignItems: "center",
             }}
           >
-            <MaterialIcons name="location-on" size={24} color="black" />
-            <Text
+            <View
               style={{
-                fontSize: 20,
-                marginLeft: 4,
+                flexDirection: "row",
+                marginVertical: 8,
+                alignItems: "center",
               }}
             >
-              {(data as { address: string }).address}
-            </Text>
+              <MaterialIcons name="person" size={24} color="black" />
+              <Text
+                style={{
+                  fontSize: 24,
+                  color: "black",
+                  marginLeft: 4,
+                  fontWeight: "bold",
+                }}
+              >
+                {(data as { name: string }).name}
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                marginVertical: 6,
+                alignItems: "center",
+              }}
+            >
+              <MaterialIcons name="email" size={24} color="black" />
+              <Text
+                style={{
+                  color: "black",
+                  marginLeft: 4,
+                  fontSize: 16,
+                }}
+              >
+                {(data as { email: string }).email}
+              </Text>
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                marginVertical: 6,
+                alignItems: "center",
+              }}
+            >
+              <MaterialIcons name="phone" size={24} color="black" />
+              <Text
+                style={{
+                  fontSize: 18,
+                  marginLeft: 4,
+                }}
+              >
+                {(data as { phone: string }).phone}
+              </Text>
+            </View>
           </View>
 
           <View
@@ -207,37 +255,14 @@ const Profile = () => {
                   color: "gray",
                 }}
               >
-                122
+                Phòng ban
               </Text>
               <Text
                 style={{
-                  color: "gray",
+                  color: "black",
                 }}
               >
-                Followers
-              </Text>
-            </View>
-
-            <View
-              style={{
-                flexDirection: "column",
-                alignItems: "center",
-                marginHorizontal: 10,
-              }}
-            >
-              <Text
-                style={{
-                  color: "gray",
-                }}
-              >
-                67
-              </Text>
-              <Text
-                style={{
-                  color: "gray",
-                }}
-              >
-                Followings
+                {(data as { department: string }).department}
               </Text>
             </View>
 
@@ -253,19 +278,47 @@ const Profile = () => {
                   color: "gray",
                 }}
               >
-                77K
+                Vị trí
               </Text>
+              <Text
+                style={{
+                  color: "black",
+                }}
+              >
+                {(data as { position: string }).position}
+              </Text>
+            </View>
+
+            <View
+              style={{
+                flexDirection: "column",
+                alignItems: "center",
+                marginHorizontal: 10,
+              }}
+            >
               <Text
                 style={{
                   color: "gray",
                 }}
               >
-                Likes
+                Giới tính
+              </Text>
+              <Text
+                style={{
+                  color: "black",
+                }}
+              >
+                {(data as { gender: string }).gender}
               </Text>
             </View>
           </View>
 
-          <View style={{ flexDirection: "row" }}>
+          <View
+            style={{
+              flexDirection: "row",
+              marginTop: 15,
+            }}
+          >
             <TouchableOpacity
               style={{
                 width: 124,
@@ -277,7 +330,7 @@ const Profile = () => {
                 marginHorizontal: 20,
               }}
             >
-              <Pressable onPress={() => router.navigate("/editProfile")}>
+              <Pressable onPress={() => router.navigate("profile/editProfile")}>
                 <Text
                   style={{
                     color: "white",
@@ -300,8 +353,10 @@ const Profile = () => {
               }}
             >
               <Pressable
-                onPress={() => {
-                  removeToken();
+                onPress={async () => {
+                  await removeToken();
+                  await removeUser();
+                  setUserContext(null);
                   router.navigate("/(auth)/signin");
                 }}
               >
@@ -317,7 +372,7 @@ const Profile = () => {
           </View>
         </View>
         {/* --------------------- */}
-        <View style={{ marginBottom: 12 }}>
+        <View style={{ marginVertical: 12 }}>
           <Text style={{ fontSize: 20, margin: 10 }}>Settings</Text>
           <View
             style={{

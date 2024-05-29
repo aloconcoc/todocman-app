@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ImageBackground, StyleSheet, View } from "react-native";
 import { Redirect } from "expo-router";
 import { getToken } from "@/config/tokenUser";
+import { AppContext } from "./Context/Context";
 
 export default function HomeScreen() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // Thêm biến isLoading
+  const [isLoading, setIsLoading] = useState(true);
+  const { userContext, setUserContext }: any = useContext(AppContext);
 
   useEffect(() => {
     const fetchAPI = async () => {

@@ -1,0 +1,28 @@
+import React from "react";
+import { Stack, router } from "expo-router";
+import { Button } from "react-native";
+
+export default function _layout() {
+  return (
+    <Stack screenOptions={{}}>
+      <Stack.Screen
+        name="index"
+        options={{
+          title: "Quản lý hợp đồng",
+          headerRight: () => (
+            <Button
+              onPress={() => router.navigate("oldContract/create")}
+              title="Tạo"
+            />
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="create"
+        options={{
+          title: "Tải hợp đồng",
+        }}
+      />
+    </Stack>
+  );
+}
