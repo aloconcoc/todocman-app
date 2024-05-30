@@ -22,7 +22,6 @@ import { AppContext } from "@/app/Context/Context";
 
 const Profile = () => {
   const { userContext, setUserContext }: any = useContext(AppContext);
-  console.log("userContext", userContext);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["profile"],
@@ -163,7 +162,9 @@ const Profile = () => {
           }}
         >
           <Image
-            source={require("@/assets/images/c.jpg")}
+            source={{
+              uri: data?.avatar || "https://via.placeholder.com/150",
+            }}
             resizeMode="contain"
             style={{
               height: 155,

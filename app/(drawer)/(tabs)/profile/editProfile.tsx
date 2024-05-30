@@ -24,8 +24,8 @@ import LottieView from "lottie-react-native";
 
 const EditProfile = () => {
   const client = useQueryClient();
-  const [avatar, setAvatar] = useState("");
-
+  const [avatar, setAvatar] = useState<any>();
+  const { userContext }: any = useContext(AppContext);
   type ProfileType = {
     name: string;
     email: string;
@@ -41,9 +41,7 @@ const EditProfile = () => {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
-      await getToken();
-      const user = await getUser();
-      const response = await getProfile(user);
+      const response = await getProfile(userContext);
       setAvatar(response?.object?.avatar);
       return response.object;
     },
@@ -67,27 +65,49 @@ const EditProfile = () => {
   });
 
   const mutation = useMutation({
-    mutationFn: async (data: ProfileType) => {
-      const { userContext }: any = useContext(AppContext);
-      const response = await updateProfile(userContext, data);
-      return response;
+    mutationFn: async (data: any) => {
+      if (userContext) {
+        const response = await updateProfile(userContext, data);
+        console.log("respon1", response);
+
+        if (response.code == "00" && response.object) {
+          ToastAndroid.show(
+            "Cập nhật thông tin thành công!",
+            ToastAndroid.SHORT
+          );
+          router.navigate("profile");
+        } else {
+          ToastAndroid.show(
+            "Cập nhật thông tin thất bại! Vui lòng kiểm tra lại thông tin.",
+            ToastAndroid.SHORT
+          );
+          return;
+        }
+      }
     },
     onSuccess: () => {
       client.invalidateQueries({ queryKey: ["profile"] });
-      ToastAndroid.show("Profile updated successfully!", ToastAndroid.SHORT);
     },
-    onError: () => {
-      ToastAndroid.show(
-        "Update failed! Please check your credentials.",
-        ToastAndroid.SHORT
-      );
+    onError: (e) => {
+      console.log("error up", e);
+
+      ToastAndroid.show("Cập nhật thông tin thất bại!", ToastAndroid.SHORT);
     },
   });
 
   const onSubmit = async (data: any) => {
-    console.log("update data: ", data);
-    console.log("update avatar: ", avatar);
-    // mutation.mutate(data);
+    try {
+      const formData = new FormData();
+      for (const key in data) {
+        formData.append(key, data[key]);
+      }
+      formData.append("file", avatar);
+      console.log("formData", formData);
+
+      mutation.mutate(formData);
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   const selectImage = async () => {
@@ -104,7 +124,7 @@ const EditProfile = () => {
     if (!result.canceled) {
       console.log(result.assets[0]);
 
-      setAvatar(result.assets[0].uri);
+      setAvatar(result.assets[0]);
     }
   };
 
@@ -169,7 +189,10 @@ const EditProfile = () => {
           <TouchableOpacity>
             <Image
               source={{
-                uri: avatar || "https://via.placeholder.com/150",
+                uri:
+                  avatar?.uri ||
+                  data.avatar ||
+                  "https://via.placeholder.com/150",
               }}
               style={{
                 height: 170,
@@ -200,201 +223,201 @@ const EditProfile = () => {
         </View>
 
         <View>
-          {/* <View
+          <View
             style={{
               flexDirection: "column",
               marginBottom: 6,
             }}
-          > */}
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <>
-                <Text style={{ fontSize: 10 }}>Tên</Text>
-                <View
-                  style={{
-                    height: 44,
-                    width: "100%",
-                    borderColor: "gray",
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    marginVertical: 6,
-                    justifyContent: "center",
-                    paddingLeft: 8,
-                  }}
-                >
-                  <TextInput
-                    value={value}
-                    editable={true}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                  />
-                </View>
-              </>
-            )}
-            name="name"
-          />
-          {/* </View> */}
+          >
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <>
+                  <Text style={{ fontSize: 10 }}>Tên</Text>
+                  <View
+                    style={{
+                      height: 44,
+                      width: "100%",
+                      borderColor: "gray",
+                      borderWidth: 1,
+                      borderRadius: 4,
+                      marginVertical: 6,
+                      justifyContent: "center",
+                      paddingLeft: 8,
+                    }}
+                  >
+                    <TextInput
+                      value={value}
+                      editable={true}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                    />
+                  </View>
+                </>
+              )}
+              name="name"
+            />
+          </View>
 
-          {/* <View
+          <View
             style={{
               flexDirection: "column",
               marginBottom: 6,
             }}
-          > */}
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <>
-                <Text>Phòng ban</Text>
-                <View
-                  style={{
-                    height: 44,
-                    width: "100%",
-                    borderColor: "gray",
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    marginVertical: 6,
-                    justifyContent: "center",
-                    paddingLeft: 8,
-                  }}
-                >
-                  <TextInput
-                    value={value}
-                    editable={true}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                  />
-                </View>
-              </>
-            )}
-            name="department"
-          />
-          {/* </View> */}
+          >
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <>
+                  <Text>Phòng ban</Text>
+                  <View
+                    style={{
+                      height: 44,
+                      width: "100%",
+                      borderColor: "gray",
+                      borderWidth: 1,
+                      borderRadius: 4,
+                      marginVertical: 6,
+                      justifyContent: "center",
+                      paddingLeft: 8,
+                    }}
+                  >
+                    <TextInput
+                      value={value}
+                      editable={true}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                    />
+                  </View>
+                </>
+              )}
+              name="department"
+            />
+          </View>
 
-          {/* <View
+          <View
             style={{
               flexDirection: "column",
               marginBottom: 6,
             }}
-          > */}
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <>
-                <Text style={{}}>Vị trí</Text>
-                <View
-                  style={{
-                    height: 44,
-                    width: "100%",
-                    borderColor: "gray",
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    marginVertical: 6,
-                    justifyContent: "center",
-                    paddingLeft: 8,
-                  }}
-                >
-                  <TextInput
-                    value={value}
-                    editable={true}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                  />
-                </View>
-              </>
-            )}
-            name="position"
-          />
-          {/* </View> */}
+          >
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <>
+                  <Text>Vị trí</Text>
+                  <View
+                    style={{
+                      height: 44,
+                      width: "100%",
+                      borderColor: "gray",
+                      borderWidth: 1,
+                      borderRadius: 4,
+                      marginVertical: 6,
+                      justifyContent: "center",
+                      paddingLeft: 8,
+                    }}
+                  >
+                    <TextInput
+                      value={value}
+                      editable={true}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                    />
+                  </View>
+                </>
+              )}
+              name="position"
+            />
+          </View>
 
-          {/* <View
+          <View
             style={{
               flexDirection: "column",
               marginBottom: 6,
             }}
-          > */}
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <>
-                <Text style={{}}>Email</Text>
-                <TouchableOpacity
-                  style={{
-                    height: 44,
-                    width: "100%",
-                    borderColor: "gray",
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    marginVertical: 6,
-                    justifyContent: "center",
-                    paddingLeft: 8,
-                  }}
-                >
-                  <TextInput
-                    value={value}
-                    editable={false}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    keyboardType="email-address"
-                  />
-                </TouchableOpacity>
-              </>
-            )}
-            name="email"
-          />
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <>
-                <Text style={{}}>CCCD/CMT</Text>
-                <TouchableOpacity
-                  style={{
-                    height: 44,
-                    width: "100%",
-                    borderColor: "gray",
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    marginVertical: 6,
-                    justifyContent: "center",
-                    paddingLeft: 8,
-                  }}
-                >
-                  <TextInput
-                    value={value}
-                    editable={true}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                  />
-                </TouchableOpacity>
-              </>
-            )}
-            name="identificationNumber"
-          />
-          {/* </View> */}
-          {/* </View> */}
+          >
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <>
+                  <Text style={{}}>Email</Text>
+                  <TouchableOpacity
+                    style={{
+                      height: 44,
+                      width: "100%",
+                      borderColor: "gray",
+                      borderWidth: 1,
+                      borderRadius: 4,
+                      marginVertical: 6,
+                      justifyContent: "center",
+                      paddingLeft: 8,
+                    }}
+                  >
+                    <TextInput
+                      value={value}
+                      editable={false}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      keyboardType="email-address"
+                    />
+                  </TouchableOpacity>
+                </>
+              )}
+              name="email"
+            />
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <>
+                  <Text style={{}}>CCCD/CMT</Text>
+                  <TouchableOpacity
+                    style={{
+                      height: 44,
+                      width: "100%",
+                      borderColor: "gray",
+                      borderWidth: 1,
+                      borderRadius: 4,
+                      marginVertical: 6,
+                      justifyContent: "center",
+                      paddingLeft: 8,
+                    }}
+                  >
+                    <TextInput
+                      value={value}
+                      editable={true}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                    />
+                  </TouchableOpacity>
+                </>
+              )}
+              name="identificationNumber"
+            />
+          </View>
+        </View>
 
-          {/* <View
+        <View
           style={{
             flexDirection: "column",
             marginBottom: 6,
           }}
-        > */}
+        >
           <Controller
             control={control}
             rules={{
@@ -427,14 +450,14 @@ const EditProfile = () => {
             )}
             name="phone"
           />
-          {/* </View> */}
+        </View>
 
-          {/* <View
+        <View
           style={{
             flexDirection: "column",
             marginBottom: 6,
           }}
-        > */}
+        >
           <Controller
             control={control}
             rules={{
@@ -466,13 +489,13 @@ const EditProfile = () => {
             )}
             name="address"
           />
-          {/* </View> */}
-          {/* <View
+        </View>
+        <View
           style={{
             flexDirection: "column",
             marginBottom: 6,
           }}
-        > */}
+        >
           <Controller
             control={control}
             rules={{
@@ -505,27 +528,27 @@ const EditProfile = () => {
             )}
             name="dob"
           />
-          {/* </View> */}
-          {/* <View
+        </View>
+        <View
           style={{
             flexDirection: "column",
             marginBottom: 6,
           }}
-        > */}
+        >
           <Controller
             control={control}
             rules={{ required: true }}
             render={({ field: { onChange, value } }) => (
               <>
-                <Text>Giới tính</Text>
+                {/* <Text>Giới tính</Text> */}
                 <View>
                   <Picker
                     selectedValue={value}
                     onValueChange={(itemValue) => onChange(itemValue)}
                   >
                     <Picker.Item label="Chọn giới tính" value="" />
-                    <Picker.Item label="Nam" value="male" />
-                    <Picker.Item label="Nữ" value="female" />
+                    <Picker.Item label="Nam" value={0} />
+                    <Picker.Item label="Nữ" value={1} />
                   </Picker>
                 </View>
               </>

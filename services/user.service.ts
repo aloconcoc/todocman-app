@@ -1,4 +1,4 @@
-import { axiosInstant } from "@/config/axiosConfig";
+import axiosInstance, { axiosInstanceFormData } from "@/config/axiosConfig";
 
 export type LoginRequest = {
   email: string;
@@ -9,7 +9,7 @@ export const login = async ({ email, password }: LoginRequest) => {
   try {
     console.log({ email, password });
 
-    const response = await axiosInstant.post("public/auth/login", {
+    const response = await axiosInstance.post("public/auth/login", {
       email,
       password,
     });
@@ -22,7 +22,7 @@ export const login = async ({ email, password }: LoginRequest) => {
 
 export const getProfile = async (id: any) => {
   try {
-    const response = await axiosInstant.get(`user/${id}`);
+    const response = await axiosInstance.get(`user/${id}`);
     return response.data;
   } catch (error) {
     console.log(error);
@@ -31,7 +31,7 @@ export const getProfile = async (id: any) => {
 
 export const updateProfile = async (id: string, formData: any) => {
   try {
-    const response = await axiosInstant.put(`user/${id}`, formData);
+    const response = await axiosInstanceFormData.put(`user/${id}`, formData);
     return response.data;
   } catch (error) {
     console.log(error);

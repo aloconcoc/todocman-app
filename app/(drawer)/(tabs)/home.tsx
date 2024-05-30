@@ -4,8 +4,18 @@ import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
 import { router } from "expo-router";
 import { getToken, removeToken } from "@/config/tokenUser";
+import { useEffect } from "react";
 
 export default function TabOneScreen() {
+  useEffect(() => {
+    const checkToken = async () => {
+      const c = await getToken();
+      if (!c) {
+        router.navigate("(auth/signin)");
+      }
+    };
+    checkToken();
+  }, []);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>home</Text>
