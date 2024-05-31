@@ -212,12 +212,14 @@ export default function UploadOldContract() {
 
     const formData = new FormData();
     formData.append("contractName", contractName);
-    formData.append("birthDate", formatDate(birthDate));
-    formData.append("registrationDate", formatDate(registrationDate));
-    formData.append("enrollmentDate", formatDate(enrollmentDate));
+    formData.append("contractStartDate", formatDate(birthDate));
+    formData.append("contractEndDate", formatDate(registrationDate));
+    formData.append("contractSignDate", formatDate(enrollmentDate));
     allImages.forEach((image: any) => {
-      formData.append("image", image);
+      formData.append("images", image);
     });
+    console.log("allImages: ", allImages);
+
     console.log("formdata: ", formData);
     try {
       const response = await createOldContract(formData);
