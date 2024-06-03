@@ -23,6 +23,8 @@ const ManageOldContract = () => {
     queryKey: ["contract"],
     queryFn: async () => {
       const response = await getOldContract(page, size);
+      console.log("contract", response?.object);
+
       return response?.object;
     },
   });

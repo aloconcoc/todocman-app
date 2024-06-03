@@ -23,6 +23,10 @@ import LottieView from "lottie-react-native";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import { createOldContract } from "@/services/contract.service";
 import { router } from "expo-router";
+import DraggableFlatList, {
+  RenderItemParams,
+  ScaleDecorator,
+} from "react-native-draggable-flatlist";
 
 const imgDir = FileSystem.documentDirectory + "images/";
 
@@ -41,6 +45,7 @@ export default function UploadOldContract() {
   const [modalVisible, setModalVisible] = useState(false);
   const [loadingImages, setLoadingImages] = useState(false);
   const [contractName, setContractName] = useState("");
+  const [dnd, setDnd] = useState([]);
 
   const [datePickerState, setDatePickerState] = useState({
     birthDate: new Date(),
@@ -235,32 +240,68 @@ export default function UploadOldContract() {
     }
   };
 
+  type Item = {
+    key: string;
+    label: string;
+  };
+
   // Render image list item
-  const renderItem = ({ item }: { item: any }) => {
+  const renderItem = ({ item, drag, isActive }: RenderItemParams<any>) => {
     const filename = item.split("/").pop();
+    // return (
+    //   <TouchableOpacity onPress={() => openModal(item)}>
+    //     <View
+    //       style={{
+    //         flexDirection: "row",
+    //         marginHorizontal: 10,
+    //         alignItems: "center",
+    //         gap: 5,
+    //       }}
+    //     >
+    //       <Image style={{ width: 80, height: 80 }} source={{ uri: item }} />
+    //       <Text style={{ flex: 1 }}>
+    //         {filename.length > 14
+    //           ? `Ảnh hợp đồng ${filename.substring(0, 5)}.jpeg`
+    //           : filename}
+    //       </Text>
+    //       {/* <Ionicons.Button
+    //         name="cloud-upload"
+    //         onPress={() => uploadImage(item)}
+    //       /> */}
+    //       <Ionicons.Button name="trash" onPress={() => deleteImage(item)} />
+    //     </View>
+    //   </TouchableOpacity>
+    // );
     return (
-      <TouchableOpacity onPress={() => openModal(item)}>
-        <View
-          style={{
-            flexDirection: "row",
-            marginHorizontal: 10,
-            alignItems: "center",
-            gap: 5,
-          }}
+      <ScaleDecorator>
+        <TouchableOpacity
+          onLongPress={drag}
+          onPress={() => openModal(item)}
+          disabled={isActive}
         >
-          <Image style={{ width: 80, height: 80 }} source={{ uri: item }} />
-          <Text style={{ flex: 1 }}>
-            {filename.length > 14
-              ? `Ảnh hợp đồng ${filename.substring(0, 5)}.jpeg`
-              : filename}
-          </Text>
-          {/* <Ionicons.Button
+          <View
+            style={{
+              flexDirection: "row",
+              marginHorizontal: 10,
+              alignItems: "center",
+              gap: 5,
+              backgroundColor: isActive ? "gainsboro" : "transparent",
+            }}
+          >
+            <Image style={{ width: 80, height: 80 }} source={{ uri: item }} />
+            <Text style={{ flex: 1 }}>
+              {filename.length > 14
+                ? `Ảnh hợp đồng ${filename.substring(0, 5)}.jpeg`
+                : filename}
+            </Text>
+            {/* <Ionicons.Button
             name="cloud-upload"
             onPress={() => uploadImage(item)}
           /> */}
-          <Ionicons.Button name="trash" onPress={() => deleteImage(item)} />
-        </View>
-      </TouchableOpacity>
+            <Ionicons.Button name="trash" onPress={() => deleteImage(item)} />
+          </View>
+        </TouchableOpacity>
+      </ScaleDecorator>
     );
   };
 
@@ -424,8 +465,9 @@ export default function UploadOldContract() {
         Ảnh đính kèm
       </Text> */}
 
-      <FlatList
+      <DraggableFlatList
         data={images}
+        onDragEnd={({ data }) => setImages(data)}
         renderItem={renderItem}
         keyExtractor={(item) => item}
       />

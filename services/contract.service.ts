@@ -2,12 +2,10 @@ import axiosInstance, { axiosInstanceFormData } from "@/config/axiosConfig";
 
 export const getOldContract = async (page: number, size: number) => {
   try {
-    console.log("OK");
-
     const response = await axiosInstance.get(
       `old-contract?page=${page}&size=${size}`
     );
-    // console.log("response", response.data);
+    console.log("response O", response.data);
 
     return response.data;
   } catch (error) {
