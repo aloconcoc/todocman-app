@@ -48,7 +48,6 @@ const EditProfile = () => {
   });
   const {
     control,
-
     formState: { errors },
   } = useForm<ProfileType>({
     defaultValues: {
@@ -102,7 +101,7 @@ const EditProfile = () => {
         formData.append(key, data[key]);
       }
       formData.append("file", avatar);
-      console.log("formData", formData);
+      console.log("avatar", avatar);
 
       mutation.mutate(formData);
     } catch (error) {
@@ -547,8 +546,8 @@ const EditProfile = () => {
                     onValueChange={(itemValue) => onChange(itemValue)}
                   >
                     <Picker.Item label="Chọn giới tính" value="" />
-                    <Picker.Item label="Nam" value={0} />
-                    <Picker.Item label="Nữ" value={1} />
+                    <Picker.Item label="Nam" value={false} />
+                    <Picker.Item label="Nữ" value={true} />
                   </Picker>
                 </View>
               </>

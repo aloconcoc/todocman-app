@@ -73,10 +73,7 @@ function RootLayoutNav() {
                   name="(drawer)"
                   options={{ headerShown: false }}
                 />
-                <Stack.Screen
-                  name="(auth)"
-                  options={{ headerTitle: "Authentication" }}
-                />
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
                 <Stack.Screen
                   name="modal"
                   options={{ presentation: "modal" }}

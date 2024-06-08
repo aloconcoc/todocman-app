@@ -1,12 +1,15 @@
-import { StyleSheet, Button } from "react-native";
+import { StyleSheet, Button, Pressable } from "react-native";
 
 import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
 import { router } from "expo-router";
-import { getToken, removeToken } from "@/config/tokenUser";
-import { useEffect } from "react";
+import { getToken, removeToken, removeUser } from "@/config/tokenUser";
+import { useContext, useEffect } from "react";
+import { AppContext } from "@/app/Context/Context";
 
 export default function TabOneScreen() {
+  const { setUserContext }: any = useContext(AppContext);
+
   useEffect(() => {
     const checkToken = async () => {
       const c = await getToken();
@@ -19,12 +22,23 @@ export default function TabOneScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>home</Text>
-
-      <View
-        style={styles.separator}
-        lightColor="#eee"
-        darkColor="rgba(255,255,255,0.1)"
-      />
+      <Pressable
+        onPress={async () => {
+          await removeToken();
+          await removeUser();
+          setUserContext(null);
+          router.navigate("/(auth)/signin");
+        }}
+      >
+        <Text
+          style={{
+            color: "white",
+            backgroundColor: "blue",
+          }}
+        >
+          Logout
+        </Text>
+      </Pressable>
     </View>
   );
 }
@@ -38,10 +52,5 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
   },
 });

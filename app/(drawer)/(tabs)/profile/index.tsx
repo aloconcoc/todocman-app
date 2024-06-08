@@ -14,8 +14,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { ScrollView } from "react-native-gesture-handler";
 import { getProfile } from "@/services/user.service";
-import { getToken, getUser, removeToken, removeUser } from "@/config/tokenUser";
-import LottieLoad from "@/assets/load.json";
+import { removeToken, removeUser } from "@/config/tokenUser";
 import LottieView from "lottie-react-native";
 import { useQuery } from "@tanstack/react-query";
 import { AppContext } from "@/app/Context/Context";
@@ -26,7 +25,6 @@ const Profile = () => {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
-      const user = await getUser();
       const response = await getProfile(userContext);
       return response.object;
     },
@@ -46,7 +44,6 @@ const Profile = () => {
           flex: 1,
         }}
       >
-        {/* <Image source={require('../../assets/images/load.jpg')} /> */}
         <LottieView
           autoPlay
           style={{
@@ -54,7 +51,6 @@ const Profile = () => {
             height: "100%",
             backgroundColor: "white",
           }}
-          // Find more Lottie files at https://lottiefiles.com/featured
           source={require("@/assets/load.json")}
         />
       </View>
