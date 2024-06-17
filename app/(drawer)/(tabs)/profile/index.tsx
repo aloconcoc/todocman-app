@@ -305,7 +305,7 @@ const Profile = () => {
                   color: "black",
                 }}
               >
-                {(data as { gender: string }).gender}
+                {data.gender ? "Nam" : "Nữ"}
               </Text>
             </View>
           </View>

@@ -5,7 +5,7 @@ export const getOldContract = async (page: number, size: number) => {
     const response = await axiosInstance.get(
       `old-contract?page=${page}&size=${size}`
     );
-    console.log("response O", response.data);
+    // console.log("response O", response.data);
 
     return response.data;
   } catch (error) {

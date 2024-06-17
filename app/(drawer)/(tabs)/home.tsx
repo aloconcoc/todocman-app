@@ -22,23 +22,6 @@ export default function TabOneScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>home</Text>
-      <Pressable
-        onPress={async () => {
-          await removeToken();
-          await removeUser();
-          setUserContext(null);
-          router.navigate("/(auth)/signin");
-        }}
-      >
-        <Text
-          style={{
-            color: "white",
-            backgroundColor: "blue",
-          }}
-        >
-          Logout
-        </Text>
-      </Pressable>
     </View>
   );
 }

@@ -21,10 +21,13 @@ import * as FileSystem from "expo-file-system";
 import { Picker } from "@react-native-picker/picker";
 import { AppContext } from "@/app/Context/Context";
 import LottieView from "lottie-react-native";
+import RNDateTimePicker from "@react-native-community/datetimepicker";
 
 const EditProfile = () => {
   const client = useQueryClient();
   const [avatar, setAvatar] = useState<any>();
+  const [datePickerState, setDatePickerState] = useState(false);
+  const [date, setDate] = useState<any>(new Date());
   const { userContext }: any = useContext(AppContext);
   type ProfileType = {
     name: string;
@@ -43,6 +46,9 @@ const EditProfile = () => {
     queryFn: async () => {
       const response = await getProfile(userContext);
       setAvatar(response?.object?.avatar);
+      formatDate(setDate(response?.object?.dob));
+      console.log("dobbb: ", response?.object.dob);
+
       return response.object;
     },
   });
@@ -62,6 +68,15 @@ const EditProfile = () => {
       gender: data.gender,
     },
   });
+
+  const onChangeDate = (selectedDate: any) => {
+    setDatePickerState(false);
+    if (selectedDate) {
+      setDate(selectedDate);
+    } else {
+      setDate(new Date());
+    }
+  };
 
   const mutation = useMutation({
     mutationFn: async (data: any) => {
@@ -94,16 +109,32 @@ const EditProfile = () => {
     },
   });
 
+  const formatDate = (date: any) => {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based, so add 1
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   const onSubmit = async (data: any) => {
     try {
+      if (data.dob) {
+        const date = new Date(data.dob);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        data.dob = `${year}-${month}-${day}`;
+      }
+
       const formData = new FormData();
       for (const key in data) {
         formData.append(key, data[key]);
       }
       formData.append("file", avatar);
       console.log("avatar", avatar);
+      console.log("data: ", data);
 
-      mutation.mutate(formData);
+      // mutation.mutate(formData);
     } catch (error) {
       console.log("error", error);
     }
@@ -424,7 +455,7 @@ const EditProfile = () => {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <>
-                <Text style={{}}>Điện thoại</Text>
+                <Text>Điện thoại</Text>
                 <View
                   style={{
                     height: 44,
@@ -464,7 +495,7 @@ const EditProfile = () => {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <>
-                <Text style={{}}>Địa chỉ</Text>
+                <Text>Địa chỉ</Text>
                 <View
                   style={{
                     height: 44,
@@ -502,32 +533,79 @@ const EditProfile = () => {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <>
-                <Text style={{}}>Ngày sinh</Text>
-                <View
+                <TouchableOpacity
+                  onPress={() => setDatePickerState(true)}
                   style={{
-                    height: 44,
-                    width: "100%",
-                    borderColor: "gray",
                     borderWidth: 1,
-                    borderRadius: 4,
-                    marginVertical: 6,
-                    justifyContent: "center",
-                    paddingLeft: 8,
+                    borderRadius: 5,
+                    padding: 7,
                   }}
                 >
-                  <TextInput
-                    value={value}
-                    editable={true}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    keyboardType="numeric"
+                  <View pointerEvents="none">
+                    <TextInput
+                      placeholder="dd/mm/yyyy"
+                      value={formatDate(date)}
+                      editable={false}
+                      style={{ color: "black" }}
+                    />
+                  </View>
+                </TouchableOpacity>
+                {datePickerState && (
+                  <RNDateTimePicker
+                    minimumDate={new Date()}
+                    testID="dateTimePicker"
+                    value={date}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      const currentDate = selectedDate || date;
+                      onChangeDate(currentDate);
+                    }}
                   />
-                </View>
+                )}
               </>
             )}
             name="dob"
           />
         </View>
+        {/* <View
+          style={{
+            flexDirection: "column",
+            justifyContent: "flex-start",
+          }}
+        >
+          <Text>Ngày sinh</Text>
+          <TouchableOpacity
+            onPress={() => setDatePickerState(true)}
+            style={{
+              borderWidth: 1,
+              borderRadius: 5,
+              padding: 7,
+            }}
+          >
+            <View pointerEvents="none">
+              <TextInput
+                placeholder="dd/mm/yyyy"
+                value={formatDate(date)}
+                editable={false}
+                style={{ color: "black" }}
+              />
+            </View>
+          </TouchableOpacity>
+          {datePickerState && (
+            <RNDateTimePicker
+              minimumDate={new Date()}
+              testID="dateTimePicker"
+              value={date || null}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                const currentDate = selectedDate || date;
+                onChangeDate(currentDate);
+              }}
+            />
+          )}
+        </View> */}
         <View
           style={{
             flexDirection: "column",
@@ -546,8 +624,8 @@ const EditProfile = () => {
                     onValueChange={(itemValue) => onChange(itemValue)}
                   >
                     <Picker.Item label="Chọn giới tính" value="" />
-                    <Picker.Item label="Nam" value={false} />
-                    <Picker.Item label="Nữ" value={true} />
+                    <Picker.Item label="Nam" value={true} />
+                    <Picker.Item label="Nữ" value={false} />
                   </Picker>
                 </View>
               </>
