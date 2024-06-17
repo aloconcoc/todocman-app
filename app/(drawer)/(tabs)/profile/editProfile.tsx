@@ -27,8 +27,9 @@ const EditProfile = () => {
   const client = useQueryClient();
   const [avatar, setAvatar] = useState<any>();
   const [datePickerState, setDatePickerState] = useState(false);
-  const [date, setDate] = useState<any>(new Date());
+  const [date, setDate] = useState<Date>(new Date());
   const { userContext }: any = useContext(AppContext);
+  const [img, setImg] = useState("");
   type ProfileType = {
     name: string;
     email: string;
@@ -46,8 +47,10 @@ const EditProfile = () => {
     queryFn: async () => {
       const response = await getProfile(userContext);
       setAvatar(response?.object?.avatar);
-      formatDate(setDate(response?.object?.dob));
-      console.log("dobbb: ", response?.object.dob);
+      console.log("respon", response.object.dob);
+
+      const p = new Date(response.object.dob);
+      setDate(p);
 
       return response.object;
     },
@@ -118,8 +121,9 @@ const EditProfile = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      if (data.dob) {
-        const date = new Date(data.dob);
+      if (date) {
+        console.log("date", date);
+
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
@@ -130,11 +134,17 @@ const EditProfile = () => {
       for (const key in data) {
         formData.append(key, data[key]);
       }
-      formData.append("file", avatar);
-      console.log("avatar", avatar);
+      const img = {
+        uri: avatar.uri,
+        type: avatar.mimeType,
+        name: avatar.fileName,
+      };
+
+      formData.append("file", avatar.uri);
+      console.log("avatar", avatar.uri);
       console.log("data: ", data);
 
-      // mutation.mutate(formData);
+      mutation.mutate(formData);
     } catch (error) {
       console.log("error", error);
     }
@@ -552,7 +562,6 @@ const EditProfile = () => {
                 </TouchableOpacity>
                 {datePickerState && (
                   <RNDateTimePicker
-                    minimumDate={new Date()}
                     testID="dateTimePicker"
                     value={date}
                     mode="date"
