@@ -87,7 +87,7 @@ const EditProfile = () => {
         const response = await updateProfile(userContext, data);
         console.log("respon1", response);
 
-        if (response.code == "00" && response.object) {
+        if (response?.code == "00" && response?.object) {
           ToastAndroid.show(
             "Cập nhật thông tin thành công!",
             ToastAndroid.SHORT
@@ -127,7 +127,8 @@ const EditProfile = () => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
-        data.dob = `${year}-${month}-${day}`;
+        data.dob = `${day}/${month}/${year}`;
+        console.log("dobby", data.dob);
       }
 
       const formData = new FormData();
@@ -136,12 +137,12 @@ const EditProfile = () => {
       }
       const img = {
         uri: avatar.uri,
-        type: avatar.mimeType,
+        type: avatar.type,
         name: avatar.fileName,
       };
 
-      formData.append("file", avatar.uri);
-      console.log("avatar", avatar.uri);
+      formData.append("file", avatar);
+      console.log("avatar", avatar);
       console.log("data: ", data);
 
       mutation.mutate(formData);
@@ -158,7 +159,7 @@ const EditProfile = () => {
       quality: 1,
     };
 
-    result = await ImagePicker.launchImageLibraryAsync(options);
+    result = await ImagePicker.launchImageLibraryAsync();
 
     // Save image if not cancelled
     if (!result.canceled) {

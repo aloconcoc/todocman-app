@@ -1,4 +1,4 @@
-export const BASE_URL = "http://192.168.1.33:8080/";
+export const BASE_URL = "http://192.168.1.23:8080/";
 
 export const INTERNAL_SERVER_ERROR = 500;
 export const NOT_FOUND = 404;

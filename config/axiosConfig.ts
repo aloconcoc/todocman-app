@@ -77,6 +77,8 @@ axiosInstanceFormData.interceptors.response.use(
     return response;
   },
   function (error) {
+    console.log(error);
+
     switch (error?.response?.status) {
       case UNAUTHORIZED:
         removeToken();

@@ -27,6 +27,7 @@ import DraggableFlatList, {
   RenderItemParams,
   ScaleDecorator,
 } from "react-native-draggable-flatlist";
+import * as DocumentPicker from "expo-document-picker";
 
 const imgDir = FileSystem.documentDirectory + "images/";
 
@@ -78,28 +79,34 @@ export default function UploadOldContract() {
     console.log("Loading images");
   }, []);
 
-  // Save image to file system
-  const saveImage = async (uri: string) => {
-    await ensureDirExists();
-    const filename = new Date().getTime() + ".jpeg";
-    const dest = imgDir + filename;
-    await FileSystem.copyAsync({ from: uri, to: dest });
-    setImages([...images, dest]);
-  };
+  const pickDocument = async () => {
+    try {
+      // Hiển thị hệ thống UI để chọn tài liệu PDF
+      const result = await DocumentPicker.getDocumentAsync({
+        copyToCacheDirectory: true,
+        type: "application/pdf",
+      });
+      if (result.canceled === true) return;
 
-  // Upload image to server
-  const uploadImage = async (uri: string) => {
-    setUploading(true);
-    console.log("uri: " + uri);
+      console.log("Document selected:", result);
 
-    // await FileSystem.uploadAsync("http://192.168.1.52:8888/upload.php", uri, {
-    //   httpMethod: "POST",
-    //   uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-    //   fieldName: "file",
-    // });
-    alert("Uploaded image to server");
+      if (result.assets && result.assets.length > 0) {
+        const selectedFile = result.assets[0];
+        console.log("Document selected:", selectedFile);
 
-    setUploading(false);
+        const base64String = await FileSystem.readAsStringAsync(
+          selectedFile.uri,
+          {
+            encoding: FileSystem.EncodingType.Base64,
+          }
+        );
+
+        console.log("Base64 string:", base64String.slice(0, 14));
+        console.log("Base64 string:", base64String.slice(-14));
+      }
+    } catch (error) {
+      console.error("Error picking document:", error);
+    }
   };
 
   // Delete image from file system
@@ -121,9 +128,10 @@ export default function UploadOldContract() {
   const selectImageFromLibrary = async () => {
     setLoadingImages(true);
     const options: ImagePicker.ImagePickerOptions = {
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsMultipleSelection: true,
       quality: 1,
+      base64: true,
     };
 
     const result = await ImagePicker.launchImageLibraryAsync(options);
@@ -135,8 +143,17 @@ export default function UploadOldContract() {
       const tmp: any[] = [];
       for (let i = 0; i < selectedImages.length; i++) {
         tempImages.push(selectedImages[i].uri);
+        // console.log(
+        //   "selectedImages[i]1: ",
+        //   selectedImages[i].base64?.slice(-14)
+        // );
+        // console.log(
+        //   "selectedImages[i]2: ",
+        //   selectedImages[i].base64?.slice(0, 14)
+        // );
         tmp.push(selectedImages[i]);
       }
+
       setImages([...images, ...tempImages]);
       setAllImages([...allImages, ...tmp]);
     }
@@ -151,6 +168,7 @@ export default function UploadOldContract() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
+      base64: true,
     };
 
     const result = await ImagePicker.launchCameraAsync(options);
@@ -221,11 +239,11 @@ export default function UploadOldContract() {
     formData.append("contractEndDate", formatDate(registrationDate));
     formData.append("contractSignDate", formatDate(enrollmentDate));
     allImages.forEach((image: any) => {
-      formData.append("images", image);
+      formData.append("images", image.base64);
     });
-    console.log("allImages: ", allImages);
+    // console.log("allImages: ", allImages);
 
-    console.log("formdata: ", formData);
+    // console.log("formdata: ", formData);
     try {
       const response = await createOldContract(formData);
       if (response.code == "00" && response.object) {
@@ -460,6 +478,7 @@ export default function UploadOldContract() {
         >
           <Text style={{ color: "white" }}>Máy ảnh</Text>
         </TouchableOpacity>
+        <Button title="Pick something" onPress={pickDocument} />
       </View>
       {/* <Text style={{ textAlign: "center", fontSize: 20, fontWeight: "500" }}>
         Ảnh đính kèm
