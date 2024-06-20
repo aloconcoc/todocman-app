@@ -15,7 +15,10 @@ export const getOldContract = async (page: number, size: number) => {
 
 export const createOldContract = async (formData: any) => {
   try {
-    const response = await axiosInstanceFormData.post(`old-contract`, formData);
+    const response = await axiosInstanceFormData.post(
+      `old-contract/mobile`,
+      formData
+    );
     return response.data;
   } catch (error) {
     console.log(error);
