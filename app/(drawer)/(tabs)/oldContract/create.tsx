@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Image,
@@ -15,7 +15,6 @@ import {
   Pressable,
   Platform,
   ToastAndroid,
-  Dimensions,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
@@ -24,12 +23,12 @@ import LottieView from "lottie-react-native";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import { createOldContract } from "@/services/contract.service";
 import { router } from "expo-router";
-import Pdf from "react-native-pdf";
 import DraggableFlatList, {
   RenderItemParams,
   ScaleDecorator,
 } from "react-native-draggable-flatlist";
 import * as DocumentPicker from "expo-document-picker";
+import axios from "axios";
 
 const imgDir = FileSystem.documentDirectory + "images/";
 
@@ -51,10 +50,8 @@ export default function UploadOldContract() {
   const [ispdf, setIspdf] = useState(false);
   const [selectedPdf, setSelectedPdf] = useState("");
   const [pdf, setPdf] = useState("");
-  const source = {
-    uri: "http://samples.leanpub.com/thereactnativebook-sample.pdf",
-    cache: true,
-  };
+  const [viewpdf, setViewpdf] = useState("");
+  const [extractedText, setExtractedText] = useState("");
 
   const [datePickerState, setDatePickerState] = useState({
     birthDate: new Date(),
@@ -110,9 +107,7 @@ export default function UploadOldContract() {
         setIspdf(true);
         setSelectedPdf(base64String);
         setPdf(selectedFile.name);
-
-        console.log("Base64 string:", base64String.slice(0, 14));
-        console.log("Base64 string:", base64String.slice(-14));
+        setViewpdf(selectedFile.uri);
       }
     } catch (error) {
       console.error("Error picking document:", error);
@@ -138,7 +133,7 @@ export default function UploadOldContract() {
   const selectImageFromLibrary = async () => {
     setLoadingImages(true);
     const options: ImagePicker.ImagePickerOptions = {
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: true,
       quality: 1,
       base64: true,
@@ -153,19 +148,12 @@ export default function UploadOldContract() {
       const tmp: any[] = [];
       for (let i = 0; i < selectedImages.length; i++) {
         tempImages.push(selectedImages[i].uri);
-        // console.log(
-        //   "selectedImages[i]1: ",
-        //   selectedImages[i].base64?.slice(-14)
-        // );
-        // console.log(
-        //   "selectedImages[i]2: ",
-        //   selectedImages[i].base64?.slice(0, 14)
-        // );
         tmp.push(selectedImages[i]);
       }
 
       setImages([...images, ...tempImages]);
       setAllImages([...allImages, ...tmp]);
+      performOCR(result.assets[0].uri);
     }
     setLoadingImages(false);
   };
@@ -248,6 +236,7 @@ export default function UploadOldContract() {
     formData.append("contractStartDate", formatDate(birthDate));
     formData.append("contractEndDate", formatDate(registrationDate));
     formData.append("contractSignDate", formatDate(enrollmentDate));
+    formData.append("content", "");
     allImages.forEach((image: any) => {
       formData.append("images", image.base64);
     });
@@ -268,9 +257,30 @@ export default function UploadOldContract() {
     }
   };
 
-  type Item = {
-    key: string;
-    label: string;
+  const performOCR = async (file: any) => {
+    console.log("Performing OCR");
+
+    const data = new FormData();
+    data.append("image", "Hop-dong-ve-quay-phim-chup-hinh-1-1.jpg");
+
+    const options = {
+      method: "POST",
+      url: "https://ocr-extract-text.p.rapidapi.com/ocr",
+      headers: {
+        "x-rapidapi-key": "b48cb1940dmshbb37e3eeac055cdp1eee45jsnb53dcba7294c",
+        "x-rapidapi-host": "ocr-extract-text.p.rapidapi.com",
+        "Content-Type": "multipart/form-data",
+        Accept: "application/json",
+      },
+      data: data,
+    };
+
+    try {
+      const response = await axios.request(options);
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // Render image list item
@@ -467,8 +477,9 @@ export default function UploadOldContract() {
         }}
       >
         <TouchableOpacity
+          disabled={ispdf}
           style={{
-            backgroundColor: "lightseagreen",
+            backgroundColor: ispdf ? "gray" : "lightseagreen",
             padding: 8,
             borderRadius: 5,
             marginHorizontal: 5,
@@ -478,8 +489,9 @@ export default function UploadOldContract() {
           <Text style={{ color: "white" }}>Thư viện ảnh</Text>
         </TouchableOpacity>
         <TouchableOpacity
+          disabled={ispdf}
           style={{
-            backgroundColor: "lightseagreen",
+            backgroundColor: ispdf ? "gray" : "lightseagreen",
             padding: 8,
             borderRadius: 5,
             marginHorizontal: 5,
@@ -508,29 +520,33 @@ export default function UploadOldContract() {
         keyExtractor={(item) => item}
       />
 
-      {ispdf && (
+      {pdf && (
         <View>
           <Text
             style={{ fontSize: 20, fontWeight: "bold", marginVertical: 10 }}
           >
-            Xem trước PDF
+            File PDF
           </Text>
-          <Pdf
-            source={source}
-            onLoadComplete={(numberOfPages, filePath) => {
-              console.log(`Number of pages: ${numberOfPages}`);
+          <View
+            style={{
+              flexDirection: "row",
+              marginHorizontal: 15,
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
-            onPageChanged={(page, numberOfPages) => {
-              console.log(`Current page: ${page}`);
-            }}
-            onError={(error) => {
-              console.log(error);
-            }}
-            onPressLink={(uri) => {
-              console.log(`Link pressed: ${uri}`);
-            }}
-            style={styles.pdf}
-          />
+          >
+            <Text>{pdf}</Text>
+            <Ionicons.Button
+              name="trash"
+              onPress={() => {
+                setIspdf(false);
+                setSelectedPdf("");
+                setPdf("");
+                setViewpdf("");
+              }}
+            />
+          </View>
+          <Text>{extractedText}</Text>
         </View>
       )}
       {loadingImages && (
@@ -615,10 +631,5 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 30,
     right: 160,
-  },
-  pdf: {
-    flex: 1,
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height,
   },
 });

@@ -83,6 +83,8 @@ const EditProfile = () => {
 
   const mutation = useMutation({
     mutationFn: async (data: any) => {
+      console.log("dataaSFD", data);
+
       if (userContext) {
         const response = await updateProfile(userContext, data);
         console.log("respon1", response);
@@ -128,7 +130,6 @@ const EditProfile = () => {
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
         data.dob = `${day}/${month}/${year}`;
-        console.log("dobby", data.dob);
       }
 
       const formData = new FormData();
@@ -141,7 +142,11 @@ const EditProfile = () => {
         name: avatar.fileName,
       };
 
-      formData.append("file", avatar);
+      if (avatar) {
+        console.log("img: " + avatar);
+
+        formData.append("file", avatar);
+      }
       console.log("avatar", avatar);
       console.log("data: ", data);
 

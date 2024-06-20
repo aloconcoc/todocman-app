@@ -15,6 +15,7 @@ export const axiosInstanceFormData = axios.create({
   timeout: 10000,
   headers: {
     "Content-Type": "multipart/form-data",
+    Accept: "application/json",
   },
 });
 
