@@ -15,6 +15,7 @@ import {
   Pressable,
   Platform,
   ToastAndroid,
+  Dimensions,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
@@ -23,6 +24,7 @@ import LottieView from "lottie-react-native";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import { createOldContract } from "@/services/contract.service";
 import { router } from "expo-router";
+import Pdf from "react-native-pdf";
 import DraggableFlatList, {
   RenderItemParams,
   ScaleDecorator,
@@ -46,7 +48,13 @@ export default function UploadOldContract() {
   const [modalVisible, setModalVisible] = useState(false);
   const [loadingImages, setLoadingImages] = useState(false);
   const [contractName, setContractName] = useState("");
-  const [dnd, setDnd] = useState([]);
+  const [ispdf, setIspdf] = useState(false);
+  const [selectedPdf, setSelectedPdf] = useState("");
+  const [pdf, setPdf] = useState("");
+  const source = {
+    uri: "http://samples.leanpub.com/thereactnativebook-sample.pdf",
+    cache: true,
+  };
 
   const [datePickerState, setDatePickerState] = useState({
     birthDate: new Date(),
@@ -81,7 +89,6 @@ export default function UploadOldContract() {
 
   const pickDocument = async () => {
     try {
-      // Hiển thị hệ thống UI để chọn tài liệu PDF
       const result = await DocumentPicker.getDocumentAsync({
         copyToCacheDirectory: true,
         type: "application/pdf",
@@ -100,6 +107,9 @@ export default function UploadOldContract() {
             encoding: FileSystem.EncodingType.Base64,
           }
         );
+        setIspdf(true);
+        setSelectedPdf(base64String);
+        setPdf(selectedFile.name);
 
         console.log("Base64 string:", base64String.slice(0, 14));
         console.log("Base64 string:", base64String.slice(-14));
@@ -478,11 +488,18 @@ export default function UploadOldContract() {
         >
           <Text style={{ color: "white" }}>Máy ảnh</Text>
         </TouchableOpacity>
-        <Button title="Pick something" onPress={pickDocument} />
+        <TouchableOpacity
+          style={{
+            backgroundColor: "lightseagreen",
+            padding: 8,
+            borderRadius: 5,
+            marginHorizontal: 5,
+          }}
+          onPress={pickDocument}
+        >
+          <Text style={{ color: "white" }}>Tải PDF</Text>
+        </TouchableOpacity>
       </View>
-      {/* <Text style={{ textAlign: "center", fontSize: 20, fontWeight: "500" }}>
-        Ảnh đính kèm
-      </Text> */}
 
       <DraggableFlatList
         data={images}
@@ -490,6 +507,32 @@ export default function UploadOldContract() {
         renderItem={renderItem}
         keyExtractor={(item) => item}
       />
+
+      {ispdf && (
+        <View>
+          <Text
+            style={{ fontSize: 20, fontWeight: "bold", marginVertical: 10 }}
+          >
+            Xem trước PDF
+          </Text>
+          <Pdf
+            source={source}
+            onLoadComplete={(numberOfPages, filePath) => {
+              console.log(`Number of pages: ${numberOfPages}`);
+            }}
+            onPageChanged={(page, numberOfPages) => {
+              console.log(`Current page: ${page}`);
+            }}
+            onError={(error) => {
+              console.log(error);
+            }}
+            onPressLink={(uri) => {
+              console.log(`Link pressed: ${uri}`);
+            }}
+            style={styles.pdf}
+          />
+        </View>
+      )}
       {loadingImages && (
         <View
           style={{
@@ -572,5 +615,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 30,
     right: 160,
+  },
+  pdf: {
+    flex: 1,
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
   },
 });

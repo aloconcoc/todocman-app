@@ -13,7 +13,10 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -21,9 +24,14 @@
         "backgroundColor": "#ffffff"
       },
       "permissions": [
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION",
+        "android.permission.ACCESS_NETWORK_STATE"
       ],
-      "package": "com.leopan.sepApp"
+      "package": "com.leopan.sepApp",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "bundler": "metro",
@@ -38,6 +46,14 @@
           "photosPermission": "Selecct and upload images.",
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
         }
+      ],
+      "@config-plugins/react-native-blob-util",
+      "@config-plugins/react-native-pdf",
+      [
+        "expo-dev-launcher",
+        {
+          "launchMode": "most-recent"
+        }
       ]
     ],
     "experiments": {
@@ -48,8 +64,11 @@
         "origin": false
       },
       "eas": {
-        "projectId": "d6551367-e0fb-4902-a310-58ddf9d63145"
+        "projectId": "f7f79018-67d4-49b6-9081-7863868f7723"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/f7f79018-67d4-49b6-9081-7863868f7723"
     }
   }
 }
