@@ -23,6 +23,7 @@ import LottieView from "lottie-react-native";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import { createOldContract } from "@/services/contract.service";
 import { router } from "expo-router";
+import mime from "mime";
 import DraggableFlatList, {
   RenderItemParams,
   ScaleDecorator,
@@ -153,7 +154,19 @@ export default function UploadOldContract() {
 
       setImages([...images, ...tempImages]);
       setAllImages([...allImages, ...tmp]);
-      performOCR(result.assets[0].uri);
+      const trimmedURI =
+        Platform.OS === "android"
+          ? result.assets[0].uri
+          : result.assets[0].uri.replace("file://", "");
+      const fileName = trimmedURI.split("/").pop();
+      performOCR({
+        uri: trimmedURI,
+        // type: result.assets[0].type,
+        height: result.assets[0].height,
+        width: result.assets[0].width,
+        type: mime.getType(trimmedURI),
+        name: fileName,
+      });
     }
     setLoadingImages(false);
   };
@@ -240,9 +253,6 @@ export default function UploadOldContract() {
     allImages.forEach((image: any) => {
       formData.append("images", image.base64);
     });
-    // console.log("allImages: ", allImages);
-
-    // console.log("formdata: ", formData);
     try {
       const response = await createOldContract(formData);
       if (response.code == "00" && response.object) {
@@ -258,26 +268,27 @@ export default function UploadOldContract() {
   };
 
   const performOCR = async (file: any) => {
-    console.log("Performing OCR");
+    console.log("Performing OCR", file);
 
+    const url = "https://ocr-extract-text.p.rapidapi.com/ocr";
     const data = new FormData();
-    data.append("image", "Hop-dong-ve-quay-phim-chup-hinh-1-1.jpg");
+    data.append("image", file);
 
     const options = {
       method: "POST",
-      url: "https://ocr-extract-text.p.rapidapi.com/ocr",
       headers: {
+        Accept: "application/json",
+        "Content-Type": "multipart/form-data",
         "x-rapidapi-key": "b48cb1940dmshbb37e3eeac055cdp1eee45jsnb53dcba7294c",
         "x-rapidapi-host": "ocr-extract-text.p.rapidapi.com",
-        "Content-Type": "multipart/form-data",
-        Accept: "application/json",
       },
-      data: data,
+      body: data,
     };
 
     try {
-      const response = await axios.request(options);
-      console.log(response.data);
+      const response = await fetch(url, options);
+      const result = (await response.text()).slice(0, 100);
+      console.log(result);
     } catch (error) {
       console.error(error);
     }

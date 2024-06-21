@@ -30,8 +30,6 @@ export const getProfile = async (id: any) => {
 };
 
 export const updateProfile = async (id: string, formData: any) => {
-  console.log(formData);
-
   const response = await axiosInstanceFormData.put(`user/${id}`, formData);
   return response.data;
 };

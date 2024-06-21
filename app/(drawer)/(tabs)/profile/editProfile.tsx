@@ -3,6 +3,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Image,
+  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -22,6 +23,7 @@ import { Picker } from "@react-native-picker/picker";
 import { AppContext } from "@/app/Context/Context";
 import LottieView from "lottie-react-native";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
+import mime from "mime";
 
 const EditProfile = () => {
   const client = useQueryClient();
@@ -30,6 +32,7 @@ const EditProfile = () => {
   const [date, setDate] = useState<Date>(new Date());
   const { userContext }: any = useContext(AppContext);
   const [img, setImg] = useState("");
+  const [ocr, setOcr] = useState<any>();
   type ProfileType = {
     name: string;
     email: string;
@@ -136,16 +139,11 @@ const EditProfile = () => {
       for (const key in data) {
         formData.append(key, data[key]);
       }
-      const img = {
-        uri: avatar.uri,
-        type: avatar.type,
-        name: avatar.fileName,
-      };
 
       if (avatar) {
-        console.log("img: " + avatar);
+        console.log("img: " + JSON.stringify(ocr));
 
-        formData.append("file", avatar);
+        formData.append("file", ocr);
       }
       console.log("avatar", avatar);
       console.log("data: ", data);
@@ -171,6 +169,16 @@ const EditProfile = () => {
       console.log(result.assets[0]);
 
       setAvatar(result.assets[0]);
+      const trimmedURI =
+        Platform.OS === "android"
+          ? result.assets[0].uri
+          : result.assets[0].uri.replace("file://", "");
+      const fileName = trimmedURI.split("/").pop();
+      setOcr({
+        uri: trimmedURI,
+        type: mime.getType(trimmedURI),
+        name: fileName,
+      });
     }
   };
 

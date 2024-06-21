@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@bounceapp/iframe": "^0.2.1",
-    "@dotlottie/react-player": "^1.6.19",
     "@expo/vector-icons": "^14.0.0",
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-community/datetimepicker": "8.0.1",
@@ -38,6 +37,7 @@
     "expo-updates": "~0.25.17",
     "expo-web-browser": "~13.0.3",
     "lottie-react-native": "^6.7.2",
+    "mime": "^4.0.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.51.5",
