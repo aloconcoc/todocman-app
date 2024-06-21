@@ -49,16 +49,17 @@ export default function UploadOldContract() {
   const [loadingImages, setLoadingImages] = useState(false);
   const [contractName, setContractName] = useState("");
   const [ispdf, setIspdf] = useState(false);
+  const [isimg, setIsimg] = useState(false);
   const [selectedPdf, setSelectedPdf] = useState("");
   const [pdf, setPdf] = useState("");
   const [viewpdf, setViewpdf] = useState("");
-  const [extractedText, setExtractedText] = useState("");
+  const [extractedText, setExtractedText] = useState<any>();
 
   const [datePickerState, setDatePickerState] = useState({
     birthDate: new Date(),
     registrationDate: new Date(),
     enrollmentDate: new Date(),
-    showPicker: null, // null | 'birth' | 'registration' | 'enrollment'
+    showPicker: null,
   });
 
   const [formattedDates, setFormattedDates] = useState({
@@ -119,6 +120,7 @@ export default function UploadOldContract() {
   const deleteImage = async (uri: string) => {
     await FileSystem.deleteAsync(uri);
     setImages(images.filter((i) => i !== uri));
+    setIsimg(false);
   };
 
   // Load images from file system
@@ -154,6 +156,7 @@ export default function UploadOldContract() {
 
       setImages([...images, ...tempImages]);
       setAllImages([...allImages, ...tmp]);
+      setIsimg(true);
       const trimmedURI =
         Platform.OS === "android"
           ? result.assets[0].uri
@@ -161,7 +164,6 @@ export default function UploadOldContract() {
       const fileName = trimmedURI.split("/").pop();
       performOCR({
         uri: trimmedURI,
-        // type: result.assets[0].type,
         height: result.assets[0].height,
         width: result.assets[0].width,
         type: mime.getType(trimmedURI),
@@ -186,9 +188,21 @@ export default function UploadOldContract() {
 
     // Lưu ảnh nếu không bị hủy
     if (!result.canceled) {
-      // saveImage(result.assets[0].uri);
       setAllImages([...allImages, result.assets[0]]);
       setImages([...images, result.assets[0].uri]);
+      setIsimg(true);
+      const trimmedURI =
+        Platform.OS === "android"
+          ? result.assets[0].uri
+          : result.assets[0].uri.replace("file://", "");
+      const fileName = trimmedURI.split("/").pop();
+      performOCR({
+        uri: trimmedURI,
+        height: result.assets[0].height,
+        width: result.assets[0].width,
+        type: mime.getType(trimmedURI),
+        name: fileName,
+      });
     }
   };
 
@@ -249,7 +263,7 @@ export default function UploadOldContract() {
     formData.append("contractStartDate", formatDate(birthDate));
     formData.append("contractEndDate", formatDate(registrationDate));
     formData.append("contractSignDate", formatDate(enrollmentDate));
-    formData.append("content", "");
+    formData.append("content", extractedText);
     allImages.forEach((image: any) => {
       formData.append("images", image.base64);
     });
@@ -284,13 +298,18 @@ export default function UploadOldContract() {
       },
       body: data,
     };
+    setLoadingImages(true);
 
     try {
       const response = await fetch(url, options);
-      const result = (await response.text()).slice(0, 100);
-      console.log(result);
+      const result = await response.json();
+      const text = result.text || "";
+      setExtractedText(text);
+      console.log(typeof text);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoadingImages(false);
     }
   };
 
@@ -512,8 +531,9 @@ export default function UploadOldContract() {
           <Text style={{ color: "white" }}>Máy ảnh</Text>
         </TouchableOpacity>
         <TouchableOpacity
+          disabled={isimg}
           style={{
-            backgroundColor: "lightseagreen",
+            backgroundColor: isimg ? "gray" : "lightseagreen",
             padding: 8,
             borderRadius: 5,
             marginHorizontal: 5,
@@ -530,6 +550,7 @@ export default function UploadOldContract() {
         renderItem={renderItem}
         keyExtractor={(item) => item}
       />
+      {/* <Text style={{ backgroundColor: "pink" }}>a{extractedText}</Text> */}
 
       {pdf && (
         <View>
@@ -557,7 +578,6 @@ export default function UploadOldContract() {
               }}
             />
           </View>
-          <Text>{extractedText}</Text>
         </View>
       )}
       {loadingImages && (
