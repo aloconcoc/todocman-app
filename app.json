@@ -16,7 +16,8 @@
       "supportsTablet": true,
       "runtimeVersion": {
         "policy": "appVersion"
-      }
+      },
+      "bundleIdentifier": "com.leopan.sepApp"
     },
     "android": {
       "adaptiveIcon": {
@@ -47,7 +48,6 @@
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
         }
       ],
-     
       [
         "expo-dev-launcher",
         {
@@ -63,11 +63,8 @@
         "origin": false
       },
       "eas": {
-        "projectId": "f7f79018-67d4-49b6-9081-7863868f7723"
+        "projectId": "ab26d6fe-e569-4558-b7e3-d14d66fc1660"
       }
-    },
-    "updates": {
-      "url": "https://u.expo.dev/f7f79018-67d4-49b6-9081-7863868f7723"
     }
   }
 }
