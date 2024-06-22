@@ -1,7 +1,11 @@
 import { View, Text, StyleSheet, Image } from "react-native";
 import React, { useEffect } from "react";
 import { Drawer } from "expo-router/drawer";
-import { DrawerContentScrollView, DrawerItem, DrawerItemList } from "@react-navigation/drawer";
+import {
+  DrawerContentScrollView,
+  DrawerItem,
+  DrawerItemList,
+} from "@react-navigation/drawer";
 import {
   Feather,
   AntDesign,
@@ -21,7 +25,9 @@ const CustomDrawerContent = (props: any) => {
     <DrawerContentScrollView {...props}>
       <View style={styles.userInfoWrapper}>
         <Image
-          source={{ uri: "https://i.pinimg.com/564x/7b/a7/39/7ba739ba094efcae41c155a262d3eb5d.jpg" }}
+          source={{
+            uri: "https://i.pinimg.com/564x/7b/a7/39/7ba739ba094efcae41c155a262d3eb5d.jpg",
+          }}
           width={80}
           height={80}
           style={styles.userImg}
@@ -90,17 +96,19 @@ const CustomDrawerContent = (props: any) => {
           <MaterialIcons
             name="favorite-outline"
             size={size}
-            color={pathname == "/service" ? "#fff" : "#000"}
+            color={pathname == "/new-contract" ? "#fff" : "#000"}
           />
         )}
         label={"Service"}
         labelStyle={[
           styles.navItemLabel,
-          { color: pathname == "/service" ? "#fff" : "#000" },
+          { color: pathname == "/new-contract" ? "#fff" : "#000" },
         ]}
-        style={{ backgroundColor: pathname == "/service" ? "#333" : "#fff" }}
+        style={{
+          backgroundColor: pathname == "/new-contract" ? "#333" : "#fff",
+        }}
         onPress={() => {
-          router.push("/(drawer)/(tabs)/service");
+          router.push("/(drawer)/new-contract");
         }}
       />
       <DrawerItem
@@ -127,12 +135,20 @@ const CustomDrawerContent = (props: any) => {
 
 export default function Layout() {
   return (
-    <Drawer drawerContent={(props:any) => <CustomDrawerContent {...props} />} screenOptions={{headerShown: false}}>
-      <Drawer.Screen name="(tabs)" options={{headerShown: true, title: ''}} />
-      <Drawer.Screen name="settings" options={{
-      //  headerShown: true,
-        // title: '',
-        }} />
+    <Drawer
+      drawerContent={(props: any) => <CustomDrawerContent {...props} />}
+      screenOptions={{ headerShown: false }}
+    >
+      <Drawer.Screen name="(tabs)" options={{ headerShown: true, title: "" }} />
+      <Drawer.Screen
+        name="settings"
+        options={
+          {
+            //  headerShown: true,
+            // title: '',
+          }
+        }
+      />
     </Drawer>
   );
 }
@@ -159,11 +175,11 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   userEmail: {
-    fontSize:16,
-    fontStyle: 'italic',
-    textDecorationLine: 'underline',
-  }
+    fontSize: 16,
+    fontStyle: "italic",
+    textDecorationLine: "underline",
+  },
 });
