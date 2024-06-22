@@ -33,3 +33,8 @@ export const deleteOldContract = async (id: string) => {
     console.log(error);
   }
 };
+
+export const getNewContract = async (page: number, size: number) => {
+  const response = await axiosInstance.get(`contract/${page}/${size}`);
+  return response.data;
+};
