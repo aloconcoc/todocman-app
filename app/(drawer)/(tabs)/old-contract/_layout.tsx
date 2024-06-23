@@ -11,7 +11,7 @@ export default function _layout() {
           title: "Quản lý hợp đồng",
           headerRight: () => (
             <Button
-              onPress={() => router.navigate("oldContract/create")}
+              onPress={() => router.navigate("old-contract/create")}
               title="Tạo"
             />
           ),

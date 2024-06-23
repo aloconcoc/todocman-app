@@ -271,7 +271,7 @@ export default function UploadOldContract() {
       const response = await createOldContract(formData);
       if (response.code == "00" && response.object) {
         ToastAndroid.show("Tạo hợp đồng thành công!", ToastAndroid.SHORT);
-        router.navigate("oldContract");
+        router.navigate("old-contract");
       } else {
         ToastAndroid.show("Tạo hợp đồng thất bại!", ToastAndroid.SHORT);
         return;

@@ -51,7 +51,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="oldContract"
+        name="old-contract"
         options={{
           title: "Upload Contract",
           headerShown: false,
@@ -61,9 +61,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="signature"
+        name="new-contract"
         options={{
-          title: "Signature",
+          title: "Hợp đồng mới",
           headerShown: false,
           tabBarIcon: ({ color }: any) => (
             <TabBarIcon name="line-chart" color={color} />

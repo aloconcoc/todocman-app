@@ -11,6 +11,9 @@ import {
   AntDesign,
   MaterialIcons,
   Ionicons,
+  FontAwesome6,
+  FontAwesome,
+  MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 
@@ -33,19 +36,19 @@ const CustomDrawerContent = (props: any) => {
           style={styles.userImg}
         />
         <View style={styles.userDetailsWrapper}>
-          <Text style={styles.userName}>YuJinnie</Text>
+          <Text style={styles.userName}>YuJinniea</Text>
           <Text style={styles.userEmail}>ahnyujin@email.com</Text>
         </View>
       </View>
       <DrawerItem
-        icon={({ color, size }) => (
-          <Feather
-            name="list"
-            size={size}
+        icon={() => (
+          <Ionicons
+            name="home"
+            size={24}
             color={pathname == "/home" ? "#fff" : "#000"}
           />
         )}
-        label={"Home"}
+        label={"Trang chủ"}
         labelStyle={[
           styles.navItemLabel,
           { color: pathname == "/home" ? "#fff" : "#000" },
@@ -55,7 +58,7 @@ const CustomDrawerContent = (props: any) => {
           router.push("/(drawer)/(tabs)/home");
         }}
       />
-      <DrawerItem
+      {/* <DrawerItem
         icon={({ color, size }) => (
           <MaterialIcons
             name="favorite-outline"
@@ -72,34 +75,17 @@ const CustomDrawerContent = (props: any) => {
         onPress={() => {
           router.push("/(drawer)/(tabs)/signature");
         }}
-      />
+      /> */}
+
       <DrawerItem
         icon={({ color, size }) => (
-          <AntDesign
-            name="user"
-            size={size}
-            color={pathname == "/profile" ? "#fff" : "#000"}
-          />
-        )}
-        label={"Profile"}
-        labelStyle={[
-          styles.navItemLabel,
-          { color: pathname == "/profile" ? "#fff" : "#000" },
-        ]}
-        style={{ backgroundColor: pathname == "/profile" ? "#333" : "#fff" }}
-        onPress={() => {
-          router.push("/(drawer)/(tabs)/profile");
-        }}
-      />
-      <DrawerItem
-        icon={({ color, size }) => (
-          <MaterialIcons
-            name="favorite-outline"
-            size={size}
+          <FontAwesome6
+            name="file-contract"
+            size={26}
             color={pathname == "/new-contract" ? "#fff" : "#000"}
           />
         )}
-        label={"Service"}
+        label={"Hợp đồng mới"}
         labelStyle={[
           styles.navItemLabel,
           { color: pathname == "/new-contract" ? "#fff" : "#000" },
@@ -113,20 +99,40 @@ const CustomDrawerContent = (props: any) => {
       />
       <DrawerItem
         icon={({ color, size }) => (
-          <Ionicons
-            name="settings-outline"
+          <FontAwesome
+            name="folder-open"
             size={size}
-            color={pathname == "/settings" ? "#fff" : "#000"}
+            color={pathname == "/old-contract" ? "#fff" : "#000"}
           />
         )}
-        label={"Settings"}
+        label={"Hợp đồng cũ"}
         labelStyle={[
           styles.navItemLabel,
-          { color: pathname == "/settings" ? "#fff" : "#000" },
+          { color: pathname == "/old-contract" ? "#fff" : "#000" },
         ]}
-        style={{ backgroundColor: pathname == "/settings" ? "#333" : "#fff" }}
+        style={{
+          backgroundColor: pathname == "/old-contract" ? "#333" : "#fff",
+        }}
         onPress={() => {
-          router.push("/settings");
+          router.push("/(drawer)/(tabs)/old-contract");
+        }}
+      />
+      <DrawerItem
+        icon={() => (
+          <MaterialCommunityIcons
+            name="account-circle"
+            size={26}
+            color={pathname == "/profile" ? "#fff" : "#000"}
+          />
+        )}
+        label={"Trang cá nhân"}
+        labelStyle={[
+          styles.navItemLabel,
+          { color: pathname == "/profile" ? "#fff" : "#000" },
+        ]}
+        style={{ backgroundColor: pathname == "/profile" ? "#333" : "#fff" }}
+        onPress={() => {
+          router.push("/(drawer)/(tabs)/profile");
         }}
       />
     </DrawerContentScrollView>
