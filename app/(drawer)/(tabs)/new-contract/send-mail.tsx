@@ -1,7 +1,13 @@
+import MultiSelect from "@/components/sign/MultiSelect";
 import React from "react";
-import { Text } from "react-native";
+import { SafeAreaView, Text } from "react-native";
 
 const SendMail = () => {
-  return <Text>Sendmail</Text>;
+  return (
+    <SafeAreaView>
+      <Text>Sendmail</Text>
+      <MultiSelect />
+    </SafeAreaView>
+  );
 };
 export default SendMail;
