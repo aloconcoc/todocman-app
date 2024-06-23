@@ -4,7 +4,7 @@ import { getToken, removeToken } from "./tokenUser";
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
-  timeout: 5000,
+  timeout: 60000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -12,7 +12,7 @@ const axiosInstance = axios.create({
 
 export const axiosInstanceFormData = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000,
+  timeout: 60000,
   headers: {
     "Content-Type": "multipart/form-data",
     Accept: "application/json",

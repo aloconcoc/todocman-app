@@ -1,15 +1,18 @@
+import { signContract } from "@/services/contract.service";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { router } from "expo-router";
 import { ForwardedRef, RefObject, useRef, useState } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
+import { Button, StyleSheet, Text, ToastAndroid, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import SignatureScreen, {
   SignatureViewRef,
 } from "react-native-signature-canvas";
-interface Iprops {
-  text: string;
-  onOK: (signature: string) => void;
-}
-const Sign = ({ signText, setSignText }: any) => {
+
+const Sign = ({ signText, setSignText, comment, contractData }: any) => {
+  console.log("cmt: ", comment);
+
   const ref = useRef<any>(null);
+  const client = useQueryClient();
 
   const handleOK = (signature: string) => {
     console.log("OK");
@@ -34,10 +37,47 @@ const Sign = ({ signText, setSignText }: any) => {
     console.log("handle Datas");
   };
 
-  const handleConfirm = () => {
-    console.log("Confirm");
-  };
   const style = `.m-signature-pad--footer {display: none; margin: 0px;}`;
+
+  const signQuery = useMutation({
+    mutationFn: async (data: any) => {
+      // console.log("dmdata", data);
+
+      const response = await signContract(data);
+      console.log(response);
+      if (response?.code == "00" && response.object && response.success) {
+        ToastAndroid.show("Ký hợp đồng thành công!", ToastAndroid.SHORT);
+        setTimeout(() => {
+          router.navigate("/new-contract");
+        });
+      } else {
+        ToastAndroid.show(
+          "Xảy ra lỗi trong quá trình ký, Vui lòng kiểm tra lại!",
+          ToastAndroid.SHORT
+        );
+        return;
+      }
+    },
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["contract"] });
+      setSignText("");
+    },
+    onError: (error: any) => {
+      console.log(error);
+      ToastAndroid.show("Xảy ra lỗi trong quá trình ký!", ToastAndroid.SHORT);
+    },
+  });
+
+  const handleExport = () => {
+    const dataRequest = {
+      contractId: contractData?.id,
+      signImage: signText,
+      comment: comment || "Không có nhận xét",
+      createdBy: contractData?.createdBy,
+      customer: false,
+    };
+    signQuery.mutate(dataRequest);
+  };
 
   return (
     <>
@@ -52,7 +92,7 @@ const Sign = ({ signText, setSignText }: any) => {
       />
       <View style={styles.row}>
         <Button title="Xóa" onPress={handleClear} />
-        <Button title="Xác nhận" onPress={handleConfirm} />
+        <Button title="Xác nhận" onPress={handleExport} />
       </View>
     </>
   );

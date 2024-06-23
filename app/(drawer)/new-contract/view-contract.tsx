@@ -17,14 +17,20 @@ import {
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import Pdf from "react-native-pdf";
+import { useLocalSearchParams } from "expo-router";
 
 const PDFExample = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [commentVisible, setCommentVisible] = useState(false);
   const [value, onChangeText] = React.useState("");
   const [signText, setSignText] = useState<string>("");
+  const [comment, setComment] = useState<string>("");
+  const { contract } = useLocalSearchParams();
+  const contractData = JSON.parse(contract as string);
+  console.log("contractData", contractData);
 
   const openModal = () => {
+    setCommentVisible(false);
     setModalVisible(true);
   };
   const closeModal = () => {
@@ -36,6 +42,7 @@ const PDFExample = () => {
   };
   const openComment = () => {
     setCommentVisible(true);
+    setModalVisible(false);
   };
   const closeComment = () => {
     setCommentVisible(false);
@@ -71,22 +78,68 @@ const PDFExample = () => {
         visible={commentVisible}
         onRequestClose={closeComment}
       >
-        <View style={styles.comment}>
-          <Text style={{ textAlign: "center", padding: 10, fontSize: 15 }}>
+        <TouchableWithoutFeedback onPress={closeModal}>
+          <View style={styles.modalOverlay} />
+        </TouchableWithoutFeedback>
+        <View style={styles.modalContent1}>
+          <Text
+            style={{
+              textAlign: "center",
+              padding: 10,
+              fontSize: 18,
+              fontWeight: "500",
+            }}
+          >
             Nhận xét
           </Text>
-          <ScrollView>
+          <ScrollView
+            style={{
+              width: "100%",
+              borderBottomWidth: 1,
+              borderColor: "#CCCCCC",
+              shadowColor: "gray",
+            }}
+          >
             <TextInput
+              placeholder="Đưa ra một số nhận xét về bản hợp đồng"
               editable
               multiline
-              numberOfLines={4}
+              numberOfLines={5}
               onChangeText={(text) => onChangeText(text)}
               value={value}
-              style={{ padding: 10, backgroundColor: "cyan" }}
+              style={{
+                padding: 10,
+                width: "100%",
+              }}
             />
           </ScrollView>
-          <TouchableOpacity onPress={closeComment}>
-            <Text>cancel</Text>
+
+          {/* <TouchableOpacity
+              onPress={closeComment}
+              style={{
+                padding: 10,
+                backgroundColor: "red",
+                borderRadius: 10,
+                margin: 5,
+              }}
+            >
+              <Text style={{ color: "white" }}>Hủy</Text>
+            </TouchableOpacity> */}
+          <TouchableOpacity
+            onPress={openModal}
+            style={{
+              padding: 10,
+              backgroundColor: "teal",
+              borderRadius: 10,
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "auto",
+              marginVertical: 5,
+              // position: "absolute",
+              // left: 200,
+            }}
+          >
+            <Text style={{ color: "white" }}>Ký hợp đồng</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -101,7 +154,12 @@ const PDFExample = () => {
           <View style={styles.modalOverlay} />
         </TouchableWithoutFeedback>
         <View style={styles.modalContent1}>
-          <Sign signText={signText} setSignText={setSignText} />
+          <Sign
+            signText={signText}
+            setSignText={setSignText}
+            comment={value}
+            contractData={contractData}
+          />
         </View>
       </Modal>
 
@@ -109,7 +167,7 @@ const PDFExample = () => {
         style={styles.signButton}
         // onPress={openComment}
       >
-        <MenuView
+        {/* <MenuView
           isAnchoredToRight={true}
           onPressAction={({ nativeEvent }) => {
             if (nativeEvent.event === "sign") {
@@ -119,16 +177,6 @@ const PDFExample = () => {
             }
           }}
           actions={[
-            {
-              id: "sign",
-              title: "Ký hợp đồng",
-              titleColor: "green",
-              image: Platform.select({
-                ios: "plus",
-                android: "ic_menu_edit",
-              }),
-              imageColor: "green",
-            },
             {
               id: "cmt",
               title: "Nhận xét",
@@ -143,11 +191,11 @@ const PDFExample = () => {
             },
           ]}
           shouldOpenOnLongPress={false}
-        >
-          <View>
-            <Feather name="list" size={24} color="black" />
-          </View>
-        </MenuView>
+        > */}
+        <TouchableOpacity onPress={openComment}>
+          <Feather name="list" size={24} color="black" />
+        </TouchableOpacity>
+        {/* </MenuView> */}
       </View>
     </View>
   );
@@ -204,7 +252,6 @@ const styles = StyleSheet.create({
     width: "90%",
     height: "60%",
     backgroundColor: "white",
-    // paddingLeft: 40,
     borderRadius: 10,
     bottom: "20%",
     left: "5%",

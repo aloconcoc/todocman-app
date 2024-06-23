@@ -38,3 +38,13 @@ export const getNewContract = async (page: number, size: number) => {
   const response = await axiosInstance.get(`contract/${page}/${size}`);
   return response.data;
 };
+
+export const signContract = async (data: any) => {
+  console.log("data1", data);
+
+  const response = await axiosInstance.post(
+    `contract/public/sign-contract`,
+    data
+  );
+  return response.data;
+};

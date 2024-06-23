@@ -15,6 +15,7 @@ import LottieView from "lottie-react-native";
 import { getNewContract } from "@/services/contract.service";
 import WebView from "react-native-webview";
 import {
+  Entypo,
   FontAwesome5,
   MaterialCommunityIcons,
   MaterialIcons,
@@ -97,7 +98,11 @@ const NewContract = () => {
     console.log(`${action}`, selectedContract);
     if (action == "Xem") {
       console.log("xem trước");
-      router.navigate("/new-contract/view-contract");
+      // router.navigate("/new-contract/view-contract");
+      router.push({
+        pathname: "/new-contract/view-contract",
+        params: { contract: JSON.stringify(selectedContract) },
+      });
     } else if (action == "Ký") {
       console.log("ký hợp đồng");
     } else if (action == "Trình ký") {
@@ -120,7 +125,14 @@ const NewContract = () => {
   const renderItem = ({ item, index }: any) => (
     <View style={styles.row}>
       <Text style={styles.cell}>{(index + 1).toString()}</Text>
-      <Text style={styles.cell}>{item.name}</Text>
+      <>
+        <Text style={styles.cell}>
+          {item?.status != "SUCCESS" && item?.urgent && (
+            <Entypo name="warning" size={24} color="red" />
+          )}
+          {item.name}
+        </Text>
+      </>
       <TouchableOpacity style={styles.cell} onPress={() => openModal(item)}>
         <MaterialCommunityIcons
           name="dots-vertical"
@@ -149,10 +161,17 @@ const NewContract = () => {
                   alignItems: "center",
                 }}
               >
-                <MaterialIcons name="preview" size={28} color="black" />
-                <Text style={styles.menuOptionText}>Xem trước</Text>
+                <FontAwesome5 name="signature" size={24} color="black" />
+                <Text style={styles.menuOptionText}>Ký hợp đồng</Text>
               </View>
             </TouchableOpacity>
+            <View
+              style={{
+                borderBottomWidth: 1,
+                borderColor: "#ccc",
+                width: "82%",
+              }}
+            ></View>
             <TouchableOpacity onPress={() => handleAction("Ký")}>
               <View
                 style={{
@@ -161,11 +180,15 @@ const NewContract = () => {
                   alignItems: "center",
                 }}
               >
-                <FontAwesome5 name="signature" size={24} color="black" />
-                <Text style={styles.menuOptionText}>Ký hợp đồng</Text>
+                <MaterialCommunityIcons
+                  name="signature-freehand"
+                  size={28}
+                  color="black"
+                />
+                <Text style={styles.menuOptionText}> Từ chối ký</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleAction("Trình ký")}>
+            {/* <TouchableOpacity onPress={() => handleAction("Trình ký")}>
               <View
                 style={{
                   display: "flex",
@@ -192,8 +215,8 @@ const NewContract = () => {
                 />
                 <Text style={styles.menuOptionText}>Gửi ký</Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleAction("Xóa")}>
+            </TouchableOpacity> */}
+            {/* <TouchableOpacity onPress={() => handleAction("Xóa")}>
               <View
                 style={{
                   display: "flex",
@@ -204,7 +227,7 @@ const NewContract = () => {
                 <MaterialIcons name="delete" size={24} color="black" />
                 <Text style={styles.menuOptionText}>Xóa</Text>
               </View>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </Modal>
       )}
@@ -236,6 +259,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderBottomWidth: 1,
     borderBottomColor: "#000",
+    justifyContent: "space-between",
   },
   headerCell: {
     flex: 1,
@@ -308,11 +332,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     margin: "auto",
     width: "80%",
-    height: "45%",
+    // height: "45%",
     backgroundColor: "white",
     paddingLeft: 40,
     borderRadius: 10,
-    bottom: "26%",
+    bottom: "40%",
     left: "10%",
   },
   menuOptionText: {
