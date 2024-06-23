@@ -13,7 +13,7 @@ export default function _layout() {
         name="view-contract"
         options={{
           title: "Quản lý hợp đồng",
-          headerRight: () => <Button title="Ký" />,
+          // headerRight: () => <Button title="Ký" />,
         }}
       />
     </Stack>
