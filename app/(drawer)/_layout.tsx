@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image } from "react-native";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Drawer } from "expo-router/drawer";
 import {
   DrawerContentScrollView,
@@ -14,30 +14,82 @@ import {
   FontAwesome6,
   FontAwesome,
   MaterialCommunityIcons,
+  FontAwesome5,
 } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
+import LottieView from "lottie-react-native";
+import { getProfile } from "@/services/user.service";
+import { useQuery } from "@tanstack/react-query";
+import { AppContext } from "../Context/Context";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 const CustomDrawerContent = (props: any) => {
   const pathname = usePathname();
 
-  useEffect(() => {
-    console.log(pathname);
-  }, [pathname]);
+  // useEffect(() => {
+  //   console.log(pathname);
+  // }, [pathname]);
+
+  const { userContext, setUserContext }: any = useContext(AppContext);
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const response = await getProfile(userContext);
+      return response.object;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          alignItems: "center",
+          justifyContent: "center",
+          flex: 1,
+        }}
+      >
+        <LottieView
+          autoPlay
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "white",
+          }}
+          source={require("@/assets/load.json")}
+        />
+      </View>
+    );
+  }
+
+  if (isError) {
+    return <Text>Error: {error.message}</Text>;
+  }
 
   return (
     <DrawerContentScrollView {...props}>
       <View style={styles.userInfoWrapper}>
-        <Image
-          source={{
-            uri: "https://i.pinimg.com/564x/7b/a7/39/7ba739ba094efcae41c155a262d3eb5d.jpg",
+        <TouchableOpacity
+          onPress={() => {
+            router.push("/(drawer)/(tabs)/profile");
           }}
-          width={80}
-          height={80}
-          style={styles.userImg}
-        />
+        >
+          <Image
+            source={{
+              uri: data?.avatar || "https://via.placeholder.com/150",
+            }}
+            width={80}
+            height={80}
+            style={styles.userImg}
+          />
+        </TouchableOpacity>
         <View style={styles.userDetailsWrapper}>
-          <Text style={styles.userName}>YuJinniea</Text>
-          <Text style={styles.userEmail}>ahnyujin@email.com</Text>
+          <Text style={styles.userName}>{data?.name}</Text>
+          <Text style={styles.userEmail}>{data?.email}</Text>
         </View>
       </View>
       <DrawerItem
@@ -53,7 +105,7 @@ const CustomDrawerContent = (props: any) => {
           styles.navItemLabel,
           { color: pathname == "/home" ? "#fff" : "#000" },
         ]}
-        style={{ backgroundColor: pathname == "/home" ? "#333" : "#fff" }}
+        style={{ backgroundColor: pathname == "/home" ? "teal" : "#fff" }}
         onPress={() => {
           router.push("/(drawer)/(tabs)/home");
         }}
@@ -71,7 +123,7 @@ const CustomDrawerContent = (props: any) => {
           styles.navItemLabel,
           { color: pathname == "/signature" ? "#fff" : "#000" },
         ]}
-        style={{ backgroundColor: pathname == "/signature" ? "#333" : "#fff" }}
+        style={{ backgroundColor: pathname == "/signature" ? "teal" : "#fff" }}
         onPress={() => {
           router.push("/(drawer)/(tabs)/signature");
         }}
@@ -79,9 +131,9 @@ const CustomDrawerContent = (props: any) => {
 
       <DrawerItem
         icon={({ color, size }) => (
-          <FontAwesome6
-            name="file-contract"
-            size={26}
+          <FontAwesome5
+            name="file-signature"
+            size={24}
             color={pathname == "/new-contract" ? "#fff" : "#000"}
           />
         )}
@@ -91,7 +143,7 @@ const CustomDrawerContent = (props: any) => {
           { color: pathname == "/new-contract" ? "#fff" : "#000" },
         ]}
         style={{
-          backgroundColor: pathname == "/new-contract" ? "#333" : "#fff",
+          backgroundColor: pathname == "/new-contract" ? "teal" : "#fff",
         }}
         onPress={() => {
           router.push("/(drawer)/new-contract");
@@ -111,7 +163,7 @@ const CustomDrawerContent = (props: any) => {
           { color: pathname == "/old-contract" ? "#fff" : "#000" },
         ]}
         style={{
-          backgroundColor: pathname == "/old-contract" ? "#333" : "#fff",
+          backgroundColor: pathname == "/old-contract" ? "teal" : "#fff",
         }}
         onPress={() => {
           router.push("/(drawer)/(tabs)/old-contract");
@@ -119,7 +171,7 @@ const CustomDrawerContent = (props: any) => {
       />
       <DrawerItem
         icon={() => (
-          <MaterialCommunityIcons
+          <MaterialIcons
             name="account-circle"
             size={26}
             color={pathname == "/profile" ? "#fff" : "#000"}
@@ -130,7 +182,7 @@ const CustomDrawerContent = (props: any) => {
           styles.navItemLabel,
           { color: pathname == "/profile" ? "#fff" : "#000" },
         ]}
-        style={{ backgroundColor: pathname == "/profile" ? "#333" : "#fff" }}
+        style={{ backgroundColor: pathname == "/profile" ? "teal" : "#fff" }}
         onPress={() => {
           router.push("/(drawer)/(tabs)/profile");
         }}
@@ -186,6 +238,6 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 16,
     fontStyle: "italic",
-    textDecorationLine: "underline",
+    // textDecorationLine: "underline",
   },
 });

@@ -6,6 +6,7 @@ import { Pressable, Text } from "react-native";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -30,7 +31,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: "Home",
+          title: "Trang chủ",
           tabBarIcon: ({ color }: any) => (
             <TabBarIcon name="home" color={color} />
           ),
@@ -50,44 +51,37 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="old-contract"
-        options={{
-          title: "Upload Contract",
-          headerShown: false,
-          tabBarIcon: ({ color }: any) => (
-            <TabBarIcon name="camera" color={color} />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="new-contract"
         options={{
           title: "Hợp đồng mới",
           headerShown: false,
           tabBarIcon: ({ color }: any) => (
-            <TabBarIcon name="line-chart" color={color} />
+            <FontAwesome5 name="file-signature" color={color} size={24} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="old-contract"
+        options={{
+          title: "Hợp đồng cũ",
+          headerShown: false,
+          tabBarIcon: ({ color }: any) => (
+            <TabBarIcon name="folder-open" color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          title: "Trang cá nhân",
           headerShown: false,
           tabBarIcon: ({ color }: any) => (
             <TabBarIcon name="user" color={color} />
           ),
         }}
       />
-      {/* <Tabs.Screen
-        name="editProfile"
-        options={{
-          title: "Edit Profile",
-          headerShown: false,
-          href: null,
-        }}
-      /> */}
     </Tabs>
   );
 }
