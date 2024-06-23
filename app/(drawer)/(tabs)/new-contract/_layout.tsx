@@ -13,7 +13,12 @@ export default function _layout() {
         name="view-contract"
         options={{
           title: "Quản lý hợp đồng",
-          // headerRight: () => <Button title="Ký" />,
+        }}
+      />
+      <Stack.Screen
+        name="send-mail"
+        options={{
+          title: "Gửi mail",
         }}
       />
     </Stack>

@@ -8,7 +8,6 @@ import { useContext, useEffect } from "react";
 import { AppContext } from "@/app/Context/Context";
 
 export default function TabOneScreen() {
-  const { setUserContext }: any = useContext(AppContext);
 
   useEffect(() => {
     const checkToken = async () => {
