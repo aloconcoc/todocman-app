@@ -362,7 +362,7 @@ const Profile = () => {
                     color: "white",
                   }}
                 >
-                  Logout
+                  Đăng xuất
                 </Text>
               </Pressable>
             </TouchableOpacity>

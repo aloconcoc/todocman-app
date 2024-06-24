@@ -6,8 +6,10 @@ import { router } from "expo-router";
 import { getToken, removeToken, removeUser } from "@/config/tokenUser";
 import { useContext, useEffect } from "react";
 import { AppContext } from "@/app/Context/Context";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function TabOneScreen() {
+  const { userContext, setUserContext }: any = useContext(AppContext);
 
   useEffect(() => {
     const checkToken = async () => {
@@ -21,6 +23,34 @@ export default function TabOneScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>home</Text>
+      <TouchableOpacity
+        style={{
+          width: 124,
+          height: 36,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "green",
+          borderRadius: 10,
+          marginHorizontal: 20,
+        }}
+      >
+        <Pressable
+          onPress={async () => {
+            await removeToken();
+            await removeUser();
+            setUserContext(null);
+            router.navigate("/(auth)/signin");
+          }}
+        >
+          <Text
+            style={{
+              color: "white",
+            }}
+          >
+            out
+          </Text>
+        </Pressable>
+      </TouchableOpacity>
     </View>
   );
 }
