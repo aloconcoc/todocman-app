@@ -97,20 +97,18 @@ const NewContract = () => {
   const handleAction = (action: string) => {
     console.log(`${action}`, selectedContract);
     if (action == "Xem") {
-      console.log("xem trước");
-      // router.navigate("/new-contract/view-contract");
       router.push({
         pathname: "/new-contract/view-contract",
         params: { contract: JSON.stringify(selectedContract) },
       });
-    } else if (action == "Ký") {
+    } else if (action == "Từ chối") {
       console.log("ký hợp đồng");
-    } else if (action == "Trình ký") {
-      console.log("trình ký");
-    } else if (action == "Gửi ký") {
-      console.log("gửi ký");
+      // } else if (action == "Trình ký") {
+      //   console.log("trình ký");
+      // } else if (action == "Gửi ký") {
+      //   console.log("gửi ký");
     } else if (action == "Xóa") {
-      console.log("xóa");
+      router.navigate("/new-contract/send-mail");
     }
     closeModal();
   };
@@ -172,7 +170,7 @@ const NewContract = () => {
                 width: "82%",
               }}
             ></View>
-            <TouchableOpacity onPress={() => handleAction("Ký")}>
+            <TouchableOpacity onPress={() => handleAction("Từ chối")}>
               <View
                 style={{
                   display: "flex",
@@ -216,7 +214,7 @@ const NewContract = () => {
                 <Text style={styles.menuOptionText}>Gửi ký</Text>
               </View>
             </TouchableOpacity> */}
-            {/* <TouchableOpacity onPress={() => handleAction("Xóa")}>
+            <TouchableOpacity onPress={() => handleAction("Xóa")}>
               <View
                 style={{
                   display: "flex",
@@ -225,9 +223,9 @@ const NewContract = () => {
                 }}
               >
                 <MaterialIcons name="delete" size={24} color="black" />
-                <Text style={styles.menuOptionText}>Xóa</Text>
+                <Text style={styles.menuOptionText}>mail</Text>
               </View>
-            </TouchableOpacity> */}
+            </TouchableOpacity>
           </View>
         </Modal>
       )}
