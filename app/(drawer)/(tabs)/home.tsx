@@ -23,7 +23,7 @@ export default function TabOneScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>home</Text>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={{
           width: 124,
           height: 36,
@@ -50,7 +50,7 @@ export default function TabOneScreen() {
             out
           </Text>
         </Pressable>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 }

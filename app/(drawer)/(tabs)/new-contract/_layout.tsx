@@ -19,6 +19,7 @@ export default function _layout() {
         name="send-mail"
         options={{
           title: "Gửi mail",
+          headerShown: false,
         }}
       />
     </Stack>

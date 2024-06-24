@@ -17,14 +17,13 @@ export default function MultiSelect({ value1, setValue1 }: any) {
   return (
     <View
       style={{
-        // flex: 1,
         alignItems: "center",
-        // justifyContent: "center",
         paddingHorizontal: 15,
         zIndex: 2,
       }}
     >
       <DropDownPicker
+        maxHeight={10}
         open={open}
         value={value1}
         searchPlaceholder="Tìm email"
@@ -45,7 +44,7 @@ export default function MultiSelect({ value1, setValue1 }: any) {
             <TouchableOpacity
               onPress={() => removeItem(selectedItem.value as string)}
             >
-              <MaterialIcons name="close" size={15} color={"gray"} />
+              <MaterialIcons name="close" size={20} color={"gray"} />
             </TouchableOpacity>
           </View>
         )}
@@ -64,6 +63,6 @@ const styles = StyleSheet.create({
     padding: 5,
     paddingHorizontal: 10,
     borderRadius: 15,
-    margin: 2,
+    fontSize: 1,
   },
 });

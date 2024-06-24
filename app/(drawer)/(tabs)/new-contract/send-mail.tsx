@@ -1,6 +1,6 @@
 import MultiSelect2 from "@/components/sign/Multi2";
 import MultiSelect from "@/components/sign/MultiSelect";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   actions,
   RichEditor,
@@ -13,9 +13,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   View,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
 } from "react-native";
 
 const SendMail = () => {
@@ -30,7 +30,7 @@ const SendMail = () => {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const richText = React.useRef();
+  const richText = React.useRef(null);
   const handleHead = ({ tintColor }: any) => (
     <Text style={{ color: tintColor }}>H1</Text>
   );
@@ -39,10 +39,10 @@ const SendMail = () => {
     <View style={styles.container}>
       <View style={styles.container1}>
         <Text style={styles.label}>Đến</Text>
-
         <MultiSelect value1={value1} setValue1={setValue1} />
         <Text style={styles.label}>CC</Text>
         <MultiSelect2 value2={value2} setValue2={setValue2} />
+
         <Text style={styles.label}>Tiêu đề</Text>
         <TextInput
           style={styles.textInput}
@@ -51,11 +51,6 @@ const SendMail = () => {
         />
         <View style={[styles.inputGroup, { maxHeight: "50%" }]}>
           <Text style={styles.label}>Nội dung</Text>
-          {/* <TextInput
-            style={styles.textInput}
-            multiline={true}
-            placeholder="Nội dung"
-          /> */}
           <RichToolbar
             editor={richText}
             actions={[
@@ -80,15 +75,15 @@ const SendMail = () => {
             >
               <RichEditor
                 placeholder="Điền nhận xét"
+                ref={richText}
                 onChange={(descriptionText) => {
                   console.log("descriptionText:", descriptionText);
-                  setContent(descriptionText);
                 }}
               />
             </KeyboardAvoidingView>
           </ScrollView>
         </View>
-        <View style={styles.inputGroup}>
+        <View style={{}}>
           <Text style={styles.label}>Tệp đính kèm</Text>
         </View>
         <TouchableOpacity style={styles.sendButton}>
@@ -122,7 +117,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   label: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "bold",
     marginBottom: 5,
     marginTop: 5,
@@ -132,7 +127,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
-    padding: 10,
+    padding: 5,
     marginLeft: 15,
     backgroundColor: "white",
     fontSize: 16,
@@ -140,10 +135,10 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     backgroundColor: "teal",
-    padding: 15,
+    padding: 8,
     borderRadius: 10,
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 10,
     marginHorizontal: 10,
   },
   sendButtonText: {
@@ -152,8 +147,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   content: {
-    height: "55%",
-    maxHeight: "55%",
+    height: "50%",
+    maxHeight: "50%",
+    backgroundColor: "pink",
   },
 });
 
