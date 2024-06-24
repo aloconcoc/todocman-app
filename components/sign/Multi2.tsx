@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
 
-export default function MultiSelect() {
+export default function MultiSelect2() {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState([
     "italy",
@@ -33,7 +33,7 @@ export default function MultiSelect() {
         alignItems: "center",
         // justifyContent: "center",
         paddingHorizontal: 15,
-        zIndex: 2,
+        zIndex: 1,
       }}
     >
       <DropDownPicker
