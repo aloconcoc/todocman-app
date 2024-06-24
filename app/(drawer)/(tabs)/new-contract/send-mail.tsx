@@ -1,6 +1,11 @@
 import MultiSelect2 from "@/components/sign/Multi2";
 import MultiSelect from "@/components/sign/MultiSelect";
-import React from "react";
+import React, { useState } from "react";
+import {
+  actions,
+  RichEditor,
+  RichToolbar,
+} from "react-native-pell-rich-editor";
 import {
   SafeAreaView,
   Text,
@@ -8,30 +13,80 @@ import {
   TouchableOpacity,
   StyleSheet,
   View,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 
 const SendMail = () => {
+  const [value1, setValue1] = useState([
+    "tu416164@gmail.com",
+    "babichaeng820@gmail.com",
+  ]);
+  const [value2, setValue2] = useState([
+    "tu416164@gmail.com",
+    "babichaeng820@gmail.com",
+  ]);
+
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const richText = React.useRef();
+  const handleHead = ({ tintColor }: any) => (
+    <Text style={{ color: tintColor }}>H1</Text>
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.container1}>
         <Text style={styles.label}>Đến</Text>
 
-        <MultiSelect />
+        <MultiSelect value1={value1} setValue1={setValue1} />
         <Text style={styles.label}>CC</Text>
-        <MultiSelect2 />
+        <MultiSelect2 value2={value2} setValue2={setValue2} />
         <Text style={styles.label}>Tiêu đề</Text>
         <TextInput
           style={styles.textInput}
           multiline={true}
           placeholder="Tiêu đề"
         />
-        <View style={styles.inputGroup}>
+        <View style={[styles.inputGroup, { maxHeight: "50%" }]}>
           <Text style={styles.label}>Nội dung</Text>
-          <TextInput
+          {/* <TextInput
             style={styles.textInput}
             multiline={true}
             placeholder="Nội dung"
+          /> */}
+          <RichToolbar
+            editor={richText}
+            actions={[
+              actions.setBold,
+              actions.setItalic,
+              actions.insertBulletsList,
+              actions.insertOrderedList,
+              actions.insertLink,
+              actions.keyboard,
+              actions.setStrikethrough,
+              actions.setUnderline,
+              actions.removeFormat,
+              actions.undo,
+              actions.redo,
+            ]}
+            iconMap={{ [actions.heading1]: handleHead }}
           />
+          <ScrollView style={styles.content}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              style={{ flex: 1, maxHeight: "100%", height: "100%" }}
+            >
+              <RichEditor
+                placeholder="Điền nhận xét"
+                onChange={(descriptionText) => {
+                  console.log("descriptionText:", descriptionText);
+                  setContent(descriptionText);
+                }}
+              />
+            </KeyboardAvoidingView>
+          </ScrollView>
         </View>
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Tệp đính kèm</Text>
@@ -95,6 +150,10 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  content: {
+    height: "55%",
+    maxHeight: "55%",
   },
 });
 

@@ -4,26 +4,15 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
 
-export default function MultiSelect2() {
+export default function MultiSelect2({ value2, setValue2 }: any) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState([
-    "italy",
-    "spain",
-    "barcelona",
-    "finland",
-  ]);
+
   const [items, setItems] = useState([
-    { label: "Spain", value: "spain" },
-    { label: "Madrid", value: "madrid", parent: "spain" },
-    { label: "Barcelona", value: "barcelona", parent: "spain" },
-
-    { label: "Italy", value: "italy" },
-    { label: "Rome", value: "rome", parent: "italy" },
-
-    { label: "Finland", value: "finland" },
+    { label: "tu416164@gmail.com", value: "tu416164@gmail.com" },
+    { label: "babichaeng820@gmail.com", value: "babichaeng820@gmail.com" },
   ]);
   const removeItem = (item: string) => {
-    setValue(value.filter((i) => i !== item));
+    setValue2(value2.filter((i: any) => i !== item));
   };
 
   return (
@@ -38,10 +27,12 @@ export default function MultiSelect2() {
     >
       <DropDownPicker
         open={open}
-        value={value}
+        value={value2}
+        searchPlaceholder="Tìm email"
+        placeholder="Nhập email"
         items={items}
         setOpen={setOpen}
-        setValue={setValue}
+        setValue={setValue2}
         setItems={setItems}
         multiple={true}
         searchable={true}
