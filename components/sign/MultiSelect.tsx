@@ -6,6 +6,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 
 export default function MultiSelect({ value1, setValue1 }: any) {
   const [open, setOpen] = useState(false);
+
   const [items, setItems] = useState([
     { label: "tu416164@gmail.com", value: "tu416164@gmail.com" },
     { label: "babichaeng820@gmail.com", value: "babichaeng820@gmail.com" },
@@ -17,13 +18,15 @@ export default function MultiSelect({ value1, setValue1 }: any) {
   return (
     <View
       style={{
+        // flex: 1,
         alignItems: "center",
+        // justifyContent: "center",
         paddingHorizontal: 15,
         zIndex: 2,
+        elevation: 2,
       }}
     >
       <DropDownPicker
-        maxHeight={10}
         open={open}
         value={value1}
         searchPlaceholder="Tìm email"
@@ -44,7 +47,7 @@ export default function MultiSelect({ value1, setValue1 }: any) {
             <TouchableOpacity
               onPress={() => removeItem(selectedItem.value as string)}
             >
-              <MaterialIcons name="close" size={20} color={"gray"} />
+              <MaterialIcons name="close" size={15} color={"gray"} />
             </TouchableOpacity>
           </View>
         )}
@@ -63,6 +66,6 @@ const styles = StyleSheet.create({
     padding: 5,
     paddingHorizontal: 10,
     borderRadius: 15,
-    fontSize: 1,
+    margin: 2,
   },
 });

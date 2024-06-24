@@ -16,6 +16,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Button,
+  TouchableWithoutFeedback,
+  Modal,
 } from "react-native";
 
 const SendMail = () => {
@@ -31,75 +34,117 @@ const SendMail = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const richText = React.useRef(null);
+  const [popUp, setPopUp] = useState(false);
+
+  const openModal = (contract: any) => {
+    setPopUp(true);
+  };
+
+  const closeModal = () => {
+    setPopUp(false);
+  };
   const handleHead = ({ tintColor }: any) => (
     <Text style={{ color: tintColor }}>H1</Text>
   );
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.container1}>
-        <Text style={styles.label}>Đến</Text>
-        <MultiSelect value1={value1} setValue1={setValue1} />
-        <Text style={styles.label}>CC</Text>
-        <MultiSelect2 value2={value2} setValue2={setValue2} />
+  const handleSendMail = () => {
+    console.log(value1, value2, title, content);
+  };
 
-        <Text style={styles.label}>Tiêu đề</Text>
-        <TextInput
-          style={styles.textInput}
-          multiline={true}
-          placeholder="Tiêu đề"
-        />
-        <View style={[styles.inputGroup, { maxHeight: "50%" }]}>
-          <Text style={styles.label}>Nội dung</Text>
-          <RichToolbar
-            editor={richText}
-            actions={[
-              actions.setBold,
-              actions.setItalic,
-              actions.insertBulletsList,
-              actions.insertOrderedList,
-              actions.insertLink,
-              actions.keyboard,
-              actions.setStrikethrough,
-              actions.setUnderline,
-              actions.removeFormat,
-              actions.undo,
-              actions.redo,
-            ]}
-            iconMap={{ [actions.heading1]: handleHead }}
-          />
-          <ScrollView style={styles.content}>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-              style={{ flex: 1, maxHeight: "100%", height: "100%" }}
-            >
-              <RichEditor
-                placeholder="Điền nhận xét"
-                ref={richText}
-                onChange={(descriptionText) => {
-                  console.log("descriptionText:", descriptionText);
-                }}
-              />
-            </KeyboardAvoidingView>
-          </ScrollView>
-        </View>
-        <View style={{}}>
-          <Text style={styles.label}>Tệp đính kèm</Text>
-        </View>
-        <TouchableOpacity style={styles.sendButton}>
-          <Text style={styles.sendButtonText}>Gửi</Text>
-        </TouchableOpacity>
+  return (
+    <>
+      <View style={{ flex: 1, marginTop: 120 }}>
+        <Button title="an" onPress={openModal}></Button>
       </View>
-    </View>
+      {popUp && (
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={popUp}
+          onRequestClose={closeModal}
+        >
+          <TouchableWithoutFeedback onPress={closeModal}>
+            <View style={styles.modalOverlay} />
+          </TouchableWithoutFeedback>
+          <View style={styles.container}>
+            <TouchableOpacity
+              onPress={closeModal}
+              style={{ position: "absolute", right: 20, top: 2 }}
+            >
+              <Text>X</Text>
+            </TouchableOpacity>
+            <View style={styles.container1}>
+              <Text style={styles.label}>Đến</Text>
+              <MultiSelect value1={value1} setValue1={setValue1} />
+              <Text style={styles.label}>CC</Text>
+              <MultiSelect2 value2={value2} setValue2={setValue2} />
+
+              <Text style={styles.label}>Tiêu đề</Text>
+              <TextInput
+                style={styles.textInput}
+                multiline={true}
+                placeholder="Tiêu đề"
+                onChangeText={(text) => setTitle(text)}
+              />
+              <View style={[styles.inputGroup, { maxHeight: "50%" }]}>
+                <Text style={styles.label}>Nội dung</Text>
+                <RichToolbar
+                  editor={richText}
+                  actions={[
+                    actions.setBold,
+                    actions.setItalic,
+                    actions.insertBulletsList,
+                    actions.insertOrderedList,
+                    actions.insertLink,
+                    actions.keyboard,
+                    actions.setStrikethrough,
+                    actions.setUnderline,
+                    actions.removeFormat,
+                    actions.undo,
+                    actions.redo,
+                  ]}
+                  iconMap={{ [actions.heading1]: handleHead }}
+                />
+                <ScrollView style={styles.content}>
+                  <KeyboardAvoidingView
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                    style={{ flex: 1, maxHeight: "100%", height: "100%" }}
+                  >
+                    <RichEditor
+                      placeholder="Điền nhận xét"
+                      ref={richText}
+                      onChange={(descriptionText) => {
+                        console.log("descriptionText:", descriptionText);
+                        setContent(descriptionText);
+                      }}
+                    />
+                  </KeyboardAvoidingView>
+                </ScrollView>
+              </View>
+              <View style={{}}>
+                <Text style={styles.label}>Tệp đính kèm</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.sendButton}
+                onPress={handleSendMail}
+              >
+                <Text style={styles.sendButtonText}>Gửi</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
     justifyContent: "center",
     backgroundColor: "whitesmoke",
+    marginTop: -600,
   },
   container1: {
     justifyContent: "center",
@@ -117,11 +162,11 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   label: {
-    fontSize: 15,
+    fontSize: 12,
     fontWeight: "bold",
     marginBottom: 5,
-    marginTop: 5,
-    marginLeft: 5,
+    marginTop: 8,
+    marginLeft: 8,
   },
   textInput: {
     borderWidth: 1,
@@ -138,7 +183,7 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 10,
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 15,
     marginHorizontal: 10,
   },
   sendButtonText: {
@@ -149,7 +194,12 @@ const styles = StyleSheet.create({
   content: {
     height: "50%",
     maxHeight: "50%",
-    backgroundColor: "pink",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
 });
 

@@ -23,6 +23,7 @@ export default function MultiSelect2({ value2, setValue2 }: any) {
         // justifyContent: "center",
         paddingHorizontal: 15,
         zIndex: 1,
+        elevation: 1,
       }}
     >
       <DropDownPicker
