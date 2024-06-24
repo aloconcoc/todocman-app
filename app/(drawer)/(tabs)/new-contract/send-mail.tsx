@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: "center",
+    backgroundColor: "whitesmoke",
   },
   container1: {
     justifyContent: "center",
@@ -56,7 +57,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderColor: "gray",
     borderWidth: 1,
-    shadowColor: "black",
+    backgroundColor: "white",
+    shadowOffset: { width: -2, height: 4 },
+    shadowColor: "#171717",
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
   inputGroup: {
     marginBottom: 15,
