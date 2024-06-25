@@ -1,4 +1,4 @@
-import MultiSelect2 from "@/components/sign/Multi2";
+import MultiSelect2 from "@/components/sign/MultiSelect2";
 import MultiSelect from "@/components/sign/MultiSelect";
 import React, { useState, useRef } from "react";
 import {
@@ -26,10 +26,7 @@ const SendMail = () => {
     "tu416164@gmail.com",
     "babichaeng820@gmail.com",
   ]);
-  const [value2, setValue2] = useState([
-    "tu416164@gmail.com",
-    "babichaeng820@gmail.com",
-  ]);
+  const [value2, setValue2] = useState([""]);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -52,89 +49,59 @@ const SendMail = () => {
   };
 
   return (
-    <>
-      <View style={{ flex: 1, marginTop: 120 }}>
-        <Button title="an" onPress={openModal}></Button>
+    <View style={styles.container}>
+      <Text style={styles.label}>Đến</Text>
+      <MultiSelect value1={value1} setValue1={setValue1} />
+      <MultiSelect2 value1={value1} setValue1={setValue1} />
+      <Text style={styles.label}>Tiêu đề</Text>
+      <TextInput
+        style={styles.textInput}
+        multiline={true}
+        placeholder="Tiêu đề"
+        onChangeText={(text) => setTitle(text)}
+      />
+      <View style={[styles.inputGroup, { maxHeight: "80%" }]}>
+        <Text style={styles.label}>Nội dung</Text>
+        <RichToolbar
+          editor={richText}
+          actions={[
+            actions.setBold,
+            actions.setItalic,
+            actions.insertBulletsList,
+            actions.insertOrderedList,
+            actions.insertLink,
+            actions.keyboard,
+            actions.setStrikethrough,
+            actions.setUnderline,
+            actions.removeFormat,
+            actions.undo,
+            actions.redo,
+          ]}
+          iconMap={{ [actions.heading1]: handleHead }}
+        />
+        <ScrollView style={styles.content}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{ flex: 1, maxHeight: "100%", height: "100%" }}
+          >
+            <RichEditor
+              placeholder="Điền nhận xét"
+              ref={richText}
+              onChange={(descriptionText) => {
+                console.log("descriptionText:", descriptionText);
+                setContent(descriptionText);
+              }}
+            />
+          </KeyboardAvoidingView>
+        </ScrollView>
       </View>
-      {popUp && (
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={popUp}
-          onRequestClose={closeModal}
-        >
-          <TouchableWithoutFeedback onPress={closeModal}>
-            <View style={styles.modalOverlay} />
-          </TouchableWithoutFeedback>
-          <View style={styles.container}>
-            <TouchableOpacity
-              onPress={closeModal}
-              style={{ position: "absolute", right: 20, top: 2 }}
-            >
-              <Text>X</Text>
-            </TouchableOpacity>
-            <View style={styles.container1}>
-              <Text style={styles.label}>Đến</Text>
-              <MultiSelect value1={value1} setValue1={setValue1} />
-              <Text style={styles.label}>CC</Text>
-              <MultiSelect2 value2={value2} setValue2={setValue2} />
-
-              <Text style={styles.label}>Tiêu đề</Text>
-              <TextInput
-                style={styles.textInput}
-                multiline={true}
-                placeholder="Tiêu đề"
-                onChangeText={(text) => setTitle(text)}
-              />
-              <View style={[styles.inputGroup, { maxHeight: "50%" }]}>
-                <Text style={styles.label}>Nội dung</Text>
-                <RichToolbar
-                  editor={richText}
-                  actions={[
-                    actions.setBold,
-                    actions.setItalic,
-                    actions.insertBulletsList,
-                    actions.insertOrderedList,
-                    actions.insertLink,
-                    actions.keyboard,
-                    actions.setStrikethrough,
-                    actions.setUnderline,
-                    actions.removeFormat,
-                    actions.undo,
-                    actions.redo,
-                  ]}
-                  iconMap={{ [actions.heading1]: handleHead }}
-                />
-                <ScrollView style={styles.content}>
-                  <KeyboardAvoidingView
-                    behavior={Platform.OS === "ios" ? "padding" : "height"}
-                    style={{ flex: 1, maxHeight: "100%", height: "100%" }}
-                  >
-                    <RichEditor
-                      placeholder="Điền nhận xét"
-                      ref={richText}
-                      onChange={(descriptionText) => {
-                        console.log("descriptionText:", descriptionText);
-                        setContent(descriptionText);
-                      }}
-                    />
-                  </KeyboardAvoidingView>
-                </ScrollView>
-              </View>
-              <View style={{}}>
-                <Text style={styles.label}>Tệp đính kèm</Text>
-              </View>
-              <TouchableOpacity
-                style={styles.sendButton}
-                onPress={handleSendMail}
-              >
-                <Text style={styles.sendButtonText}>Gửi</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-      )}
-    </>
+      <View style={{}}>
+        <Text style={styles.label}>Tệp đính kèm: </Text>
+      </View>
+      <TouchableOpacity style={styles.sendButton} onPress={handleSendMail}>
+        <Text style={styles.sendButtonText}>Gửi</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -143,8 +110,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     justifyContent: "center",
+    // alignItems: 'center',
     backgroundColor: "whitesmoke",
-    marginTop: -600,
   },
   container1: {
     justifyContent: "center",
@@ -175,7 +142,7 @@ const styles = StyleSheet.create({
     padding: 5,
     marginLeft: 15,
     backgroundColor: "white",
-    fontSize: 16,
+    fontSize: 12,
     marginRight: 15,
   },
   sendButton: {

@@ -6,41 +6,39 @@ import DropDownPicker from "react-native-dropdown-picker";
 
 export default function MultiSelect({ value1, setValue1 }: any) {
   const [open, setOpen] = useState(false);
-
+  const [value, setValue] = useState(["tu416164@gmail.com"]);
   const [items, setItems] = useState([
+    { label: "phantutunao@gmail.com", value: "phantutunao@gmail.com" },
     { label: "tu416164@gmail.com", value: "tu416164@gmail.com" },
-    { label: "babichaeng820@gmail.com", value: "babichaeng820@gmail.com" },
   ]);
   const removeItem = (item: string) => {
-    setValue1(value1.filter((i: any) => i !== item));
+    setValue(value.filter((i: any) => i !== item));
   };
 
   return (
     <View
       style={{
-        // flex: 1,
-        alignItems: "center",
-        // justifyContent: "center",
+        flex: 1,
+        backgroundColor: "pink",
         paddingHorizontal: 15,
         zIndex: 2,
         elevation: 2,
       }}
     >
       <DropDownPicker
+        listMode="MODAL"
         open={open}
-        value={value1}
-        searchPlaceholder="Tìm email"
-        placeholder="Nhập email"
+        value={value}
         items={items}
         setOpen={setOpen}
-        setValue={setValue1}
+        setValue={setValue}
         setItems={setItems}
         multiple={true}
         searchable={true}
         addCustomItem={true}
+        searchPlaceholder="Tìm email"
+        placeholder="Nhập email"
         mode="BADGE"
-        showTickIcon={true}
-        hideSelectedItemIcon={true}
         renderBadgeItem={(selectedItem) => (
           <View style={styles.badgeItem}>
             <Text>{selectedItem.label}</Text>
