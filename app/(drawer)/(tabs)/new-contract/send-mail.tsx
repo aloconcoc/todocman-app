@@ -26,7 +26,10 @@ const SendMail = () => {
     "tu416164@gmail.com",
     "babichaeng820@gmail.com",
   ]);
-  const [value2, setValue2] = useState([""]);
+  const [value2, setValue2] = useState([
+    "tu416164@gmail.com",
+    "babichaeng820@gmail.com",
+  ]);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -49,73 +52,58 @@ const SendMail = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Đến</Text>
-      <MultiSelect value1={value1} setValue1={setValue1} />
-      <MultiSelect2 value1={value1} setValue1={setValue1} />
-      <Text style={styles.label}>Tiêu đề</Text>
-      <TextInput
-        style={styles.textInput}
-        multiline={true}
-        placeholder="Tiêu đề"
-        onChangeText={(text) => setTitle(text)}
-      />
-      <View style={[styles.inputGroup, { maxHeight: "80%" }]}>
-        <Text style={styles.label}>Nội dung</Text>
-        <RichToolbar
-          editor={richText}
-          actions={[
-            actions.setBold,
-            actions.setItalic,
-            actions.insertBulletsList,
-            actions.insertOrderedList,
-            actions.insertLink,
-            actions.keyboard,
-            actions.setStrikethrough,
-            actions.setUnderline,
-            actions.removeFormat,
-            actions.undo,
-            actions.redo,
-          ]}
-          iconMap={{ [actions.heading1]: handleHead }}
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container1}>
+        <Text style={styles.label}>Đến</Text>
+        <MultiSelect value1={value1} setValue1={setValue1} />
+        <Text style={styles.label}>CC</Text>
+        <MultiSelect2 value1={value1} setValue1={setValue1} />
+        <Text style={styles.label}>Tiêu đề</Text>
+        <TextInput
+          style={styles.textInput}
+          multiline={true}
+          placeholder="Tiêu đề"
+          onChangeText={(text) => setTitle(text)}
         />
-        <ScrollView style={styles.content}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ flex: 1, maxHeight: "100%", height: "100%" }}
-          >
-            <RichEditor
-              placeholder="Điền nhận xét"
-              ref={richText}
-              onChange={(descriptionText) => {
-                console.log("descriptionText:", descriptionText);
-                setContent(descriptionText);
-              }}
-            />
-          </KeyboardAvoidingView>
-        </ScrollView>
+
+        <Text style={styles.label}>Nội dung</Text>
+        <TextInput
+          style={styles.textContent}
+          multiline={true}
+          placeholder="Nhập nhận xét"
+          onChangeText={(text) => setTitle(text)}
+        />
+
+        <Text style={styles.label}>Tệp đính kèm</Text>
+        <Text
+          style={{
+            fontSize: 12,
+            marginBottom: 5,
+            marginTop: 10,
+            marginLeft: 10,
+          }}
+        >
+          Hợp đồng hôn nhân tổng thống.pdf
+        </Text>
+        <TouchableOpacity style={styles.sendButton} onPress={handleSendMail}>
+          <Text style={styles.sendButtonText}>Gửi</Text>
+        </TouchableOpacity>
       </View>
-      <View style={{}}>
-        <Text style={styles.label}>Tệp đính kèm: </Text>
-      </View>
-      <TouchableOpacity style={styles.sendButton} onPress={handleSendMail}>
-        <Text style={styles.sendButtonText}>Gửi</Text>
-      </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
     justifyContent: "center",
     // alignItems: 'center',
     backgroundColor: "whitesmoke",
   },
   container1: {
     justifyContent: "center",
-    paddingVertical: 15,
+    marginHorizontal: 5,
     borderRadius: 20,
     borderColor: "gray",
     borderWidth: 1,
@@ -132,18 +120,30 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "bold",
     marginBottom: 5,
-    marginTop: 8,
-    marginLeft: 8,
+    marginTop: 10,
+    marginLeft: 5,
   },
   textInput: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
-    padding: 5,
-    marginLeft: 15,
+    padding: 10,
+    marginLeft: 10,
     backgroundColor: "white",
     fontSize: 12,
-    marginRight: 15,
+    marginRight: 10,
+  },
+  textContent: {
+    textAlignVertical: "top",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 5,
+    height: "35%",
+    maxHeight: "35%",
+    marginLeft: 10,
+    fontSize: 12,
+    marginRight: 10,
   },
   sendButton: {
     backgroundColor: "teal",
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   content: {
-    height: "50%",
+    height: "10%",
     maxHeight: "50%",
   },
   modalOverlay: {
