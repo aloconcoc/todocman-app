@@ -18,11 +18,12 @@ export default function MultiSelect({ value1, setValue1 }: any) {
   return (
     <View
       style={{
-        flex: 1,
-        backgroundColor: "pink",
-        paddingHorizontal: 15,
-        zIndex: 2,
-        elevation: 2,
+        // flex: 1,
+        // backgroundColor:'pink',
+        // paddingHorizontal: 15,
+        // zIndex: 2,
+        // elevation: 2,
+        paddingHorizontal: 10,
       }}
     >
       <DropDownPicker

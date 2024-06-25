@@ -10,6 +10,9 @@ export default function MultiSelect2({ value2, setValue2 }: any) {
   const [items, setItems] = useState([
     { label: "phantutunao@gmail.com", value: "phantutunao@gmail.com" },
     { label: "tu416164@gmail.com", value: "tu416164@gmail.com" },
+    { label: "1@gmail.com", value: "1@gmail.com" },
+    { label: "2@gmail.com", value: "2@gmail.com" },
+    { label: "3@gmail.com", value: "3@gmail.com" },
   ]);
   const removeItem = (item: string) => {
     setValue(value.filter((i: any) => i !== item));
@@ -18,11 +21,12 @@ export default function MultiSelect2({ value2, setValue2 }: any) {
   return (
     <View
       style={{
-        flex: 1,
-        backgroundColor: "pink",
-        paddingHorizontal: 15,
-        zIndex: 1,
-        elevation: 1,
+        // flex: 1,
+        // backgroundColor:'pink',
+        // paddingHorizontal: 15,
+        // zIndex: 1,
+        // elevation: 1
+        paddingHorizontal: 10,
       }}
     >
       <DropDownPicker
