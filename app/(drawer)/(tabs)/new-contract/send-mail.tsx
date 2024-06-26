@@ -132,6 +132,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     fontSize: 12,
     marginRight: 10,
+    maxHeight: 50,
   },
   textContent: {
     textAlignVertical: "top",
