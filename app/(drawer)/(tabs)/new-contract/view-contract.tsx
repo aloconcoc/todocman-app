@@ -54,7 +54,7 @@ const PDFExample = () => {
       <Pdf
         trustAllCerts={false}
         source={{
-          uri: "http://res.cloudinary.com/dphakhyuz/image/upload/v1718607314/PDF_ce22df98-54bf-4b93-9ce4-76db8c61f0d9.pdf",
+          uri: contractData?.file,
           cache: true,
         }}
         onLoadComplete={(numberOfPages, filePath) => {

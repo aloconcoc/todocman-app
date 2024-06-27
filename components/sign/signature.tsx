@@ -1,6 +1,7 @@
-import { signContract } from "@/services/contract.service";
+import { sendMailPublic, signContract } from "@/services/contract.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
+import LottieView from "lottie-react-native";
 import { ForwardedRef, RefObject, useRef, useState } from "react";
 import { Button, StyleSheet, Text, ToastAndroid, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -9,7 +10,7 @@ import SignatureScreen, {
 } from "react-native-signature-canvas";
 
 const Sign = ({ signText, setSignText, comment, contractData }: any) => {
-  console.log("cmt: ", comment);
+  // console.log("cmt: ", comment);
 
   const ref = useRef<any>(null);
   const client = useQueryClient();
@@ -25,6 +26,7 @@ const Sign = ({ signText, setSignText, comment, contractData }: any) => {
 
   const handleClear = () => {
     ref?.current.clearSignature();
+    setSignText("");
   };
 
   const handleEnd = () => {
@@ -68,7 +70,11 @@ const Sign = ({ signText, setSignText, comment, contractData }: any) => {
     },
   });
 
-  const handleExport = () => {
+  const handleExport = async () => {
+    if (!signText) {
+      ToastAndroid.show("Vui lòng ký trước khi xác nhận!", ToastAndroid.SHORT);
+      return;
+    }
     const dataRequest = {
       contractId: contractData?.id,
       signImage: signText,
@@ -76,8 +82,54 @@ const Sign = ({ signText, setSignText, comment, contractData }: any) => {
       createdBy: contractData?.createdBy,
       customer: false,
     };
-    signQuery.mutate(dataRequest);
+    await signQuery.mutate(dataRequest);
+
+    const formData = new FormData();
+
+    formData.append("to", contractData?.createdBy);
+    if (contractData != null) formData.append("cc", contractData?.approvedBy);
+    formData.append("subject", "Xác nhận ký hợp đồng");
+    formData.append("htmlContent", "Xác nhận ký hợp đồng");
+    formData.append("contractId ", contractData?.id);
+    formData.append("status", "SIGN_A_OK");
+    formData.append("createdBy", contractData?.createdBy);
+    formData.append("description", "Xác nhận ký hợp đồng");
+    try {
+      const response = await sendMailPublic(formData);
+    } catch (error) {
+      ToastAndroid.show(
+        "Xảy ra lỗi trong quá trình gửi mail!",
+        ToastAndroid.SHORT
+      );
+    }
   };
+
+  if (signQuery.isPending) {
+    return (
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          alignItems: "center",
+          justifyContent: "center",
+          flex: 1,
+        }}
+      >
+        <LottieView
+          autoPlay
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "white",
+          }}
+          source={require("@/assets/load.json")}
+        />
+      </View>
+    );
+  }
 
   return (
     <>
