@@ -95,7 +95,7 @@ const NewContract = () => {
   };
 
   const handleAction = (action: string) => {
-    console.log(`${action}`, selectedContract);
+    // console.log(`${action}`, selectedContract);
     if (action == "Xem") {
       router.push({
         pathname: "/new-contract/view-contract",
