@@ -30,45 +30,7 @@ const CustomDrawerContent = (props: any) => {
   //   console.log(pathname);
   // }, [pathname]);
 
-  const { userContext, setUserContext }: any = useContext(AppContext);
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["profile"],
-    queryFn: async () => {
-      const response = await getProfile(userContext);
-      return response.object;
-    },
-  });
-
-  if (isLoading) {
-    return (
-      <View
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          alignItems: "center",
-          justifyContent: "center",
-          flex: 1,
-        }}
-      >
-        <LottieView
-          autoPlay
-          style={{
-            width: "100%",
-            height: "100%",
-            backgroundColor: "white",
-          }}
-          source={require("@/assets/load.json")}
-        />
-      </View>
-    );
-  }
-
-  if (isError) {
-    return <Text>Error: {error.message}</Text>;
-  }
+  const { userInfo }: any = useContext(AppContext);
 
   return (
     <DrawerContentScrollView {...props}>
@@ -80,7 +42,7 @@ const CustomDrawerContent = (props: any) => {
         >
           <Image
             source={{
-              uri: data?.avatar || "https://via.placeholder.com/150",
+              uri: userInfo?.avatar || "https://via.placeholder.com/150",
             }}
             width={80}
             height={80}
@@ -88,8 +50,8 @@ const CustomDrawerContent = (props: any) => {
           />
         </TouchableOpacity>
         <View style={styles.userDetailsWrapper}>
-          <Text style={styles.userName}>{data?.name}</Text>
-          <Text style={styles.userEmail}>{data?.email}</Text>
+          <Text style={styles.userName}>{userInfo?.name}</Text>
+          <Text style={styles.userEmail}>{userInfo?.email}</Text>
         </View>
       </View>
       <DrawerItem
