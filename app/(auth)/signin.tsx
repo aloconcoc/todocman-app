@@ -26,7 +26,8 @@ const LoginScreen = () => {
     router.navigate("/(auth)/signup");
   };
 
-  const { userContext, setUserContext }: any = useContext(AppContext);
+  const { userContext, setUserContext, userInfo, setUserInfo }: any =
+    useContext(AppContext);
 
   const {
     control,
@@ -44,6 +45,7 @@ const LoginScreen = () => {
       if (response) {
         setToken(response?.access_token);
         setUser(response?.user.id);
+        setUserInfo(response?.user);
         setUserContext(response?.user.id);
         ToastAndroid.show("Request sent successfully!", ToastAndroid.SHORT);
         router.navigate("(drawer)/(tabs)/home");
