@@ -7,11 +7,16 @@ import {
   ActivityIndicator,
   Modal,
   TouchableOpacity,
+  Dimensions,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import LottieView from "lottie-react-native";
 import { getOldContract } from "@/services/contract.service";
 import WebView from "react-native-webview";
+import Pdf from "react-native-pdf";
+
+const { width, height } = Dimensions.get("window");
 
 const ManageOldContract = () => {
   const [page, setPage] = useState(0);
@@ -95,9 +100,12 @@ const ManageOldContract = () => {
           visible={modalVisible}
           onRequestClose={closeModal}
         >
+          {/* <TouchableWithoutFeedback onPress={closeModal}>
+            <View style={styles.modalOverlay} />
+          </TouchableWithoutFeedback> */}
           <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Chi tiết hợp đồng</Text>
+            <View>
+              {/* <Text style={styles.modalTitle}>Chi tiết hợp đồng</Text>
               <Text style={styles.textGap}>
                 Tên hợp đồng:{" "}
                 <Text style={{ fontWeight: "bold" }}>
@@ -124,14 +132,34 @@ const ManageOldContract = () => {
               </Text>
               <Text style={{ marginTop: 10, opacity: 0.5 }}>
                 --Kiểm tra mục tải xuống trên máy--
-              </Text>
-
-              <View style={{ height: 1, width: 1 }}>
-                <WebView source={{ uri: selectedContract?.file }} />
-              </View>
+              </Text> */}
               <TouchableOpacity onPress={closeModal}>
                 <Text style={styles.closeButton}>Đóng</Text>
               </TouchableOpacity>
+
+              <WebView source={{ uri: selectedContract?.file }} />
+
+              <Pdf
+                trustAllCerts={false}
+                source={{
+                  uri: selectedContract?.file,
+                  cache: true,
+                }}
+                // onLoadComplete={(numberOfPages, filePath) => {
+                //   console.log(`Number of pages: ${numberOfPages}`);
+                // }}
+                // onPageChanged={(page, numberOfPages) => {
+                //   console.log(`Current page: ${page}`);
+                // }}
+                // onError={(error) => {
+                //   console.log(error);
+                // }}
+                // onPressLink={(uri) => {
+                //   console.log(`Link pressed: ${uri}`);
+                // }}
+                style={styles.pdf}
+              />
+              <View style={{ marginBottom: 10 }}></View>
             </View>
           </View>
         </Modal>
@@ -145,6 +173,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     backgroundColor: "#fff",
+    maxHeight: "90%",
   },
   header: {
     flexDirection: "row",
@@ -207,6 +236,21 @@ const styles = StyleSheet.create({
   closeButton: {
     marginTop: 20,
     color: "blue",
+    backgroundColor: "cyan",
+    width: 50,
+    borderRadius: 50,
+    textAlign: "center",
+  },
+  pdf: {
+    // flex: 1,
+    width: width * 0.8,
+    height: height * 0.8,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
 });
 
