@@ -40,11 +40,21 @@ export const getNewContract = async (page: number, size: number) => {
 };
 
 export const signContract = async (data: any) => {
-  console.log("data1", data);
+  // console.log("data1", data);
 
   const response = await axiosInstance.post(
     `contract/public/sign-contract`,
     data
+  );
+  return response.data;
+};
+
+export const sendMailPublic = async (formData: any) => {
+  console.log("form", formData);
+
+  const response = await axiosInstanceFormData.post(
+    `contract/public/send-mail`,
+    formData
   );
   return response.data;
 };

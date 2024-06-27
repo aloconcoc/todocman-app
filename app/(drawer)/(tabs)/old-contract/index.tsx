@@ -15,6 +15,7 @@ import LottieView from "lottie-react-native";
 import { getOldContract } from "@/services/contract.service";
 import WebView from "react-native-webview";
 import Pdf from "react-native-pdf";
+import Pagination from "@/components/utils/pagination";
 
 const { width, height } = Dimensions.get("window");
 
@@ -159,7 +160,9 @@ const ManageOldContract = () => {
                 // }}
                 style={styles.pdf}
               />
-              <View style={{ marginBottom: 10 }}></View>
+              <View style={{ marginBottom: 10, backgroundColor: "pink" }}>
+                <Pagination />
+              </View>
             </View>
           </View>
         </Modal>
