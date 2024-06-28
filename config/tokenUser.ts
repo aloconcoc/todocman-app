@@ -39,14 +39,31 @@ export const setUser = async (user: any) => {
     console.log(e);
   }
 };
+export const setUserInfo = async (user: any) => {
+  try {
+    await AsyncStorage.setItem("userInfo", user);
+  } catch (e) {
+    console.log(e);
+  }
+};
 export const getUser = async () => {
   try {
     const value = await AsyncStorage.getItem("user");
     if (value !== null) {
-      // console.log("user: ", value);
+      console.log("user: ", value);
 
       return value;
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const getUserInfo = async () => {
+  try {
+    const value = await AsyncStorage.getItem("userInfo");
+    const userData = value != null ? JSON.parse(value) : null;
+    return userData;
   } catch (e) {
     console.log(e);
   }
