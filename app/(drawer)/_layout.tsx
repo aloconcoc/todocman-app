@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image } from "react-native";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Drawer } from "expo-router/drawer";
 import {
   DrawerContentScrollView,
@@ -22,15 +22,28 @@ import { getProfile } from "@/services/user.service";
 import { useQuery } from "@tanstack/react-query";
 import { AppContext } from "../Context/Context";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { getUserInfo } from "@/config/tokenUser";
 
 const CustomDrawerContent = (props: any) => {
   const pathname = usePathname();
+  const [userInfo, setUserInfo] = useState<any>("");
 
   // useEffect(() => {
   //   console.log(pathname);
   // }, [pathname]);
 
-  const { userInfo }: any = useContext(AppContext);
+  useEffect(() => {
+    const checkUser = async () => {
+      const c = await getUserInfo();
+      // console.log("userdmm", c);
+
+      setUserInfo(c);
+      if (!c) {
+        router.navigate("(auth/signin)");
+      }
+    };
+    checkUser();
+  }, []);
 
   return (
     <DrawerContentScrollView {...props}>

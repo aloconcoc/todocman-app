@@ -9,13 +9,19 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Dimensions,
+  ToastAndroid,
 } from "react-native";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import LottieView from "lottie-react-native";
-import { getNewContract } from "@/services/contract.service";
+import {
+  deleteContract,
+  getNewContract,
+  sendMail,
+} from "@/services/contract.service";
 import WebView from "react-native-webview";
 import {
   Entypo,
+  FontAwesome,
   FontAwesome5,
   MaterialCommunityIcons,
   MaterialIcons,
@@ -29,6 +35,8 @@ import {
   MenuProvider,
 } from "react-native-popup-menu";
 import { router } from "expo-router";
+import { getUserInfo } from "@/config/tokenUser";
+import { AxiosError } from "axios";
 
 const NewContract = () => {
   const [page, setPage] = useState(0);
@@ -39,6 +47,22 @@ const NewContract = () => {
   const prevPageRef = useRef(page);
   const prevSizeRef = useRef(size);
   const [popUp, setPopUp] = useState(false);
+  const [userInfo, setUserInfo] = useState<any>(null);
+  const client = useQueryClient();
+  const [deleteModal, setDeleteModal] = useState(false);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const c = await getUserInfo();
+      console.log("userdmm", c);
+
+      setUserInfo(c);
+      if (!c) {
+        router.navigate("(auth/signin)");
+      }
+    };
+    checkUser();
+  }, []);
 
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: ["contract", page, size],
@@ -91,11 +115,100 @@ const NewContract = () => {
 
   const closeModal = () => {
     setPopUp(false);
+    setDeleteModal(false);
     setSelectedContract(null);
   };
 
+  const handleOfAdReject = async () => {
+    const formData = new FormData();
+    formData.append("to", selectedContract?.createdBy);
+    if (selectedContract?.approvedBy != null)
+      formData.append("cc", selectedContract?.approvedBy);
+    formData.append("subject", "Từ chối duyệt hợp đồng");
+    formData.append("htmlContent", "Từ chối duyệt hợp đồng");
+    formData.append("contractId ", selectedContract?.id);
+    formData.append("status", "APPROVE_FAIL");
+    formData.append("createdBy", selectedContract?.createdBy);
+    formData.append("description", "Từ chối duyệt hợp đồng");
+    try {
+      console.log("formdatar", formData);
+      closeModal();
+
+      // const response = await sendMail(formData);
+    } catch (error) {
+      ToastAndroid.show(
+        "Xảy ra lỗi trong quá trình gửi mail!",
+        ToastAndroid.SHORT
+      );
+    }
+  };
+
+  const handleOfAdAccept = async () => {
+    console.log("selectedContractdm", selectedContract);
+
+    const formData = new FormData();
+    formData.append("to", selectedContract?.createdBy);
+
+    formData.append("subject", "Xác nhận duyệt hợp đồng");
+    formData.append("htmlContent", "Xác nhận duyệt hợp đồng");
+    formData.append("contractId ", selectedContract?.id);
+    formData.append("status", "APPROVED");
+    formData.append("createdBy", selectedContract?.createdBy);
+    formData.append("description", "Xác nhận duyệt hợp đồng");
+    try {
+      console.log("formdatara", formData);
+
+      const response = await sendMail(formData);
+      closeModal();
+    } catch (error) {
+      ToastAndroid.show(
+        "Xảy ra lỗi trong quá trình gửi mail!",
+        ToastAndroid.SHORT
+      );
+    }
+  };
+
+  // const deleteNewContract = useMutation({
+  //   mutationFn: async (data: any) => {
+  //     const response = await deleteContract(data);
+  //   },
+
+  //   onSuccess: () => {
+  //     ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
+  //     closeModal();
+  //     client.invalidateQueries({ queryKey: ["new-contract"] });
+  //   },
+  //   onError: (error: AxiosError<{ message: string }>) => {
+  //     ToastAndroid.show(
+  //       "Xảy ra lỗi trong quá trình xoá hợp đồng!",
+  //       ToastAndroid.SHORT
+  //     );
+  //   },
+  // });
+
+  const handleDeleteContract = async () => {
+    try {
+      if (selectedContract?.id) {
+        // deleteNewContract.mutate(selectedContract?.id);
+
+        const response = await deleteContract(data);
+        if (response) {
+          ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
+          setTimeout(() => refetch(), 500);
+          closeModal();
+          client.invalidateQueries({ queryKey: ["new-contract"] });
+        } else {
+          ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
+        }
+      }
+    } catch (error) {
+      ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
+      console.log(error);
+    }
+  };
+
   const handleAction = (action: string) => {
-    // console.log(`${action}`, selectedContract);
+    console.log(`${action}`, selectedContract);
     if (action == "Xem") {
       router.push({
         pathname: "/new-contract/view-contract",
@@ -103,21 +216,42 @@ const NewContract = () => {
       });
     } else if (action == "Từ chối") {
       console.log("ký hợp đồng");
-      // } else if (action == "Trình ký") {
-      //   console.log("trình ký");
-      // } else if (action == "Gửi ký") {
-      //   console.log("gửi ký");
+    } else if (action == "Trình ký") {
+      const selectedContractWithStatus = {
+        ...selectedContract,
+        status: 4,
+      };
+      router.push({
+        pathname: "/new-contract/send-mail",
+        params: { contract: JSON.stringify(selectedContractWithStatus) },
+      });
+      console.log("trình ký");
+    } else if (action == "Từ chối duyệt") {
+      // handleOfAdReject();
     } else if (action == "Xóa") {
-      router.navigate("/new-contract/send-mail");
+      setDeleteModal(true);
+    } else if (action == "Duyệt hợp đồng") {
+      // handleOfAdAccept();
+    } else if (action == "Gửi cho khách hàng") {
+      const selectedContractWithStatus = {
+        ...selectedContract,
+        status: 7,
+      };
+      router.push({
+        pathname: "/new-contract/send-mail",
+        params: { contract: JSON.stringify(selectedContractWithStatus) },
+      });
+    } else if (action === "Trình duyệt") {
+      const selectedContractWithStatus = {
+        ...selectedContract,
+        status: 1,
+      };
+      router.push({
+        pathname: "/new-contract/send-mail",
+        params: { contract: JSON.stringify(selectedContractWithStatus) },
+      });
     }
     closeModal();
-  };
-  const formatDate = (dateString: any) => {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
   };
 
   const renderItem = ({ item, index }: any) => (
@@ -151,80 +285,146 @@ const NewContract = () => {
             <View style={styles.modalOverlay} />
           </TouchableWithoutFeedback>
           <View style={styles.modalContent1}>
-            <TouchableOpacity onPress={() => handleAction("Xem")}>
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <FontAwesome5 name="signature" size={24} color="black" />
-                <Text style={styles.menuOptionText}>Ký hợp đồng</Text>
-              </View>
-            </TouchableOpacity>
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderColor: "#ccc",
-                width: "82%",
-              }}
-            ></View>
-            <TouchableOpacity onPress={() => handleAction("Từ chối")}>
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <MaterialCommunityIcons
-                  name="signature-freehand"
-                  size={28}
-                  color="black"
-                />
-                <Text style={styles.menuOptionText}> Từ chối ký</Text>
-              </View>
-            </TouchableOpacity>
-            {/* <TouchableOpacity onPress={() => handleAction("Trình ký")}>
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <MaterialIcons name="outgoing-mail" size={28} color="black" />
-                <Text style={styles.menuOptionText}>Trình ký</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleAction("Gửi ký")}>
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <MaterialCommunityIcons
-                  name="email-edit"
-                  size={24}
-                  color="black"
-                />
-                <Text style={styles.menuOptionText}>Gửi ký</Text>
-              </View>
-            </TouchableOpacity> */}
-            <TouchableOpacity onPress={() => handleAction("Xóa")}>
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <MaterialIcons name="delete" size={24} color="black" />
-                <Text style={styles.menuOptionText}>mail</Text>
-              </View>
+            {userInfo?.role === "ADMIN" && (
+              <>
+                <TouchableOpacity onPress={() => handleAction("Xem")}>
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <FontAwesome5 name="signature" size={24} color="black" />
+                    <Text style={styles.menuOptionText}>Ký hợp đồng</Text>
+                  </View>
+                </TouchableOpacity>
+                <View style={styles.seperator} />
+                <TouchableOpacity onPress={() => handleAction("Từ chối")}>
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="signature-freehand"
+                      size={28}
+                      color="black"
+                    />
+                    <Text style={styles.menuOptionText}>Từ chối ký</Text>
+                  </View>
+                </TouchableOpacity>
+              </>
+            )}
+            {userInfo?.permissions.includes("OFFICE_ADMIN") && (
+              <>
+                <TouchableOpacity onPress={handleOfAdAccept}>
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Entypo name="check" size={24} color="black" />
+                    <Text style={styles.menuOptionText}>Duyệt hợp đồng</Text>
+                  </View>
+                </TouchableOpacity>
+                <View style={styles.seperator} />
+                <TouchableOpacity onPress={handleOfAdReject}>
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <FontAwesome name="close" size={24} color="black" />
+                    <Text style={styles.menuOptionText}>Từ chối duyệt</Text>
+                  </View>
+                </TouchableOpacity>
+                <View style={styles.seperator} />
+                <TouchableOpacity onPress={() => handleAction("Trình ký")}>
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <FontAwesome5 name="signature" size={24} color="black" />
+                    <Text style={styles.menuOptionText}>Trình ký</Text>
+                  </View>
+                </TouchableOpacity>
+              </>
+            )}
+            {userInfo?.permissions.includes("SALE") && (
+              <>
+                <TouchableOpacity onPress={() => handleAction("Trình duyệt")}>
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <FontAwesome5 name="signature" size={24} color="black" />
+                    <Text style={styles.menuOptionText}>Trình duyệt</Text>
+                  </View>
+                </TouchableOpacity>
+                <View style={styles.seperator} />
+                <TouchableOpacity
+                  onPress={() => handleAction("Gửi cho khách hàng")}
+                >
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="send"
+                      size={28}
+                      color="black"
+                    />
+                    <Text style={styles.menuOptionText}>
+                      Gửi cho khách hàng
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleAction("Xóa")}>
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <MaterialIcons name="delete" size={24} color="black" />
+                    <Text style={styles.menuOptionText}>Xóa</Text>
+                  </View>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </Modal>
+      )}
+      {deleteModal && selectedContract === item && (
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={popUp}
+          onRequestClose={closeModal}
+        >
+          <TouchableWithoutFeedback onPress={closeModal}>
+            <View style={styles.modalOverlay} />
+          </TouchableWithoutFeedback>
+          <View style={styles.modalContent}>
+            <TouchableOpacity onPress={() => handleDeleteContract}>
+              <Text>Xoá hợp đồng</Text>
             </TouchableOpacity>
           </View>
         </Modal>
@@ -342,13 +542,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 2,
     marginVertical: 10,
-    fontSize: 26,
+    fontSize: 22,
   },
 
   pdf: {
     flex: 1,
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
+  },
+  seperator: {
+    borderBottomWidth: 1,
+    borderColor: "#ccc",
+    width: "82%",
   },
 });
 
