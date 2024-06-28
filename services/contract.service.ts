@@ -15,10 +15,7 @@ export const getOldContract = async (page: number, size: number) => {
 
 export const createOldContract = async (formData: any) => {
   try {
-    const response = await axiosInstanceFormData.post(
-      `old-contract/mobile`,
-      formData
-    );
+    const response = await axiosInstanceFormData.post(`old-contract`, formData);
     return response.data;
   } catch (error) {
     console.log(error);
@@ -56,5 +53,25 @@ export const sendMailPublic = async (formData: any) => {
     `contract/public/send-mail`,
     formData
   );
+  return response.data;
+};
+
+export const sendMail = async (formData: any) => {
+  const response = await axiosInstanceFormData.post(
+    `contract/send-mail`,
+    formData
+  );
+  return response.data;
+};
+
+export const getNewContractByIdNotToken = async (id: any) => {
+  const response = await axiosInstance.get(
+    `contract/public/sign-contract/${id}`
+  );
+  return response.data;
+};
+
+export const deleteContract = async (id: string) => {
+  const response = await axiosInstance.delete(`contract/${id}`);
   return response.data;
 };
