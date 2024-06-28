@@ -16,12 +16,13 @@ import { getOldContract } from "@/services/contract.service";
 import WebView from "react-native-webview";
 import Pdf from "react-native-pdf";
 import Pagination from "@/components/utils/pagination";
+import { AntDesign } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get("window");
 
 const ManageOldContract = () => {
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(10);
+  const [size, setSize] = useState(20);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedContract, setSelectedContract] = useState<any>(null);
 
@@ -77,7 +78,7 @@ const ManageOldContract = () => {
       <Text style={styles.cell}>{(index + 1).toString()}</Text>
       <Text style={styles.cell}>{item.contractName}</Text>
       <TouchableOpacity style={styles.cell} onPress={() => openModal(item)}>
-        <Text style={styles.linkText}>Tải</Text>
+        <Text style={styles.linkText}>Xem</Text>
       </TouchableOpacity>
     </View>
   );
@@ -135,7 +136,12 @@ const ManageOldContract = () => {
                 --Kiểm tra mục tải xuống trên máy--
               </Text> */}
               <TouchableOpacity onPress={closeModal}>
-                <Text style={styles.closeButton}>Đóng</Text>
+                <AntDesign
+                  style={styles.closeButton}
+                  name="closecircle"
+                  size={24}
+                  color="black"
+                />
               </TouchableOpacity>
 
               <WebView source={{ uri: selectedContract?.file }} />
@@ -161,7 +167,7 @@ const ManageOldContract = () => {
                 style={styles.pdf}
               />
               <View style={{ marginBottom: 10, backgroundColor: "pink" }}>
-                <Pagination />
+                {/* <Pagination /> */}
               </View>
             </View>
           </View>
@@ -205,7 +211,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   linkText: {
-    color: "blue",
+    color: "teal",
+    fontWeight: "600",
     textAlign: "center",
   },
   loader: {
@@ -238,11 +245,14 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     marginTop: 20,
-    color: "blue",
-    backgroundColor: "cyan",
+    marginBottom: 2,
+    color: "cyan",
     width: 50,
     borderRadius: 50,
     textAlign: "center",
+    alignContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
   },
   pdf: {
     // flex: 1,

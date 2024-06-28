@@ -54,6 +54,7 @@ export default function UploadOldContract() {
   const [pdf, setPdf] = useState("");
   const [viewpdf, setViewpdf] = useState("");
   const [extractedText, setExtractedText] = useState<any>();
+  const [ocr, setOcr] = useState<any>();
 
   const [datePickerState, setDatePickerState] = useState({
     birthDate: new Date(),
@@ -146,6 +147,8 @@ export default function UploadOldContract() {
 
     // Lưu ảnh nếu không bị hủy
     if (!result.canceled) {
+      console.log("resu: " + result.assets[0]);
+
       const selectedImages = result.assets;
       const tempImages: string[] = [];
       const tmp: any[] = [];
@@ -155,7 +158,6 @@ export default function UploadOldContract() {
       }
 
       setImages([...images, ...tempImages]);
-      setAllImages([...allImages, ...tmp]);
       setIsimg(true);
       const trimmedURI =
         Platform.OS === "android"
@@ -169,6 +171,17 @@ export default function UploadOldContract() {
         type: mime.getType(trimmedURI),
         name: fileName,
       });
+      // setAllImages([...allImages, ...tmp]);
+      setAllImages([
+        ...allImages,
+        {
+          uri: trimmedURI,
+          height: result.assets[0].height,
+          width: result.assets[0].width,
+          type: mime.getType(trimmedURI),
+          name: fileName,
+        },
+      ]);
     }
     setLoadingImages(false);
   };
@@ -181,14 +194,15 @@ export default function UploadOldContract() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
-      base64: true,
+      // base64: true,
     };
 
     const result = await ImagePicker.launchCameraAsync(options);
 
     // Lưu ảnh nếu không bị hủy
     if (!result.canceled) {
-      setAllImages([...allImages, result.assets[0]]);
+      console.log("resdm: ", result.assets[0]);
+
       setImages([...images, result.assets[0].uri]);
       setIsimg(true);
       const trimmedURI =
@@ -203,6 +217,16 @@ export default function UploadOldContract() {
         type: mime.getType(trimmedURI),
         name: fileName,
       });
+      setAllImages([
+        ...allImages,
+        {
+          uri: trimmedURI,
+          height: result.assets[0].height,
+          width: result.assets[0].width,
+          type: mime.getType(trimmedURI),
+          name: fileName,
+        },
+      ]);
     }
   };
 
@@ -265,9 +289,11 @@ export default function UploadOldContract() {
     formData.append("contractSignDate", formatDate(enrollmentDate));
     formData.append("content", extractedText);
     allImages.forEach((image: any) => {
-      formData.append("images", image.base64);
+      formData.append("images", image);
     });
     try {
+      console.log("Form data", formData);
+
       const response = await createOldContract(formData);
       if (response.code == "00" && response.object) {
         ToastAndroid.show("Tạo hợp đồng thành công!", ToastAndroid.SHORT);
@@ -293,7 +319,7 @@ export default function UploadOldContract() {
       headers: {
         Accept: "application/json",
         "Content-Type": "multipart/form-data",
-        "x-rapidapi-key": "b48cb1940dmshbb37e3eeac055cdp1eee45jsnb53dcba7294c",
+        "x-rapidapi-key": "92021f1393msh4f4728412cc8162p1e117fjsn22b568c8183d",
         "x-rapidapi-host": "ocr-extract-text.p.rapidapi.com",
       },
       body: data,
@@ -301,8 +327,14 @@ export default function UploadOldContract() {
     setLoadingImages(true);
 
     try {
+      console.log("123");
+
       const response = await fetch(url, options);
+      console.log("456", response);
+
       const result = await response.json();
+      console.log("789", result);
+
       const text = result.text || "";
       setExtractedText(text);
       console.log(typeof text);
