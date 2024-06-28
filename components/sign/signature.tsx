@@ -87,7 +87,8 @@ const Sign = ({ signText, setSignText, comment, contractData }: any) => {
     const formData = new FormData();
 
     formData.append("to", contractData?.createdBy);
-    if (contractData != null) formData.append("cc", contractData?.approvedBy);
+    if (contractData?.approvedBy != null)
+      formData.append("cc", contractData?.approvedBy);
     formData.append("subject", "Xác nhận ký hợp đồng");
     formData.append("htmlContent", "Xác nhận ký hợp đồng");
     formData.append("contractId ", contractData?.id);
