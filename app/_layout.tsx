@@ -22,7 +22,18 @@ export {
   ErrorBoundary,
 } from "expo-router";
 
-const client = new QueryClient();
+const client = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 0, // Data stays fresh for 60 seconds
+      refetchOnWindowFocus: false, // Don't automatically refresh when the window regains focus
+      retry: 0,
+    },
+    mutations: {
+      retry: 0,
+    },
+  },
+});
 
 // export const unstable_settings = {
 //   // Ensure that reloading on `/modal` keeps a back button present.

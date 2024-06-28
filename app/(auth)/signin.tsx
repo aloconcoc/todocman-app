@@ -14,7 +14,7 @@ import Colors from "@/constants/Colors";
 import { SimpleLineIcons, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
-import { setToken, setUser } from "@/config/tokenUser";
+import { setToken, setUser, setUserInfo } from "@/config/tokenUser";
 import { useForm, Controller } from "react-hook-form";
 import { LoginRequest, login } from "@/services/user.service";
 import { AppContext } from "../Context/Context";
@@ -26,8 +26,7 @@ const LoginScreen = () => {
     router.navigate("/(auth)/signup");
   };
 
-  const { userContext, setUserContext, userInfo, setUserInfo }: any =
-    useContext(AppContext);
+  const { userContext, setUserContext }: any = useContext(AppContext);
 
   const {
     control,
@@ -45,7 +44,9 @@ const LoginScreen = () => {
       if (response) {
         setToken(response?.access_token);
         setUser(response?.user.id);
-        setUserInfo(response?.user);
+        setUserInfo(JSON.stringify(response?.user));
+        console.log("response", response.user);
+
         setUserContext(response?.user.id);
         ToastAndroid.show("Request sent successfully!", ToastAndroid.SHORT);
         router.navigate("(drawer)/(tabs)/home");
