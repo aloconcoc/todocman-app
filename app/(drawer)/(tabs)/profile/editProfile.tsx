@@ -86,7 +86,7 @@ const EditProfile = () => {
 
   const mutation = useMutation({
     mutationFn: async (data: any) => {
-      console.log("dataaSFD", data);
+      // console.log("dataaSFD", data);
 
       if (userContext) {
         const response = await updateProfile(userContext, data);
@@ -230,7 +230,7 @@ const EditProfile = () => {
           justifyContent: "center",
         }}
       >
-        <Text style={{ fontSize: 20 }}>Edit Profile</Text>
+        <Text style={{ fontSize: 20 }}>Sửa thông tin</Text>
       </View>
 
       <ScrollView>
