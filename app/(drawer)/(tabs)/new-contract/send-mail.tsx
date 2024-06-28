@@ -1,6 +1,6 @@
 import MultiSelect2 from "@/components/sign/MultiSelect2";
 import MultiSelect from "@/components/sign/MultiSelect";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import {
   actions,
   RichEditor,
@@ -19,22 +19,83 @@ import {
   Button,
   TouchableWithoutFeedback,
   Modal,
+  ToastAndroid,
 } from "react-native";
+import { useLocalSearchParams } from "expo-router";
+import { useQuery } from "@tanstack/react-query";
+import {
+  getUserByPermission,
+  sendMail,
+} from "../../../../services/user.service";
+import { getNewContractByIdNotToken } from "@/services/contract.service";
+import LottieView from "lottie-react-native";
+import { statusRequest } from "@/components/utils/statusRequest";
 
 const SendMail = () => {
-  const [value1, setValue1] = useState([
-    "tu416164@gmail.com",
-    "babichaeng820@gmail.com",
-  ]);
-  const [value2, setValue2] = useState([
-    "tu416164@gmail.com",
-    "babichaeng820@gmail.com",
-  ]);
+  const { contract } = useLocalSearchParams();
+  console.log("selectedContractWithStatus", contract);
+
+  const contractData = JSON.parse(contract as string);
+  console.log("contractData", contractData);
+
+  const [value1, setValue1] = useState<any>();
+  const [value2, setValue2] = useState<any>();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const richText = React.useRef(null);
   const [popUp, setPopUp] = useState(false);
+
+  const { isLoading: loadingSALE, data: dataSale } = useQuery({
+    queryKey: ["getUserByRoleSale"],
+    queryFn: async () => await getUserByPermission("SALE"),
+  });
+  const { isLoading: loadingAdmin, data: dataAdmin } = useQuery({
+    queryKey: ["getUserByRoleAdmin"],
+    queryFn: async () => await getUserByPermission("MANAGER"),
+  });
+  const { isLoading: loadingAO, data: dataAO } = useQuery({
+    queryKey: ["getUserByRoleAdminOfficer"],
+    queryFn: async () => await getUserByPermission("OFFICE_ADMIN"),
+  });
+  const { isLoading: loading, data: dataContract } = useQuery({
+    queryKey: ["getContractDetail"],
+    queryFn: async () => await getNewContractByIdNotToken(contractData?.id),
+  });
+  // useEffect(() => {
+  //   if (dataContract) {
+  //     if (type === "1") {
+  //       setValue1([dataContract.object.partyA.email]);
+  //     } else if (type === "2") {
+  //       setValue1([dataContract.object.partyB.email]);
+  //     }
+  //   }
+  // }, [dataContract, type]);
+  const optionTo = useMemo(() => {
+    if (contractData?.status == 1) return dataAO;
+    else if (
+      contractData?.status == 2 ||
+      contractData?.status == 3 ||
+      contractData?.status == 5 ||
+      contractData?.status == 6
+    )
+      return dataSale;
+    else if (contractData?.status == 4) return dataAdmin;
+    else return [];
+  }, [contractData?.status, dataAO, dataAdmin, dataSale]);
+
+  const optionCC = useMemo(() => {
+    if (
+      contractData?.status == 1 ||
+      contractData?.status == 5 ||
+      contractData?.status == 6
+    )
+      return dataAO;
+    else if (contractData?.status == 2 || contractData?.status == 3)
+      return dataSale;
+    else if (contractData?.status == 4) return dataAdmin;
+    else return [];
+  }, [contractData?.status, dataAO, dataAdmin, dataSale]);
 
   const openModal = (contract: any) => {
     setPopUp(true);
@@ -51,13 +112,88 @@ const SendMail = () => {
     console.log(value1, value2, title, content);
   };
 
+  const handleSubmit = async () => {
+    if (value1?.length === 0) {
+      ToastAndroid.show(
+        'Trường "Đến" không được để trống!',
+        ToastAndroid.SHORT
+      );
+      return;
+    }
+    if (title.trim() === "") {
+      ToastAndroid.show(
+        'Trường "Tiêu đề" không được để trống!',
+        ToastAndroid.SHORT
+      );
+      return;
+    }
+    if (content.trim() === "") {
+      ToastAndroid.show(
+        'Trường "Nội dung" không được để trống!',
+        ToastAndroid.SHORT
+      );
+      return;
+    }
+    const formData = new FormData();
+    value1.forEach((email: any) => {
+      formData.append("to", email);
+    });
+    if (value2?.length > 0) {
+      value2.forEach((email: any) => {
+        formData.append("cc", email);
+      });
+    }
+    formData.append("subject", title);
+    formData.append("htmlContent", content);
+    formData.append("contractId ", contractData?.id);
+    formData.append("attachments", `${dataContract?.object?.name}.pdf`);
+    // selectedFiles.forEach((file) => {
+    //   formData.append("attachments", file);
+    // });
+    if (contractData?.status)
+      formData.append("status", statusRequest[contractData?.status]?.status);
+    formData.append("description", content);
+    try {
+      const response = await sendMail(formData);
+      if (response) {
+        ToastAndroid.show("Gửi yêu cầu thành công", ToastAndroid.SHORT);
+      } else {
+        ToastAndroid.show("Gửi yêu cầu thất bại", ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      ToastAndroid.show("Gửi yêu cầu thất bại!", ToastAndroid.SHORT);
+    }
+  };
+  if (loading || loadingSALE || loadingAO || loadingAdmin)
+    return (
+      <View style={styles.loader}>
+        <LottieView
+          autoPlay
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "white",
+          }}
+          source={require("@/assets/load.json")}
+        />
+      </View>
+    );
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container1}>
         <Text style={styles.label}>Đến</Text>
-        <MultiSelect value1={value1} setValue1={setValue1} />
+        <MultiSelect
+          value1={value1}
+          setValue1={setValue1}
+          optionTo={optionTo}
+        />
         <Text style={styles.label}>CC</Text>
-        <MultiSelect2 value1={value1} setValue1={setValue1} />
+        <MultiSelect2
+          value2={value2}
+          setValue2={setValue2}
+          optionCC={optionCC}
+        />
         <Text style={styles.label}>Tiêu đề</Text>
         <TextInput
           style={styles.textInput}
@@ -71,7 +207,7 @@ const SendMail = () => {
           style={styles.textContent}
           multiline={true}
           placeholder="Nhập nhận xét"
-          onChangeText={(text) => setTitle(text)}
+          onChangeText={(text) => setContent(text)}
         />
 
         <Text style={styles.label}>Tệp đính kèm</Text>
@@ -83,9 +219,9 @@ const SendMail = () => {
             marginLeft: 10,
           }}
         >
-          Hợp đồng hôn nhân tổng thống.pdf
+          {contractData?.name}.pdf
         </Text>
-        <TouchableOpacity style={styles.sendButton} onPress={handleSendMail}>
+        <TouchableOpacity style={styles.sendButton} onPress={handleSubmit}>
           <Text style={styles.sendButtonText}>Gửi</Text>
         </TouchableOpacity>
       </View>
@@ -168,6 +304,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  loader: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
   },
 });
 
