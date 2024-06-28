@@ -16,11 +16,12 @@ import { ScrollView } from "react-native-gesture-handler";
 import { getProfile } from "@/services/user.service";
 import { removeToken, removeUser } from "@/config/tokenUser";
 import LottieView from "lottie-react-native";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppContext } from "@/app/Context/Context";
 
 const Profile = () => {
   const { userContext, setUserContext }: any = useContext(AppContext);
+  const queryClient = useQueryClient();
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["profile"],
@@ -354,6 +355,7 @@ const Profile = () => {
                   await removeToken();
                   await removeUser();
                   setUserContext(null);
+                  queryClient.clear();
                   router.navigate("/(auth)/signin");
                 }}
               >
