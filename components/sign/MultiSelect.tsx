@@ -4,15 +4,12 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
 
-export default function MultiSelect({ value1, setValue1 }: any) {
+export default function MultiSelect({ value1, setValue1, optionTo }: any) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(["tu416164@gmail.com"]);
-  const [items, setItems] = useState([
-    { label: "phantutunao@gmail.com", value: "phantutunao@gmail.com" },
-    { label: "tu416164@gmail.com", value: "tu416164@gmail.com" },
-  ]);
+  // const [value, setValue] = useState(["tu416164@gmail.com"]);
+  const [items, setItems] = useState(optionTo);
   const removeItem = (item: string) => {
-    setValue(value.filter((i: any) => i !== item));
+    setValue1(value1.filter((i: any) => i !== item));
   };
 
   return (
@@ -29,10 +26,10 @@ export default function MultiSelect({ value1, setValue1 }: any) {
       <DropDownPicker
         listMode="MODAL"
         open={open}
-        value={value}
+        value={value1}
         items={items}
         setOpen={setOpen}
-        setValue={setValue}
+        setValue={setValue1}
         setItems={setItems}
         multiple={true}
         searchable={true}
