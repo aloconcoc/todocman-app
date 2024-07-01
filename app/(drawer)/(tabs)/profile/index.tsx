@@ -6,6 +6,7 @@ import {
   useWindowDimensions,
   FlatList,
   Pressable,
+  ToastAndroid,
 } from "react-native";
 import React, { useContext, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,20 +17,29 @@ import { ScrollView } from "react-native-gesture-handler";
 import { getProfile } from "@/services/user.service";
 import { removeToken, removeUser } from "@/config/tokenUser";
 import LottieView from "lottie-react-native";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { AppContext } from "@/app/Context/Context";
+import { AxiosError } from "axios";
 
 const Profile = () => {
   const { userContext, setUserContext }: any = useContext(AppContext);
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["profile"],
-    queryFn: async () => {
-      const response = await getProfile(userContext);
-      return response.object;
-    },
-  });
+  const { data, isLoading, isError, error } = useQuery(
+    ["userDetail", userContext],
+    () => getProfile(userContext),
+    {
+      onSuccess: (response) => {
+        return response?.object;
+      },
+      onError: (error: AxiosError<{ message: string }>) => {
+        ToastAndroid.show(
+          error.response?.data?.message || "Lỗi hệ thống",
+          ToastAndroid.SHORT
+        );
+      },
+    }
+  );
 
   if (isLoading) {
     return (

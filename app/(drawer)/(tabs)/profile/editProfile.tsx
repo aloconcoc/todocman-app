@@ -1,6 +1,6 @@
 import { View } from "@/components/Themed";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
   Image,
   Platform,
@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getProfile, updateProfile } from "@/services/user.service";
 import { getToken, getUser } from "@/config/tokenUser";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
@@ -24,6 +24,7 @@ import { AppContext } from "@/app/Context/Context";
 import LottieView from "lottie-react-native";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import mime from "mime";
+import { AxiosError } from "axios";
 
 const EditProfile = () => {
   const client = useQueryClient();
@@ -44,36 +45,77 @@ const EditProfile = () => {
     identificationNumber: string;
     gender: string;
   };
-
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["profile"],
-    queryFn: async () => {
-      const response = await getProfile(userContext);
-      setAvatar(response?.object?.avatar);
-      console.log("respon", response.object.dob);
-
-      const p = new Date(response.object.dob);
-      setDate(p);
-
-      return response.object;
-    },
-  });
   const {
     control,
     formState: { errors },
-  } = useForm<ProfileType>({
-    defaultValues: {
-      name: data.name,
-      email: data.email,
-      department: data.department,
-      position: data.position,
-      dob: data.dob,
-      phone: data.phone,
-      address: data.address,
-      identificationNumber: data.identificationNumber,
-      gender: data.gender,
-    },
-  });
+    reset,
+  } = useForm<ProfileType>();
+
+  // const { data, isLoading, isError, error } = useQuery({
+  //   queryKey: ["profile"],
+  //   queryFn: async () => {
+  //     const response = await getProfile(userContext);
+  //     setAvatar(response?.object?.avatar);
+  //     console.log("respon", response.object.dob);
+
+  //     const p = new Date(response.object.dob);
+  //     setDate(p);
+
+  //     return response.object;
+  //   },
+  // });
+  const { data, isLoading, error } = useQuery(
+    ["userDetail", userContext],
+    () => getProfile(userContext),
+    {
+      enabled: !!userContext,
+      onSuccess: (response: any) => {
+        if (response.object) {
+          reset({
+            ...response.object,
+
+            address:
+              response.object?.address != null ||
+              response.object?.address != "null"
+                ? response.object?.address
+                : "",
+            department:
+              response.object?.department != null ||
+              response.object?.department != "null"
+                ? response.object?.department
+                : "",
+            identificationNumber:
+              response.object?.identificationNumber != null ||
+              response.object?.identificationNumber != "null"
+                ? response.object?.identificationNumber
+                : "",
+            position:
+              response.object?.position != null ||
+              response.object?.position != "null"
+                ? response.object?.position
+                : "",
+          });
+          setAvatar(
+            response.object?.avatar == null ? avatar : response.object?.avatar
+          );
+        }
+      },
+      onError: (error: AxiosError<{ message: string }>) => {
+        ToastAndroid.show(
+          error.response?.data?.message || "Lỗi hệ thống",
+          ToastAndroid.SHORT
+        );
+      },
+    }
+  );
+  useEffect(() => {
+    if (data?.object) {
+      reset({
+        ...data.object,
+      });
+      setAvatar(data.object?.avatar == null ? avatar : data.object?.avatar);
+    }
+  }, [data, reset]);
 
   const onChangeDate = (selectedDate: any) => {
     setDatePickerState(false);
@@ -211,7 +253,7 @@ const EditProfile = () => {
     );
   }
 
-  if (isError) {
+  if (error) {
     return <Text>Error: {error?.message}</Text>;
   }
 
@@ -591,44 +633,7 @@ const EditProfile = () => {
             name="dob"
           />
         </View>
-        {/* <View
-          style={{
-            flexDirection: "column",
-            justifyContent: "flex-start",
-          }}
-        >
-          <Text>Ngày sinh</Text>
-          <TouchableOpacity
-            onPress={() => setDatePickerState(true)}
-            style={{
-              borderWidth: 1,
-              borderRadius: 5,
-              padding: 7,
-            }}
-          >
-            <View pointerEvents="none">
-              <TextInput
-                placeholder="dd/mm/yyyy"
-                value={formatDate(date)}
-                editable={false}
-                style={{ color: "black" }}
-              />
-            </View>
-          </TouchableOpacity>
-          {datePickerState && (
-            <RNDateTimePicker
-              minimumDate={new Date()}
-              testID="dateTimePicker"
-              value={date || null}
-              mode="date"
-              display="default"
-              onChange={(event, selectedDate) => {
-                const currentDate = selectedDate || date;
-                onChangeDate(currentDate);
-              }}
-            />
-          )}
-        </View> */}
+
         <View
           style={{
             flexDirection: "column",

@@ -75,3 +75,7 @@ export const deleteContract = async (id: string) => {
   const response = await axiosInstance.delete(`contract/${id}`);
   return response.data;
 };
+export const getNewContractById = async (id: any) => {
+  const response = await axiosInstance.get(`contract/${id}`);
+  return response.data;
+};

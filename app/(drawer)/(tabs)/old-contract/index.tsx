@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -9,14 +9,16 @@ import {
   TouchableOpacity,
   Dimensions,
   TouchableWithoutFeedback,
+  ToastAndroid,
 } from "react-native";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "react-query";
 import LottieView from "lottie-react-native";
 import { getOldContract } from "@/services/contract.service";
 import WebView from "react-native-webview";
 import Pdf from "react-native-pdf";
 import Pagination from "@/components/utils/pagination";
 import { AntDesign } from "@expo/vector-icons";
+import { AxiosError } from "axios";
 
 const { width, height } = Dimensions.get("window");
 
@@ -25,16 +27,34 @@ const ManageOldContract = () => {
   const [size, setSize] = useState(20);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedContract, setSelectedContract] = useState<any>(null);
+  const [data, setData] = useState<any>(null);
+  const [totalPage, setTotalPage] = useState(1);
+  const prevPageRef = useRef(page);
+  const prevSizeRef = useRef(size);
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["contract"],
-    queryFn: async () => {
-      const response = await getOldContract(page, size);
-      // console.log("contract", response?.object);
-
-      return response?.object;
-    },
-  });
+  const { isLoading, refetch } = useQuery(
+    ["old-contract-list", page, size],
+    () => getOldContract(page, size),
+    {
+      onSuccess: (response: any) => {
+        setData(response?.object);
+        setTotalPage(response?.object?.totalPages);
+      },
+      onError: (error: AxiosError<{ message: string }>) => {
+        ToastAndroid.show(
+          error.response?.data.message || "Lỗi hệ thống",
+          ToastAndroid.SHORT
+        );
+      },
+    }
+  );
+  useEffect(() => {
+    if (prevPageRef.current !== page || prevSizeRef.current !== size) {
+      prevPageRef.current = page;
+      prevSizeRef.current = size;
+      refetch();
+    }
+  }, [page, refetch, size]);
 
   if (isLoading) {
     return (
@@ -50,10 +70,6 @@ const ManageOldContract = () => {
         />
       </View>
     );
-  }
-
-  if (isError) {
-    return <Text>Error: {error.message}</Text>;
   }
 
   const openModal = (contract: any) => {
