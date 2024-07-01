@@ -22,12 +22,15 @@ import {
   ToastAndroid,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "react-query";
 import {
   getUserByPermission,
   sendMail,
 } from "../../../../services/user.service";
-import { getNewContractByIdNotToken } from "@/services/contract.service";
+import {
+  getNewContractById,
+  getNewContractByIdNotToken,
+} from "@/services/contract.service";
 import LottieView from "lottie-react-native";
 import { statusRequest } from "@/components/utils/statusRequest";
 
@@ -46,31 +49,31 @@ const SendMail = () => {
   const richText = React.useRef(null);
   const [popUp, setPopUp] = useState(false);
 
-  const { isLoading: loadingSALE, data: dataSale } = useQuery({
-    queryKey: ["getUserByRoleSale"],
-    queryFn: async () => await getUserByPermission("SALE"),
-  });
-  const { isLoading: loadingAdmin, data: dataAdmin } = useQuery({
-    queryKey: ["getUserByRoleAdmin"],
-    queryFn: async () => await getUserByPermission("MANAGER"),
-  });
-  const { isLoading: loadingAO, data: dataAO } = useQuery({
-    queryKey: ["getUserByRoleAdminOfficer"],
-    queryFn: async () => await getUserByPermission("OFFICE_ADMIN"),
-  });
-  const { isLoading: loading, data: dataContract } = useQuery({
-    queryKey: ["getContractDetail"],
-    queryFn: async () => await getNewContractByIdNotToken(contractData?.id),
-  });
-  // useEffect(() => {
-  //   if (dataContract) {
-  //     if (type === "1") {
-  //       setValue1([dataContract.object.partyA.email]);
-  //     } else if (type === "2") {
-  //       setValue1([dataContract.object.partyB.email]);
-  //     }
-  //   }
-  // }, [dataContract, type]);
+  const { isLoading: loadingSALE, data: dataSale } = useQuery(
+    "getUserByRoleSale",
+    () => getUserByPermission("SALE")
+  );
+  const { isLoading: loadingAdmin, data: dataAdmin } = useQuery(
+    "getUserByRoleAdmin",
+    () => getUserByPermission("MANAGER")
+  );
+  const { isLoading: loadingAO, data: dataAO } = useQuery(
+    "getUserByRoleAdminOfficer",
+    () => getUserByPermission("OFFICER_ADMIN")
+  );
+  const { isLoading: loading, data: dataContract } = useQuery(
+    "getContractDetail",
+    () => getNewContractById(contractData?.id),
+    {
+      onSuccess: async (response) => {
+        // if (type == '1') {
+        //   setSelectedTo([{ label: response.object.partyA.email, value: response.object.partyA.email }])
+        // } else if (type == '2') {
+        //   setSelectedTo([{ label: response.object.partyB.email, value: response.object.partyB.email }])
+        // }
+      },
+    }
+  );
   const optionTo = useMemo(() => {
     if (contractData?.status == 1) return dataAO;
     else if (
@@ -103,13 +106,6 @@ const SendMail = () => {
 
   const closeModal = () => {
     setPopUp(false);
-  };
-  const handleHead = ({ tintColor }: any) => (
-    <Text style={{ color: tintColor }}>H1</Text>
-  );
-
-  const handleSendMail = () => {
-    console.log(value1, value2, title, content);
   };
 
   const handleSubmit = async () => {
@@ -147,9 +143,6 @@ const SendMail = () => {
     formData.append("htmlContent", content);
     formData.append("contractId ", contractData?.id);
     formData.append("attachments", `${dataContract?.object?.name}.pdf`);
-    // selectedFiles.forEach((file) => {
-    //   formData.append("attachments", file);
-    // });
     if (contractData?.status)
       formData.append("status", statusRequest[contractData?.status]?.status);
     formData.append("description", content);

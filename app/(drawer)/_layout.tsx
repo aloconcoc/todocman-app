@@ -7,20 +7,12 @@ import {
   DrawerItemList,
 } from "@react-navigation/drawer";
 import {
-  Feather,
-  AntDesign,
   MaterialIcons,
   Ionicons,
-  FontAwesome6,
   FontAwesome,
-  MaterialCommunityIcons,
   FontAwesome5,
 } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
-import LottieView from "lottie-react-native";
-import { getProfile } from "@/services/user.service";
-import { useQuery } from "@tanstack/react-query";
-import { AppContext } from "../Context/Context";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { getUserInfo } from "@/config/tokenUser";
 

@@ -11,7 +11,7 @@ import {
   Dimensions,
   ToastAndroid,
 } from "react-native";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import LottieView from "lottie-react-native";
 import {
   deleteContract,
@@ -26,7 +26,6 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
-import Pdf from "react-native-pdf";
 import {
   Menu,
   MenuOptions,
@@ -54,7 +53,7 @@ const NewContract = () => {
   useEffect(() => {
     const checkUser = async () => {
       const c = await getUserInfo();
-      console.log("userdmm", c);
+      // console.log("userdmm", c);
 
       setUserInfo(c);
       if (!c) {
@@ -64,15 +63,21 @@ const NewContract = () => {
     checkUser();
   }, []);
 
-  const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
-    queryKey: ["contract", page, size],
-    queryFn: async () => {
-      const response = await getNewContract(page, size);
-      // console.log("new contract", response?.object);
-
-      return response?.object;
-    },
-  });
+  const { data, isLoading, isError, refetch, isFetching, error } = useQuery(
+    ["new-contract", userInfo?.id],
+    () => getNewContract(page, size),
+    {
+      onSuccess: (response) => {
+        setTotalPage(response?.object?.totalPages);
+      },
+      onError: (error: AxiosError<{ message: string }>) => {
+        ToastAndroid.show(
+          error.response?.data?.message || "Lỗi hệ thống",
+          ToastAndroid.SHORT
+        );
+      },
+    }
+  );
 
   useEffect(() => {
     if (data) {
@@ -105,7 +110,7 @@ const NewContract = () => {
   }
 
   if (isError) {
-    return <Text>Error: {error.message}</Text>;
+    return <Text>Lỗi hệ thống: {error.message}</Text>;
   }
 
   const openModal = (contract: any) => {
@@ -168,38 +173,38 @@ const NewContract = () => {
     }
   };
 
-  // const deleteNewContract = useMutation({
-  //   mutationFn: async (data: any) => {
-  //     const response = await deleteContract(data);
-  //   },
+  const deleteNewContract = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await deleteContract(data);
+    },
 
-  //   onSuccess: () => {
-  //     ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
-  //     closeModal();
-  //     client.invalidateQueries({ queryKey: ["new-contract"] });
-  //   },
-  //   onError: (error: AxiosError<{ message: string }>) => {
-  //     ToastAndroid.show(
-  //       "Xảy ra lỗi trong quá trình xoá hợp đồng!",
-  //       ToastAndroid.SHORT
-  //     );
-  //   },
-  // });
+    onSuccess: () => {
+      ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
+      closeModal();
+      client.invalidateQueries({ queryKey: ["new-contract"] });
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      ToastAndroid.show(
+        "Xảy ra lỗi trong quá trình xoá hợp đồng!",
+        ToastAndroid.SHORT
+      );
+    },
+  });
 
   const handleDeleteContract = async () => {
     try {
       if (selectedContract?.id) {
-        // deleteNewContract.mutate(selectedContract?.id);
+        deleteNewContract.mutate(selectedContract?.id);
 
-        const response = await deleteContract(data);
-        if (response) {
-          ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
-          setTimeout(() => refetch(), 500);
-          closeModal();
-          client.invalidateQueries({ queryKey: ["new-contract"] });
-        } else {
-          ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
-        }
+        // const response = await deleteContract(selectedContract?.id);
+        // if (response) {
+        //   ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
+        //   setTimeout(() => refetch(), 500);
+        //   closeModal();
+        //   client.invalidateQueries({ queryKey: ["new-contract"] });
+        // } else {
+        //   ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
+        // }
       }
     } catch (error) {
       ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);

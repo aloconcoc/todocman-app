@@ -13,7 +13,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useColorScheme } from "@/components/useColorScheme";
 
-import { QueryClient, QueryClientProvider, useQuery } from "react-query";
+import { QueryClient, QueryClientProvider } from "react-query";
 import { AppProvider } from "./Context/Context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
