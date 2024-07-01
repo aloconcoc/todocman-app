@@ -121,6 +121,7 @@ export default function UploadOldContract() {
   const deleteImage = async (uri: string) => {
     await FileSystem.deleteAsync(uri);
     setImages(images.filter((i) => i !== uri));
+    setAllImages(allImages.filter((i: any) => i.uri !== uri));
     setIsimg(false);
   };
 
@@ -171,7 +172,8 @@ export default function UploadOldContract() {
         type: mime.getType(trimmedURI),
         name: fileName,
       });
-      // setAllImages([...allImages, ...tmp]);
+      // performOCR(result.assets[0].base64);
+      //-------- setAllImages([...allImages, ...tmp]);
       setAllImages([
         ...allImages,
         {
@@ -194,14 +196,14 @@ export default function UploadOldContract() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
-      // base64: true,
+      base64: true,
     };
 
     const result = await ImagePicker.launchCameraAsync(options);
 
     // Lưu ảnh nếu không bị hủy
     if (!result.canceled) {
-      console.log("resdm: ", result.assets[0]);
+      // console.log("resdm: ", result.assets[0]);
 
       setImages([...images, result.assets[0].uri]);
       setIsimg(true);
@@ -217,6 +219,8 @@ export default function UploadOldContract() {
         type: mime.getType(trimmedURI),
         name: fileName,
       });
+      // performOCR(result.assets[0].base64);
+
       setAllImages([
         ...allImages,
         {
@@ -310,43 +314,65 @@ export default function UploadOldContract() {
   const performOCR = async (file: any) => {
     console.log("Performing OCR", file);
 
-    const url = "https://ocr-extract-text.p.rapidapi.com/ocr";
-    const data = new FormData();
-    data.append("image", file);
+    // const url = "https://ocr-100-image-text-extractor.p.rapidapi.com/ocr";
+    // const data = new FormData();
+    // data.append("data", `data:image/jpeg;base64,${file}`);
+    // data.append("lang", "vie");
 
-    const options = {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "multipart/form-data",
-        "x-rapidapi-key": "92021f1393msh4f4728412cc8162p1e117fjsn22b568c8183d",
-        "x-rapidapi-host": "ocr-extract-text.p.rapidapi.com",
-      },
-      body: data,
-    };
-    setLoadingImages(true);
+    // const options = {
+    //   method: "POST",
+    //   headers: {
+    //     "x-rapidapi-key": "92021f1393msh4f4728412cc8162p1e117fjsn22b568c8183d",
+    //     "x-rapidapi-host": "ocr-100-image-text-extractor.p.rapidapi.com",
+    //   },
+    //   body: data,
+    // };
 
-    try {
-      console.log("123");
+    // try {
+    //   const response = await fetch(url, options);
+    //   const result = await response.text();
+    //   console.log(result);
+    // } catch (error) {
+    //   console.error(error);
+    // }
 
-      const response = await fetch(url, options);
-      console.log("456", response);
+    // const url = "https://ocr-extract-text.p.rapidapi.com/ocr";
+    // const data = new FormData();
+    // data.append("image", file);
 
-      const result = await response.json();
-      console.log("789", result);
+    // const options = {
+    //   method: "POST",
+    //   headers: {
+    //     Accept: "application/json",
+    //     "Content-Type": "multipart/form-data",
+    //     "x-rapidapi-key": "92021f1393msh4f4728412cc8162p1e117fjsn22b568c8183d",
+    //     "x-rapidapi-host": "ocr-extract-text.p.rapidapi.com",
+    //   },
+    //   body: data,
+    // };
+    // setLoadingImages(true);
 
-      const text = result.text || "";
-      setExtractedText(text);
-      console.log(typeof text);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoadingImages(false);
-    }
+    // try {
+    //   console.log("123");
+
+    //   const response = await fetch(url, options);
+    //   console.log("456", response);
+
+    //   const result = await response.json();
+    //   console.log("789", result);
+
+    //   const text = result.text || "";
+    //   setExtractedText(text);
+    //   console.log(typeof text);
+    // } catch (error) {
+    //   console.error(error);
+    // } finally {
+    //   setLoadingImages(false);
+    // }
   };
 
   // Render image list item
-  const renderItem = ({ item, drag, isActive }: RenderItemParams<any>) => {
+  const renderItem = ({ item, drag, isActive }: any) => {
     const filename = item.split("/").pop();
     // return (
     //   <TouchableOpacity onPress={() => openModal(item)}>
@@ -373,35 +399,34 @@ export default function UploadOldContract() {
     //   </TouchableOpacity>
     // );
     return (
-      <ScaleDecorator>
-        <TouchableOpacity
-          onLongPress={drag}
-          onPress={() => openModal(item)}
-          disabled={isActive}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              marginHorizontal: 10,
-              alignItems: "center",
-              gap: 5,
-              backgroundColor: isActive ? "gainsboro" : "transparent",
-            }}
-          >
-            <Image style={{ width: 80, height: 80 }} source={{ uri: item }} />
-            <Text style={{ flex: 1 }}>
-              {filename.length > 14
-                ? `Ảnh hợp đồng ${filename.substring(0, 5)}.jpeg`
-                : filename}
-            </Text>
-            {/* <Ionicons.Button
-            name="cloud-upload"
-            onPress={() => uploadImage(item)}
-          /> */}
-            <Ionicons.Button name="trash" onPress={() => deleteImage(item)} />
-          </View>
-        </TouchableOpacity>
-      </ScaleDecorator>
+      // {/* <ScaleDecorator> */}
+      // {/* <TouchableOpacity
+      //   onLongPress={drag}
+      //   onPress={() => openModal(item)}
+      //   disabled={isActive}
+      //   style={{ overflow: "scroll" }}
+      // > */}
+      <View
+        style={{
+          overflow: "scroll",
+          flexDirection: "row",
+          marginHorizontal: 10,
+          alignItems: "center",
+          gap: 5,
+          backgroundColor: isActive ? "gainsboro" : "transparent",
+        }}
+      >
+        <Image style={{ width: 80, height: 100 }} source={{ uri: item }} />
+        <Text style={{ flex: 1 }}>
+          {filename.length > 14
+            ? `Ảnh hợp đồng ${filename.substring(0, 5)}.jpeg`
+            : filename}
+        </Text>
+
+        <Ionicons.Button name="trash" onPress={() => deleteImage(item)} />
+      </View>
+      // {/* </TouchableOpacity> */}
+      // {/* </ScaleDecorator> */}
     );
   };
 
@@ -576,9 +601,9 @@ export default function UploadOldContract() {
         </TouchableOpacity>
       </View>
 
-      <DraggableFlatList
+      <FlatList
         data={images}
-        onDragEnd={({ data }) => setImages(data)}
+        // onDragEnd={({ data }) => setImages(data)}
         renderItem={renderItem}
         keyExtractor={(item) => item}
       />

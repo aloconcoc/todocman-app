@@ -76,7 +76,7 @@ const ManageOldContract = () => {
   const renderItem = ({ item, index }: any) => (
     <View style={styles.row}>
       <Text style={styles.cell}>{(index + 1).toString()}</Text>
-      <Text style={styles.cell}>{item.contractName}</Text>
+      <Text style={styles.cell}>{item?.contractName}</Text>
       <TouchableOpacity style={styles.cell} onPress={() => openModal(item)}>
         <Text style={styles.linkText}>Xem</Text>
       </TouchableOpacity>
@@ -91,7 +91,7 @@ const ManageOldContract = () => {
         <Text style={styles.headerCell}>Hành động</Text>
       </View>
       <FlatList
-        data={data.content}
+        data={data?.content}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
       />
