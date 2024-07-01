@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
-import { Listbox, Transition } from "@headlessui/react";
 
 const sizeData = [5, 10, 20];
 
@@ -19,6 +18,7 @@ const Pagination = ({
   setPage,
 }: any) => {
   const [page, setPage_] = useState(currentPage);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const handlePageChange = (newPage: any) => {
     setPage_(newPage);
@@ -94,40 +94,31 @@ const Pagination = ({
         <Text style={{ fontSize: 12, padding: 3 }}>Next</Text>
       </TouchableOpacity>
 
-      {/* Sử dụng một Listbox tương tự nếu có cho React Native */}
-      <Listbox
-        value={size}
-        onChange={(v: any) => {
-          setSize(v);
-          setPage(0);
-        }}
-      >
-        <View style={{ flexDirection: "column", alignItems: "center" }}>
-          <Listbox.Button style={styles.listboxButton}>
-            <Text>{size} / page</Text>
-          </Listbox.Button>
-          <View style={styles.relative}>
-            <Transition
-              as={Fragment}
-              leave="transition ease-in duration-100"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <Listbox.Options style={styles.listboxOptions}>
-                {sizeData.map((s, index) => (
-                  <Listbox.Option
-                    key={index}
-                    style={styles.listboxOption}
-                    value={s}
-                  >
-                    <Text>{s + " / page"}</Text>
-                  </Listbox.Option>
-                ))}
-              </Listbox.Options>
-            </Transition>
+      <View style={{ flexDirection: "column", alignItems: "center" }}>
+        <TouchableOpacity
+          onPress={() => setDropdownVisible(!dropdownVisible)}
+          style={styles.listboxButton}
+        >
+          <Text>{size} / page</Text>
+        </TouchableOpacity>
+        {dropdownVisible && (
+          <View style={styles.listboxOptions}>
+            {sizeData.map((s, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => {
+                  setSize(s);
+                  setPage(1);
+                  setDropdownVisible(false);
+                }}
+                style={styles.listboxOption}
+              >
+                <Text>{s + " / page"}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
-        </View>
-      </Listbox>
+        )}
+      </View>
     </View>
   );
 };
@@ -167,14 +158,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
   },
-  relative: {
-    position: "relative",
-    marginLeft: 5,
-  },
   listboxOptions: {
     position: "absolute",
     zIndex: 20,
-    bottom: 8,
+    top: 35,
     left: 0,
     maxHeight: 60,
     width: 100,

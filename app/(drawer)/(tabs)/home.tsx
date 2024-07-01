@@ -13,23 +13,11 @@ export default function TabOneScreen() {
   const { userContext, setUserContext }: any = useContext(AppContext);
   const data = [
     {
-      time: "09:00",
-      title: "Archery Training",
+      time: "1",
+      title: "Chờ ký",
       description:
-        "The Beginner Archery and Beginner Crossbow course does not require you to bring any equipment, since everything you need will be provided for the course. ",
+        "Đang chờ đợi bên liên quan ký vào văn bản. Quy trình này cần sự xác nhận từ nhiều bên trước khi tiến hành các bước tiếp theo.",
       lineColor: "#009688",
-      icon: require("../img/archery.png"),
-    },
-    {
-      time: "10:45",
-      title: "Play Badminton",
-      description:
-        "Badminton is a racquet sport played using racquets to hit a shuttlecock across a net.",
-      icon: require("../img/badminton.png"),
-    },
-    {
-      time: "12:00",
-      title: "Custom rendered icon",
       icon: (
         <Image
           style={{ width: 20, height: 20 }}
@@ -38,18 +26,53 @@ export default function TabOneScreen() {
       ),
     },
     {
-      time: "14:00",
-      title: "Watch Soccer",
+      time: "2",
+      title: "Bên A ký",
       description:
-        "Team sport played between two teams of eleven players with a spherical ball. ",
-      lineColor: "#009688",
-      icon: require("../img/soccer.png"),
+        "Bên A đã hoàn thành việc ký kết văn bản. Điều này đảm bảo rằng các điều khoản và điều kiện đã được đồng ý bởi bên liên quan.",
+      icon: (
+        <Image
+          style={{ width: 20, height: 20 }}
+          source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
+        />
+      ),
     },
     {
-      time: "16:30",
-      title: "Go to Fitness center",
-      description: "Look out for the Best Gym & Fitness Centers around me :)",
-      icon: require("../img/dumbbell.png"),
+      time: "3",
+      title: "Bên B ký",
+      description:
+        "Bên B đã ký kết văn bản, xác nhận các điều khoản và sẵn sàng tiến hành các bước tiếp theo trong quy trình.",
+      icon: (
+        <Image
+          style={{ width: 20, height: 20 }}
+          source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
+        />
+      ),
+    },
+    {
+      time: "4",
+      title: "Quản lý ký",
+      description:
+        "Quản lý đã xem xét và ký vào văn bản, đảm bảo mọi thông tin đều chính xác và đầy đủ trước khi gửi lên cấp cao hơn.",
+      lineColor: "#009688",
+      icon: (
+        <Image
+          style={{ width: 20, height: 20 }}
+          source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
+        />
+      ),
+    },
+    {
+      time: "5",
+      title: "Giám đốc ký",
+      description:
+        "Giám đốc đã chính thức ký vào văn bản, hoàn tất quy trình ký kết và chuẩn bị cho các bước triển khai tiếp theo.",
+      icon: (
+        <Image
+          style={{ width: 20, height: 20 }}
+          source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
+        />
+      ),
     },
   ];
 
@@ -64,9 +87,9 @@ export default function TabOneScreen() {
   }, []);
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>home</Text>
+      {/* <Text style={styles.title}>home</Text> */}
       <Timeline
-        style={styles.list}
+        style={{ flex: 1, marginTop: 20 }}
         data={data}
         circleSize={20}
         circleColor="rgba(0,0,0,0)"
@@ -74,12 +97,17 @@ export default function TabOneScreen() {
         timeContainerStyle={{ minWidth: 52, marginTop: -5 }}
         timeStyle={{
           textAlign: "center",
-          backgroundColor: "#ff9797",
+          backgroundColor: "teal",
           color: "white",
           padding: 5,
           borderRadius: 4,
         }}
-        descriptionStyle={{ color: "gray" }}
+        descriptionStyle={{
+          color: "black",
+          backgroundColor: "#cccccc",
+          borderRadius: 10,
+          padding: 5,
+        }}
         // options={{
         //   style:{paddingTop:5}
         // }}
@@ -120,15 +148,11 @@ export default function TabOneScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    // alignItems: "center",
+    // justifyContent: "center",
   },
   title: {
     fontSize: 20,
     fontWeight: "bold",
-  },
-  list: {
-    flex: 1,
-    marginTop: 20,
   },
 });
