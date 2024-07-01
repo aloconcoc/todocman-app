@@ -177,7 +177,7 @@ const NewContract = () => {
     onSuccess: () => {
       ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
       closeModal();
-      client.invalidateQueries({ queryKey: ["new-contract"] });
+      // client.invalidateQueries({ queryKey: ["new-contract"] });
       setTimeout(() => refetch(), 500);
     },
     onError: (error: AxiosError<{ message: string }>) => {

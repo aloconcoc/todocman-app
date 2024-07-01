@@ -133,7 +133,7 @@ const EditProfile = () => {
     {
       onSuccess: () => {
         ToastAndroid.show("Cập nhật thông tin thành công!", ToastAndroid.SHORT);
-        client.invalidateQueries(["userDetail", userContext]);
+        // client.invalidateQueries(["userDetail", userContext]);
         refetch();
         router.navigate("profile");
       },

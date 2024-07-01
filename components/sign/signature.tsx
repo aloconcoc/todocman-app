@@ -44,11 +44,12 @@ const Sign = ({ signText, setSignText, comment, contractData }: any) => {
   const signQuery = useMutation(signContract, {
     onSuccess: () => {
       ToastAndroid.show("Ký hợp đồng thành công!", ToastAndroid.SHORT);
+
+      client.invalidateQueries({ queryKey: ["contract"] });
+      setSignText("");
       setTimeout(() => {
         router.navigate("/new-contract");
       });
-      client.invalidateQueries({ queryKey: ["contract"] });
-      setSignText("");
     },
     onError: (error: any) => {
       console.log(error);
