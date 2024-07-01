@@ -64,7 +64,7 @@ const EditProfile = () => {
   //     return response.object;
   //   },
   // });
-  const { data, isLoading, error } = useQuery(
+  const { data, isLoading, error, refetch } = useQuery(
     ["userDetail", userContext],
     () => getProfile(userContext),
     {
@@ -126,38 +126,24 @@ const EditProfile = () => {
     }
   };
 
-  const mutation = useMutation({
-    mutationFn: async (data: any) => {
-      // console.log("dataaSFD", data);
-
-      if (userContext) {
-        const response = await updateProfile(userContext, data);
-        console.log("respon1", response);
-
-        if (response?.code == "00" && response?.object) {
-          ToastAndroid.show(
-            "Cập nhật thông tin thành công!",
-            ToastAndroid.SHORT
-          );
-          router.navigate("profile");
-        } else {
-          ToastAndroid.show(
-            "Cập nhật thông tin thất bại! Vui lòng kiểm tra lại thông tin.",
-            ToastAndroid.SHORT
-          );
-          return;
-        }
-      }
+  const mutation = useMutation(
+    async (data: any) => {
+      if (userContext) await updateProfile(userContext, data);
     },
-    onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["profile"] });
-    },
-    onError: (e) => {
-      console.log("error up", e);
-
-      ToastAndroid.show("Cập nhật thông tin thất bại!", ToastAndroid.SHORT);
-    },
-  });
+    {
+      onSuccess: () => {
+        ToastAndroid.show("Cập nhật thông tin thành công!", ToastAndroid.SHORT);
+        client.invalidateQueries(["userDetail", userContext]);
+        refetch();
+        router.navigate("profile");
+      },
+      onError: (e) => {
+        console.log("error up", e);
+        ToastAndroid.show("Cập nhật thông tin thất bại!", ToastAndroid.SHORT);
+        return;
+      },
+    }
+  );
 
   const formatDate = (date: any) => {
     const day = String(date.getDate()).padStart(2, "0");

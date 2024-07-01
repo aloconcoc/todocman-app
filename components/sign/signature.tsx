@@ -1,5 +1,5 @@
 import { sendMailPublic, signContract } from "@/services/contract.service";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { router } from "expo-router";
 import LottieView from "lottie-react-native";
 import { ForwardedRef, RefObject, useRef, useState } from "react";
@@ -41,32 +41,23 @@ const Sign = ({ signText, setSignText, comment, contractData }: any) => {
 
   const style = `.m-signature-pad--footer {display: none; margin: 0px;}`;
 
-  const signQuery = useMutation({
-    mutationFn: async (data: any) => {
-      // console.log("dmdata", data);
-
-      const response = await signContract(data);
-      console.log(response);
-      if (response?.code == "00" && response.object && response.success) {
-        ToastAndroid.show("Ký hợp đồng thành công!", ToastAndroid.SHORT);
-        setTimeout(() => {
-          router.navigate("/new-contract");
-        });
-      } else {
-        ToastAndroid.show(
-          "Xảy ra lỗi trong quá trình ký, Vui lòng kiểm tra lại!",
-          ToastAndroid.SHORT
-        );
-        return;
-      }
-    },
+  const signQuery = useMutation(signContract, {
     onSuccess: () => {
+      ToastAndroid.show("Ký hợp đồng thành công!", ToastAndroid.SHORT);
+      setTimeout(() => {
+        router.navigate("/new-contract");
+      });
       client.invalidateQueries({ queryKey: ["contract"] });
       setSignText("");
     },
     onError: (error: any) => {
       console.log(error);
       ToastAndroid.show("Xảy ra lỗi trong quá trình ký!", ToastAndroid.SHORT);
+      ToastAndroid.show(
+        "Xảy ra lỗi trong quá trình ký, Vui lòng kiểm tra lại!",
+        ToastAndroid.SHORT
+      );
+      return;
     },
   });
 
@@ -82,7 +73,7 @@ const Sign = ({ signText, setSignText, comment, contractData }: any) => {
       createdBy: contractData?.createdBy,
       customer: false,
     };
-    await signQuery.mutate(dataRequest);
+    signQuery.mutate(dataRequest);
 
     const formData = new FormData();
 
@@ -105,7 +96,7 @@ const Sign = ({ signText, setSignText, comment, contractData }: any) => {
     }
   };
 
-  if (signQuery.isPending) {
+  if (signQuery.isLoading) {
     return (
       <View
         style={{

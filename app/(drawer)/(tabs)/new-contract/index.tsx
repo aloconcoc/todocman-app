@@ -173,15 +173,12 @@ const NewContract = () => {
     }
   };
 
-  const deleteNewContract = useMutation({
-    mutationFn: async (data: any) => {
-      const response = await deleteContract(data);
-    },
-
+  const deleteNewContract = useMutation(deleteContract, {
     onSuccess: () => {
       ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
       closeModal();
       client.invalidateQueries({ queryKey: ["new-contract"] });
+      setTimeout(() => refetch(), 500);
     },
     onError: (error: AxiosError<{ message: string }>) => {
       ToastAndroid.show(
