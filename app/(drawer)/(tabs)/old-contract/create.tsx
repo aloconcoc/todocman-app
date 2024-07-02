@@ -28,6 +28,7 @@ import DraggableFlatList, {
   RenderItemParams,
   ScaleDecorator,
 } from "react-native-draggable-flatlist";
+
 import * as DocumentPicker from "expo-document-picker";
 import axios from "axios";
 
@@ -137,53 +138,46 @@ export default function UploadOldContract() {
   // Hàm chọn ảnh từ thư viện
   const selectImageFromLibrary = async () => {
     setLoadingImages(true);
-    const options: ImagePicker.ImagePickerOptions = {
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true,
-      quality: 1,
-      base64: true,
-    };
 
-    const result = await ImagePicker.launchImageLibraryAsync(options);
+    // let result = await ImagePicker.launchImageLibraryAsync({
+    //   mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    //   allowsMultipleSelection: true,
+    //   quality: 1,
+    // });
+    const result = await DocumentPicker.getDocumentAsync({
+      copyToCacheDirectory: true,
+      type: "image/*",
+      multiple: true,
+    });
+    if (result.canceled === true) return;
 
-    // Lưu ảnh nếu không bị hủy
+    console.log("cmm:", result.assets);
+
     if (!result.canceled) {
-      console.log("resu: " + result.assets[0]);
+      console.log("reslib: " + result.assets);
 
       const selectedImages = result.assets;
       const tempImages: string[] = [];
       const tmp: any[] = [];
       for (let i = 0; i < selectedImages.length; i++) {
+        const trimmedURI =
+          Platform.OS === "android"
+            ? selectedImages[i].uri
+            : selectedImages[i].uri.replace("file://", "");
+        const fileName = trimmedURI.split("/").pop();
         tempImages.push(selectedImages[i].uri);
-        tmp.push(selectedImages[i]);
+        tmp.push({
+          uri: trimmedURI,
+          type: mime.getType(trimmedURI),
+          name: fileName,
+        });
       }
 
       setImages([...images, ...tempImages]);
       setIsimg(true);
-      const trimmedURI =
-        Platform.OS === "android"
-          ? result.assets[0].uri
-          : result.assets[0].uri.replace("file://", "");
-      const fileName = trimmedURI.split("/").pop();
-      performOCR({
-        uri: trimmedURI,
-        height: result.assets[0].height,
-        width: result.assets[0].width,
-        type: mime.getType(trimmedURI),
-        name: fileName,
-      });
-      // performOCR(result.assets[0].base64);
-      //-------- setAllImages([...allImages, ...tmp]);
-      setAllImages([
-        ...allImages,
-        {
-          uri: trimmedURI,
-          height: result.assets[0].height,
-          width: result.assets[0].width,
-          type: mime.getType(trimmedURI),
-          name: fileName,
-        },
-      ]);
+      console.log("tmp files: ", tmp);
+
+      setAllImages([...allImages, ...tmp]);
     }
     setLoadingImages(false);
   };
@@ -212,21 +206,18 @@ export default function UploadOldContract() {
           ? result.assets[0].uri
           : result.assets[0].uri.replace("file://", "");
       const fileName = trimmedURI.split("/").pop();
-      performOCR({
-        uri: trimmedURI,
-        height: result.assets[0].height,
-        width: result.assets[0].width,
-        type: mime.getType(trimmedURI),
-        name: fileName,
-      });
-      // performOCR(result.assets[0].base64);
+      // performOCR({
+      //   uri: trimmedURI,
+      //   height: result.assets[0].height,
+      //   width: result.assets[0].width,
+      //   type: mime.getType(trimmedURI),
+      //   name: fileName,
+      // });
 
       setAllImages([
         ...allImages,
         {
           uri: trimmedURI,
-          height: result.assets[0].height,
-          width: result.assets[0].width,
           type: mime.getType(trimmedURI),
           name: fileName,
         },
@@ -294,81 +285,46 @@ export default function UploadOldContract() {
     formData.append("content", extractedText);
     allImages.forEach((image: any) => {
       formData.append("images", image);
+      console.log("anh: " + image);
     });
-    try {
-      console.log("Form data", formData);
 
-      const response = await createOldContract(formData);
-      if (response.code == "00" && response.object) {
-        ToastAndroid.show("Tạo hợp đồng thành công!", ToastAndroid.SHORT);
-        router.navigate("old-contract");
-      } else {
-        ToastAndroid.show("Tạo hợp đồng thất bại!", ToastAndroid.SHORT);
-        return;
-      }
+    try {
+      const response = await fetch("http://192.168.1.186:2002/ocr", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      const result = await response.json();
+      console.log("result", result);
+
+      setOcr(result.text);
     } catch (error) {
-      ToastAndroid.show("Có lỗi xảy ra", ToastAndroid.SHORT);
+      console.error("loilll", error);
     }
+
+    // try {
+    //   console.log("Form data", formData);
+
+    //   const response = await createOldContract(formData);
+    //   if (response.code == "00" && response.object) {
+    //     ToastAndroid.show("Tạo hợp đồng thành công!", ToastAndroid.SHORT);
+    //     router.navigate("old-contract");
+    //   } else {
+    //     ToastAndroid.show("Tạo hợp đồng thất bại!", ToastAndroid.SHORT);
+    //     return;
+    //   }
+    // } catch (error) {
+    //   ToastAndroid.show("Có lỗi xảy ra", ToastAndroid.SHORT);
+    // }
   };
 
-  const performOCR = async (file: any) => {
-    console.log("Performing OCR", file);
-
-    // const url = "https://ocr-100-image-text-extractor.p.rapidapi.com/ocr";
-    // const data = new FormData();
-    // data.append("data", `data:image/jpeg;base64,${file}`);
-    // data.append("lang", "vie");
-
-    // const options = {
-    //   method: "POST",
-    //   headers: {
-    //     "x-rapidapi-key": "92021f1393msh4f4728412cc8162p1e117fjsn22b568c8183d",
-    //     "x-rapidapi-host": "ocr-100-image-text-extractor.p.rapidapi.com",
-    //   },
-    //   body: data,
-    // };
-
-    // try {
-    //   const response = await fetch(url, options);
-    //   const result = await response.text();
-    //   console.log(result);
-    // } catch (error) {
-    //   console.error(error);
-    // }
-
-    // const url = "https://ocr-extract-text.p.rapidapi.com/ocr";
-    // const data = new FormData();
-    // data.append("image", file);
-
-    // const options = {
-    //   method: "POST",
-    //   headers: {
-    //     Accept: "application/json",
-    //     "Content-Type": "multipart/form-data",
-    //     "x-rapidapi-key": "92021f1393msh4f4728412cc8162p1e117fjsn22b568c8183d",
-    //     "x-rapidapi-host": "ocr-extract-text.p.rapidapi.com",
-    //   },
-    //   body: data,
-    // };
-    // setLoadingImages(true);
-
-    // try {
-    //   console.log("123");
-
-    //   const response = await fetch(url, options);
-    //   console.log("456", response);
-
-    //   const result = await response.json();
-    //   console.log("789", result);
-
-    //   const text = result.text || "";
-    //   setExtractedText(text);
-    //   console.log(typeof text);
-    // } catch (error) {
-    //   console.error(error);
-    // } finally {
-    //   setLoadingImages(false);
-    // }
+  const performOCR = async () => {
+    const data = new FormData();
+    allImages.forEach((image: any, index: any) => {
+      data.append("images", image);
+    });
   };
 
   // Render image list item
@@ -406,7 +362,8 @@ export default function UploadOldContract() {
       //   disabled={isActive}
       //   style={{ overflow: "scroll" }}
       // > */}
-      <View
+      <TouchableOpacity
+        onPress={() => openModal(item)}
         style={{
           overflow: "scroll",
           flexDirection: "row",
@@ -424,7 +381,7 @@ export default function UploadOldContract() {
         </Text>
 
         <Ionicons.Button name="trash" onPress={() => deleteImage(item)} />
-      </View>
+      </TouchableOpacity>
       // {/* </TouchableOpacity> */}
       // {/* </ScaleDecorator> */}
     );

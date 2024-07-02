@@ -27,7 +27,7 @@ const Pagination = ({
 
   const renderPages = () => {
     const pages = [];
-    const pageRange = 2;
+    const pageRange = 1;
     const startPage = Math.max(1, page - pageRange);
     const endPage = Math.min(totalPages, page + pageRange);
 
@@ -83,7 +83,7 @@ const Pagination = ({
         disabled={page === 1}
         style={styles.button}
       >
-        <Text style={{ fontSize: 12, padding: 3 }}>Previous</Text>
+        <Text style={{ fontSize: 12, paddingVertical: 2 }}>{`<<`}</Text>
       </TouchableOpacity>
       {renderPages()}
       <TouchableOpacity
@@ -91,7 +91,7 @@ const Pagination = ({
         disabled={page === totalPages}
         style={styles.button}
       >
-        <Text style={{ fontSize: 12, padding: 3 }}>Next</Text>
+        <Text style={{ fontSize: 12, paddingVertical: 2 }}>{`>>`}</Text>
       </TouchableOpacity>
 
       <View style={{ flexDirection: "column", alignItems: "center" }}>
@@ -132,13 +132,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   button: {
-    margin: 5,
+    margin: 1,
     padding: 2,
     paddingHorizontal: 10,
     borderWidth: 1,
     borderColor: "#ccc",
     backgroundColor: "#fff",
-    borderRadius: 50,
+    borderRadius: 10,
   },
   activeButton: {
     backgroundColor: "#007bff",
@@ -149,9 +149,9 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   listboxButton: {
-    width: 90,
-    margin: 0,
-    paddingVertical: 12,
+    width: 50,
+    marginLeft: 5,
+    paddingVertical: 2,
     justifyContent: "center",
     backgroundColor: "#fff",
     borderRadius: 5,
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     zIndex: 20,
     top: 35,
     left: 0,
-    maxHeight: 60,
+    maxHeight: 80,
     width: 100,
     overflow: "hidden",
     backgroundColor: "#fff",
