@@ -14,12 +14,9 @@ export const getOldContract = async (page: number, size: number) => {
 };
 
 export const createOldContract = async (formData: any) => {
-  try {
-    const response = await axiosInstanceFormData.post(`old-contract`, formData);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
+  console.log("fdm", formData);
+  const response = await axiosInstanceFormData.post(`old-contract`, formData);
+  return response.data;
 };
 
 export const deleteOldContract = async (id: string) => {
