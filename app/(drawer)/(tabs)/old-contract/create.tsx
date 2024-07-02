@@ -15,6 +15,7 @@ import {
   Pressable,
   Platform,
   ToastAndroid,
+  TouchableWithoutFeedback,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
@@ -30,7 +31,10 @@ import DraggableFlatList, {
 } from "react-native-draggable-flatlist";
 
 import * as DocumentPicker from "expo-document-picker";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { getContractType } from "@/services/contract-type";
+import { Picker } from "@react-native-picker/picker";
 
 const imgDir = FileSystem.documentDirectory + "images/";
 
@@ -51,11 +55,19 @@ export default function UploadOldContract() {
   const [contractName, setContractName] = useState("");
   const [ispdf, setIspdf] = useState(false);
   const [isimg, setIsimg] = useState(false);
-  const [selectedPdf, setSelectedPdf] = useState("");
-  const [pdf, setPdf] = useState("");
-  const [viewpdf, setViewpdf] = useState("");
+  const [selectedPdf, setSelectedPdf] = useState<any>(null);
   const [extractedText, setExtractedText] = useState<any>();
   const [ocr, setOcr] = useState<any>();
+  const queryClient = useQueryClient();
+  const [loadingOcr, setLoadingOcr] = useState(false);
+  const [contractType, setContractType] = useState("");
+  const [openMenu, setOpenMenu] = useState(false);
+
+  const {
+    data: typeContract,
+    isLoading,
+    isError,
+  } = useQuery("type-contract", () => getContractType({ page: 0, size: 100 }));
 
   const [datePickerState, setDatePickerState] = useState({
     birthDate: new Date(),
@@ -65,9 +77,9 @@ export default function UploadOldContract() {
   });
 
   const [formattedDates, setFormattedDates] = useState({
-    birthDate: "",
-    registrationDate: "",
-    enrollmentDate: "",
+    birthDate: new Date().toLocaleDateString(),
+    registrationDate: new Date().toLocaleDateString(),
+    enrollmentDate: new Date().toLocaleDateString(),
   });
 
   // Function to open the modal and display the selected image
@@ -96,22 +108,24 @@ export default function UploadOldContract() {
       });
       if (result.canceled === true) return;
 
-      console.log("Document selected:", result);
+      // console.log("Document selected:", result);
 
       if (result.assets && result.assets.length > 0) {
         const selectedFile = result.assets[0];
         console.log("Document selected:", selectedFile);
-
-        const base64String = await FileSystem.readAsStringAsync(
-          selectedFile.uri,
-          {
-            encoding: FileSystem.EncodingType.Base64,
-          }
-        );
         setIspdf(true);
-        setSelectedPdf(base64String);
-        setPdf(selectedFile.name);
-        setViewpdf(selectedFile.uri);
+        const trimmedURI =
+          Platform.OS === "android"
+            ? selectedFile.uri
+            : selectedFile.uri.replace("file://", "");
+        const fileName = trimmedURI.split("/").pop();
+        console.log("type: ", mime.getType(trimmedURI));
+
+        setSelectedPdf({
+          uri: trimmedURI,
+          type: mime.getType(trimmedURI),
+          name: fileName,
+        });
       }
     } catch (error) {
       console.error("Error picking document:", error);
@@ -149,12 +163,15 @@ export default function UploadOldContract() {
       type: "image/*",
       multiple: true,
     });
-    if (result.canceled === true) return;
+    if (result.canceled === true) {
+      setLoadingImages(false);
+      return;
+    }
 
     console.log("cmm:", result.assets);
 
     if (!result.canceled) {
-      console.log("reslib: " + result.assets);
+      // console.log("reslib: " + result.assets);
 
       const selectedImages = result.assets;
       const tempImages: string[] = [];
@@ -175,7 +192,7 @@ export default function UploadOldContract() {
 
       setImages([...images, ...tempImages]);
       setIsimg(true);
-      console.log("tmp files: ", tmp);
+      // console.log("tmp files: ", tmp);
 
       setAllImages([...allImages, ...tmp]);
     }
@@ -206,13 +223,6 @@ export default function UploadOldContract() {
           ? result.assets[0].uri
           : result.assets[0].uri.replace("file://", "");
       const fileName = trimmedURI.split("/").pop();
-      // performOCR({
-      //   uri: trimmedURI,
-      //   height: result.assets[0].height,
-      //   width: result.assets[0].width,
-      //   type: mime.getType(trimmedURI),
-      //   name: fileName,
-      // });
 
       setAllImages([
         ...allImages,
@@ -260,6 +270,28 @@ export default function UploadOldContract() {
     }));
   };
 
+  const handleCreateOldContract = useMutation(createOldContract, {
+    onSuccess: async (res) => {
+      console.log("redm: ", res);
+
+      if (res.code === "00" && res.object) {
+        ToastAndroid.show("Tạo hợp đồng thành công!", ToastAndroid.SHORT);
+        // queryClient.invalidateQueries("old-contract-list");
+        await queryClient.refetchQueries("old-contract-list");
+        router.navigate("old-contract");
+      } else {
+        ToastAndroid.show("Tạo hợp đồng thất bại!", ToastAndroid.SHORT);
+        return;
+      }
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      ToastAndroid.show(
+        error.response?.data?.message || "Lỗi hệ thống",
+        ToastAndroid.SHORT
+      );
+    },
+  });
+
   const handleSubmit = async () => {
     const { birthDate, registrationDate, enrollmentDate } = datePickerState;
     if (!contractName.trim()) {
@@ -272,87 +304,55 @@ export default function UploadOldContract() {
       );
       return;
     }
-    if (images.length === 0) {
-      ToastAndroid.show("Hãy chọn ảnh hợp đồng!", ToastAndroid.SHORT);
+    if (
+      images.length === 0 &&
+      (selectedPdf === null || selectedPdf === undefined)
+    ) {
+      ToastAndroid.show("Hãy chọn ảnh hoặc file pdf!", ToastAndroid.SHORT);
+      return;
+    }
+    if (contractType === "") {
+      ToastAndroid.show("Chọn loại hợp đồng!", ToastAndroid.SHORT);
       return;
     }
 
     const formData = new FormData();
     formData.append("contractName", contractName);
+    formData.append("contractTypeId", contractType);
     formData.append("contractStartDate", formatDate(birthDate));
     formData.append("contractEndDate", formatDate(registrationDate));
     formData.append("contractSignDate", formatDate(enrollmentDate));
-    formData.append("content", extractedText);
-    allImages.forEach((image: any) => {
-      formData.append("images", image);
-    });
-
-    try {
-      const response = await fetch("http://192.168.1.186:2002/ocr", {
-        method: "POST",
-        body: formData,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+    if (allImages.length > 0) {
+      allImages.forEach((image: any) => {
+        formData.append("images", image);
       });
-      const result = await response.json();
-      console.log("result", result);
+      try {
+        const response = await fetch("http://192.168.1.186:2002/ocr", {
+          method: "POST",
+          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        const result = await response.json();
+        console.log("result", typeof result);
 
-      setOcr(result.text);
-    } catch (error) {
-      console.error("loilll", error);
+        setOcr(result);
+        formData.append("content", ocr || "Lỗi scan text");
+      } catch (error) {
+        console.error("loi he thong", error);
+      }
+    } else if (selectedPdf) {
+      formData.append("images", selectedPdf);
+      formData.append("content", "Hợp đồng tải lên từ file pdf");
     }
-
-    // try {
-    //   console.log("Form data", formData);
-
-    //   const response = await createOldContract(formData);
-    //   if (response.code == "00" && response.object) {
-    //     ToastAndroid.show("Tạo hợp đồng thành công!", ToastAndroid.SHORT);
-    //     router.navigate("old-contract");
-    //   } else {
-    //     ToastAndroid.show("Tạo hợp đồng thất bại!", ToastAndroid.SHORT);
-    //     return;
-    //   }
-    // } catch (error) {
-    //   ToastAndroid.show("Có lỗi xảy ra", ToastAndroid.SHORT);
-    // }
-  };
-
-  const performOCR = async () => {
-    const data = new FormData();
-    allImages.forEach((image: any, index: any) => {
-      data.append("images", image);
-    });
+    handleCreateOldContract.mutate(formData);
   };
 
   // Render image list item
   const renderItem = ({ item, drag, isActive }: any) => {
     const filename = item.split("/").pop();
-    // return (
-    //   <TouchableOpacity onPress={() => openModal(item)}>
-    //     <View
-    //       style={{
-    //         flexDirection: "row",
-    //         marginHorizontal: 10,
-    //         alignItems: "center",
-    //         gap: 5,
-    //       }}
-    //     >
-    //       <Image style={{ width: 80, height: 80 }} source={{ uri: item }} />
-    //       <Text style={{ flex: 1 }}>
-    //         {filename.length > 14
-    //           ? `Ảnh hợp đồng ${filename.substring(0, 5)}.jpeg`
-    //           : filename}
-    //       </Text>
-    //       {/* <Ionicons.Button
-    //         name="cloud-upload"
-    //         onPress={() => uploadImage(item)}
-    //       /> */}
-    //       <Ionicons.Button name="trash" onPress={() => deleteImage(item)} />
-    //     </View>
-    //   </TouchableOpacity>
-    // );
+
     return (
       // {/* <ScaleDecorator> */}
       // {/* <TouchableOpacity
@@ -375,7 +375,7 @@ export default function UploadOldContract() {
         <Image style={{ width: 80, height: 100 }} source={{ uri: item }} />
         <Text style={{ flex: 1 }}>
           {filename.length > 14
-            ? `Ảnh hợp đồng ${filename.substring(0, 5)}.jpeg`
+            ? `Ảnh hợp đồng ${filename.substring(0, 5)}...jpeg`
             : filename}
         </Text>
 
@@ -385,13 +385,42 @@ export default function UploadOldContract() {
       // {/* </ScaleDecorator> */}
     );
   };
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          alignItems: "center",
+          justifyContent: "center",
+          flex: 1,
+        }}
+      >
+        <LottieView
+          autoPlay
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "white",
+          }}
+          source={require("@/assets/load.json")}
+        />
+      </View>
+    );
+  }
+  if (isError) {
+    return <Text>Lỗi hệ thống</Text>;
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, gap: 20 }}>
       <View
         style={{
           flexDirection: "row",
-          marginVertical: 20,
+          marginTop: 10,
           marginHorizontal: 5,
         }}
       >
@@ -403,169 +432,202 @@ export default function UploadOldContract() {
             borderColor: "black",
             borderWidth: 1,
             borderRadius: 5,
-            padding: 5,
+            paddingHorizontal: 5,
             flex: 1,
             marginHorizontal: 10,
           }}
         ></TextInput>
         <Button title="Lưu" onPress={() => handleSubmit()}></Button>
       </View>
-      <View
-        style={{
-          flexDirection: "row",
-          marginHorizontal: 15,
-          justifyContent: "flex-start",
-          alignItems: "center",
-        }}
-      >
-        <Text>Ngày bắt đầu</Text>
-        <TouchableOpacity
-          onPress={() => showDatepicker("birthDate")}
+      <View>
+        <View
           style={{
-            borderWidth: 1,
+            flexDirection: "row",
+            marginHorizontal: 15,
+            marginBottom: 10,
+            justifyContent: "flex-start",
             alignItems: "center",
-            borderRadius: 5,
-            paddingHorizontal: 50,
-            marginLeft: 12,
           }}
         >
-          <View pointerEvents="none">
-            <TextInput
-              placeholder="dd/mm/yyyy"
-              value={formattedDates.birthDate}
-              editable={false}
-              style={{ color: "black" }}
-            />
-          </View>
-        </TouchableOpacity>
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          marginHorizontal: 15,
-          justifyContent: "flex-start",
-          alignItems: "center",
-        }}
-      >
-        <Text>Ngày kết thúc</Text>
-        <TouchableOpacity
-          onPress={() => showDatepicker("registrationDate")}
+          <Text>Ngày bắt đầu</Text>
+          <TouchableOpacity
+            onPress={() => showDatepicker("birthDate")}
+            style={{
+              borderWidth: 1,
+              alignItems: "center",
+              borderRadius: 5,
+              paddingHorizontal: 50,
+              marginLeft: 12,
+            }}
+          >
+            <View pointerEvents="none">
+              <TextInput
+                placeholder="dd/mm/yyyy"
+                value={formattedDates.birthDate}
+                editable={false}
+                style={{ color: "black" }}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View
           style={{
-            borderWidth: 1,
+            flexDirection: "row",
+            marginHorizontal: 15,
+            marginBottom: 10,
+            justifyContent: "flex-start",
             alignItems: "center",
-            borderRadius: 5,
-            paddingHorizontal: 50,
-            marginHorizontal: 10,
           }}
         >
-          <View pointerEvents="none">
-            <TextInput
-              placeholder="dd/mm/yyyy"
-              value={formattedDates.registrationDate}
-              editable={false}
-              style={{ color: "black" }}
-            />
-          </View>
-        </TouchableOpacity>
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          marginHorizontal: 15,
-          justifyContent: "flex-start",
-          alignItems: "center",
-        }}
-      >
-        <Text>Ngày kí</Text>
-        <TouchableOpacity
-          onPress={() => showDatepicker("enrollmentDate")}
+          <Text>Ngày kết thúc</Text>
+          <TouchableOpacity
+            onPress={() => showDatepicker("registrationDate")}
+            style={{
+              borderWidth: 1,
+              alignItems: "center",
+              borderRadius: 5,
+              paddingHorizontal: 50,
+              marginHorizontal: 10,
+            }}
+          >
+            <View pointerEvents="none">
+              <TextInput
+                placeholder="dd/mm/yyyy"
+                value={formattedDates.registrationDate}
+                editable={false}
+                style={{ color: "black" }}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View
           style={{
-            borderWidth: 1,
+            flexDirection: "row",
+            marginHorizontal: 15,
+            marginBottom: 10,
+            justifyContent: "flex-start",
             alignItems: "center",
-            borderRadius: 5,
-            marginLeft: 56,
-            paddingHorizontal: 50,
           }}
         >
-          <View pointerEvents="none">
-            <TextInput
-              placeholder="dd/mm/yyyy"
-              value={formattedDates.enrollmentDate}
-              editable={false}
-              style={{ color: "black" }}
+          <Text>Ngày kí</Text>
+          <TouchableOpacity
+            onPress={() => showDatepicker("enrollmentDate")}
+            style={{
+              borderWidth: 1,
+              alignItems: "center",
+              borderRadius: 5,
+              marginLeft: 56,
+              paddingHorizontal: 50,
+            }}
+          >
+            <View pointerEvents="none">
+              <TextInput
+                placeholder="dd/mm/yyyy"
+                value={formattedDates.enrollmentDate}
+                editable={false}
+                style={{ color: "black" }}
+              />
+            </View>
+          </TouchableOpacity>
+          {datePickerState.showPicker && (
+            <RNDateTimePicker
+              testID="dateTimePicker"
+              value={datePickerState[datePickerState.showPicker]}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) =>
+                selectedDate !== null &&
+                datePickerState.showPicker !== null &&
+                onChangeDate(selectedDate, datePickerState.showPicker)
+              }
             />
-          </View>
-        </TouchableOpacity>
-        {datePickerState.showPicker && (
-          <RNDateTimePicker
-            minimumDate={new Date()}
-            testID="dateTimePicker"
-            value={datePickerState[datePickerState.showPicker]}
-            mode="date"
-            display="default"
-            onChange={(event, selectedDate) =>
-              selectedDate !== null &&
-              datePickerState.showPicker !== null &&
-              onChangeDate(selectedDate, datePickerState.showPicker)
-            }
-          />
-        )}
+          )}
+        </View>
       </View>
       <View
         style={{
           flexDirection: "row",
           justifyContent: "center",
-          alignItems: "center",
-          marginTop: 15,
         }}
       >
         <TouchableOpacity
           disabled={ispdf}
-          style={{
-            backgroundColor: ispdf ? "gray" : "lightseagreen",
-            padding: 8,
-            borderRadius: 5,
-            marginHorizontal: 5,
-          }}
-          onPress={() => selectImage(true)}
+          style={styles.button}
+          onPress={() => setOpenMenu(!openMenu)}
         >
-          <Text style={{ color: "white" }}>Thư viện ảnh</Text>
+          <Text>📤 Tệp đính kèm</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          disabled={ispdf}
+
+        {openMenu && (
+          <View style={styles.menu}>
+            <TouchableOpacity
+              disabled={ispdf}
+              style={styles.menuOption}
+              onPress={() => {
+                console.log("Option 1 selected");
+                selectImage(true);
+                setOpenMenu(false);
+              }}
+            >
+              <Text style={styles.menuText}>📂 Thư viện</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              disabled={ispdf}
+              style={styles.menuOption}
+              onPress={() => {
+                console.log("Option 2 selected");
+                selectImage(false);
+                setOpenMenu(false);
+              }}
+            >
+              <Text style={styles.menuText}>📷 Máy ảnh</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              disabled={ispdf}
+              style={styles.menuOption}
+              onPress={() => {
+                console.log("Option 3 selected");
+                pickDocument();
+                setOpenMenu(false);
+              }}
+            >
+              <Text style={styles.menuText}>📋 Tệp Pdf</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <View
           style={{
-            backgroundColor: ispdf ? "gray" : "lightseagreen",
-            padding: 8,
+            width: "46%",
+            height: 40,
+            borderWidth: 1,
+            justifyContent: "center",
             borderRadius: 5,
-            marginHorizontal: 5,
           }}
-          onPress={() => selectImage(false)}
         >
-          <Text style={{ color: "white" }}>Máy ảnh</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          disabled={isimg}
-          style={{
-            backgroundColor: isimg ? "gray" : "lightseagreen",
-            padding: 8,
-            borderRadius: 5,
-            marginHorizontal: 5,
-          }}
-          onPress={pickDocument}
-        >
-          <Text style={{ color: "white" }}>Tải PDF</Text>
-        </TouchableOpacity>
+          <Picker
+            selectedValue={contractType}
+            onValueChange={(itemValue) => setContractType(itemValue as string)}
+          >
+            <Picker.Item
+              style={{ color: "gray" }}
+              label="Loại hợp đồng"
+              value=""
+              key=""
+              enabled={false}
+            />
+            {typeContract?.content.map((d: any) => (
+              <Picker.Item
+                label={d.title}
+                value={d.id}
+                key={d.id}
+                style={{ color: contractType === d.id ? "green" : "black" }}
+              />
+            ))}
+          </Picker>
+        </View>
       </View>
-
-      <FlatList
-        data={images}
-        // onDragEnd={({ data }) => setImages(data)}
-        renderItem={renderItem}
-        keyExtractor={(item) => item}
-      />
-      {/* <Text style={{ backgroundColor: "pink" }}>a{extractedText}</Text> */}
-
-      {pdf && (
+      {selectedPdf?.name && (
         <View>
           <Text
             style={{ fontSize: 20, fontWeight: "bold", marginVertical: 10 }}
@@ -580,19 +642,27 @@ export default function UploadOldContract() {
               alignItems: "center",
             }}
           >
-            <Text>{pdf}</Text>
+            <Text>
+              {"File hợp đồng " + selectedPdf?.name.substring(0, 10) + "...pdf"}
+            </Text>
             <Ionicons.Button
               name="trash"
               onPress={() => {
                 setIspdf(false);
-                setSelectedPdf("");
-                setPdf("");
-                setViewpdf("");
+                setSelectedPdf(null);
               }}
             />
           </View>
         </View>
       )}
+
+      <FlatList
+        data={images}
+        // onDragEnd={({ data }) => setImages(data)}
+        renderItem={renderItem}
+        keyExtractor={(item) => item}
+      />
+
       {loadingImages && (
         <View
           style={{
@@ -606,7 +676,6 @@ export default function UploadOldContract() {
             flex: 1,
           }}
         >
-          {/* <Image source={require('../../assets/images/load.jpg')} /> */}
           <LottieView
             autoPlay
             style={{
@@ -614,7 +683,6 @@ export default function UploadOldContract() {
               height: "100%",
               backgroundColor: "white",
             }}
-            // Find more Lottie files at https://lottiefiles.com/featured
             source={require("@/assets/load.json")}
           />
         </View>
@@ -675,5 +743,33 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 30,
     right: 160,
+  },
+  menu: {
+    position: "absolute",
+    top: 40,
+    left: 38,
+    borderRadius: 5,
+    zIndex: 100,
+    borderColor: "#cccccc",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
+  },
+  menuOption: {
+    paddingHorizontal: 25,
+    paddingVertical: 5,
+    borderBottomWidth: 1,
+    borderColor: "#cccccc",
+  },
+  menuText: {
+    fontSize: 16,
+  },
+  button: {
+    backgroundColor: "#0bbfb9",
+    padding: 8,
+    height: 40,
+    borderRadius: 5,
+    marginHorizontal: 5,
   },
 });

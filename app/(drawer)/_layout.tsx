@@ -49,6 +49,7 @@ const CustomDrawerContent = (props: any) => {
             source={{
               uri: userInfo?.avatar || "https://via.placeholder.com/150",
             }}
+            resizeMode="cover"
             width={80}
             height={80}
             style={styles.userImg}
@@ -193,6 +194,8 @@ const styles = StyleSheet.create({
   },
   userImg: {
     borderRadius: 40,
+    borderWidth: 1,
+    borderColor: "#ccc",
   },
   userDetailsWrapper: {
     marginTop: 25,
