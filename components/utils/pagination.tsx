@@ -94,12 +94,12 @@ const Pagination = ({
         <Text style={{ fontSize: 12, paddingVertical: 2 }}>{`>>`}</Text>
       </TouchableOpacity>
 
-      <View style={{ flexDirection: "column", alignItems: "center" }}>
+      {/* <View style={{ flexDirection: "column", alignItems: "center" }}>
         <TouchableOpacity
           onPress={() => setDropdownVisible(!dropdownVisible)}
           style={styles.listboxButton}
         >
-          <Text>{size} / page</Text>
+          <Text>{size}20 / trang</Text>
         </TouchableOpacity>
         {dropdownVisible && (
           <View style={styles.listboxOptions}>
@@ -113,12 +113,12 @@ const Pagination = ({
                 }}
                 style={styles.listboxOption}
               >
-                <Text>{s + " / page"}</Text>
+                <Text>{s + " / trang"}</Text>
               </TouchableOpacity>
             ))}
           </View>
         )}
-      </View>
+      </View> */}
     </View>
   );
 };
@@ -128,13 +128,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 50,
-    marginTop: 20,
   },
   button: {
     margin: 1,
-    padding: 2,
-    paddingHorizontal: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: "#ccc",
     backgroundColor: "#fff",
@@ -149,7 +147,9 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   listboxButton: {
-    width: 50,
+    width: 80,
+    textAlign: "center",
+    alignItems: "center",
     marginLeft: 5,
     paddingVertical: 2,
     justifyContent: "center",
@@ -161,8 +161,8 @@ const styles = StyleSheet.create({
   listboxOptions: {
     position: "absolute",
     zIndex: 20,
-    top: 35,
-    left: 0,
+    top: -80,
+    left: -35,
     maxHeight: 80,
     width: 100,
     overflow: "hidden",

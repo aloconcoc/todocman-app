@@ -173,41 +173,31 @@ const NewContract = () => {
     }
   };
 
-  const deleteNewContract = useMutation(deleteContract, {
-    onSuccess: () => {
-      ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
-      closeModal();
-      // client.invalidateQueries({ queryKey: ["new-contract"] });
-      setTimeout(() => refetch(), 500);
-    },
-    onError: (error: AxiosError<{ message: string }>) => {
-      ToastAndroid.show(
-        "Xảy ra lỗi trong quá trình xoá hợp đồng!",
-        ToastAndroid.SHORT
-      );
-    },
-  });
+  // const deleteNewContract = useMutation(deleteContract, {
+  //   onSuccess: () => {
+  //     ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
+  //     closeModal();
+  //     // client.invalidateQueries({ queryKey: ["new-contract"] });
+  //     setTimeout(() => refetch(), 500);
+  //   },
+  //   onError: (error: AxiosError<{ message: string }>) => {
+  //     ToastAndroid.show(
+  //       "Xảy ra lỗi trong quá trình xoá hợp đồng!",
+  //       ToastAndroid.SHORT
+  //     );
+  //   },
+  // });
 
-  const handleDeleteContract = async () => {
-    try {
-      if (selectedContract?.id) {
-        deleteNewContract.mutate(selectedContract?.id);
-
-        // const response = await deleteContract(selectedContract?.id);
-        // if (response) {
-        //   ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
-        //   setTimeout(() => refetch(), 500);
-        //   closeModal();
-        //   client.invalidateQueries({ queryKey: ["new-contract"] });
-        // } else {
-        //   ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
-        // }
-      }
-    } catch (error) {
-      ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
-      console.log(error);
-    }
-  };
+  // const handleDeleteContract = async () => {
+  //   try {
+  //     if (selectedContract?.id) {
+  //       deleteNewContract.mutate(selectedContract?.id);
+  //     }
+  //   } catch (error) {
+  //     ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
+  //     console.log(error);
+  //   }
+  // };
 
   const handleAction = (action: string) => {
     console.log(`${action}`, selectedContract);
@@ -414,7 +404,7 @@ const NewContract = () => {
           </View>
         </Modal>
       )}
-      {deleteModal && selectedContract === item && (
+      {/* {deleteModal && selectedContract === item && (
         <Modal
           animationType="fade"
           transparent={true}
@@ -430,7 +420,7 @@ const NewContract = () => {
             </TouchableOpacity>
           </View>
         </Modal>
-      )}
+      )} */}
     </View>
   );
 

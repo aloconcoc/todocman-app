@@ -24,7 +24,7 @@ const { width, height } = Dimensions.get("window");
 
 const ManageOldContract = () => {
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(20);
+  const [size, setSize] = useState(10);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedContract, setSelectedContract] = useState<any>(null);
   const [data, setData] = useState<any>(null);
@@ -48,6 +48,9 @@ const ManageOldContract = () => {
       },
     }
   );
+  const handlePageChange = (page: any) => {
+    setPage(page - 1);
+  };
   useEffect(() => {
     if (prevPageRef.current !== page || prevSizeRef.current !== size) {
       prevPageRef.current = page;
@@ -111,6 +114,16 @@ const ManageOldContract = () => {
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
       />
+      {data && data?.content?.length != 0 && (
+        <Pagination
+          totalPages={totalPage}
+          currentPage={page + 1}
+          size={size}
+          setSize={setSize}
+          setPage={setPage}
+          onPageChange={handlePageChange}
+        />
+      )}
       {selectedContract && (
         <Modal
           transparent={true}
@@ -170,10 +183,8 @@ const ManageOldContract = () => {
                 }}
                 style={styles.pdf}
               />
-              <View style={{ marginBottom: 10, backgroundColor: "pink" }}>
-                <Pagination />
-              </View>
             </View>
+            <View style={{ height: 20 }}></View>
           </View>
         </Modal>
       )}
@@ -250,7 +261,7 @@ const styles = StyleSheet.create({
   closeButton: {
     marginTop: 20,
     marginBottom: 2,
-    color: "cyan",
+    color: "aqua",
     width: 50,
     borderRadius: 50,
     textAlign: "center",

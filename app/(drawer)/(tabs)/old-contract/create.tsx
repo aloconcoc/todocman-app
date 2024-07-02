@@ -285,7 +285,6 @@ export default function UploadOldContract() {
     formData.append("content", extractedText);
     allImages.forEach((image: any) => {
       formData.append("images", image);
-      console.log("anh: " + image);
     });
 
     try {
