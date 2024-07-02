@@ -1,6 +1,7 @@
 import {
   Button,
   Image,
+  ImageBackground,
   Pressable,
   StyleSheet,
   Text,
@@ -48,17 +49,17 @@ const LoginScreen = () => {
         console.log("response", response.user);
 
         setUserContext(response?.user.id);
-        ToastAndroid.show("Request sent successfully!", ToastAndroid.SHORT);
+        ToastAndroid.show("Đăng nhập thành công!", ToastAndroid.SHORT);
         router.navigate("(drawer)/(tabs)/home");
       } else {
         ToastAndroid.show(
-          "Login failed! Please check your credencial",
+          "Đăng nhập thất bại! Vui lòng kiểm tra thông tin đăng nhập của bạn",
           ToastAndroid.SHORT
         );
       }
     } catch (e) {
       ToastAndroid.show(
-        "Login failed! Please check your credencial",
+        "Lỗi hệ thống! Vui lòng thử lại sau!",
         ToastAndroid.SHORT
       );
       console.log(e);
@@ -66,88 +67,113 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.textContainer}>
-        <Text style={styles.headingText}>Hey,</Text>
-        <Text style={styles.headingText}>Welcome Back</Text>
-      </View>
-      <Controller
-        control={control}
-        rules={{
-          required: true,
-        }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <View style={styles.inputContainer}>
-            <Ionicons name={"mail-outline"} size={30} color="teal" />
-            <TextInput
-              placeholder="Email"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              style={styles.textInput}
-              placeholderTextColor="teal"
-              keyboardType="email-address"
-            />
-          </View>
+    <ImageBackground
+      source={{
+        uri: "https://i.pinimg.com/564x/b0/1e/01/b01e01aba4f9c02cc86d7eed6b6c4ca2.jpg",
+      }}
+      resizeMode="cover"
+      style={{
+        flex: 1,
+      }}
+    >
+      <View style={styles.container}>
+        <View style={styles.textContainer}>
+          <Text style={styles.headingText}>Chào mừng bạn đến với</Text>
+          <Text
+            style={{ fontSize: 30, color: "darkturquoise", fontWeight: "900" }}
+          >
+            Tdocman
+          </Text>
+        </View>
+        <Controller
+          control={control}
+          rules={{
+            required: true,
+          }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <View style={styles.inputContainer}>
+              <Ionicons name={"mail-outline"} size={30} color="teal" />
+              <TextInput
+                placeholder="Email"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                style={styles.textInput}
+                placeholderTextColor="teal"
+                keyboardType="email-address"
+              />
+            </View>
+          )}
+          name="email"
+        />
+        {errors.email && (
+          <Text style={{ color: "red" }}>
+            Trường 'email' không được để trống
+          </Text>
         )}
-        name="email"
-      />
-      {errors.email && <Text style={{ color: "red" }}>This is required.</Text>}
 
-      <Controller
-        control={control}
-        rules={{
-          maxLength: 100,
-        }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <View style={styles.inputContainer}>
-            <SimpleLineIcons name={"lock"} size={30} color="teal" />
-            <TextInput
-              style={styles.textInput}
-              placeholder="Password"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              placeholderTextColor="teal"
-              secureTextEntry={secureEntery}
-            />
-            <TouchableOpacity
-              onPress={() => {
-                setSecureEntery((prev: any) => !prev);
-              }}
-            >
-              <SimpleLineIcons name={"eye"} size={20} color="teal" />
-            </TouchableOpacity>
-          </View>
-        )}
-        name="password"
-      />
+        <Controller
+          control={control}
+          rules={{
+            maxLength: 100,
+          }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <View style={styles.inputContainer}>
+              <SimpleLineIcons name={"lock"} size={30} color="teal" />
+              <TextInput
+                style={styles.textInput}
+                placeholder="Mật khẩu"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholderTextColor="teal"
+                secureTextEntry={secureEntery}
+              />
+              <TouchableOpacity
+                onPress={() => {
+                  setSecureEntery((prev: any) => !prev);
+                }}
+              >
+                <SimpleLineIcons name={"eye"} size={20} color="teal" />
+              </TouchableOpacity>
+            </View>
+          )}
+          name="password"
+        />
+        {/* {errors.password && (
+        <Text style={{ color: "red" }}>
+          Trường 'mật khẩu' không được để trống
+        </Text>
+      )} */}
 
-      <TouchableOpacity>
-        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-      </TouchableOpacity>
+        <TouchableOpacity>
+          <Text style={styles.forgotPasswordText}>Quên mật khẩu?</Text>
+        </TouchableOpacity>
 
-      <View
-        style={{
-          backgroundColor: "teal",
-          borderRadius: 100,
-          marginTop: 10,
-          padding: 10,
-        }}
-      >
-        <Pressable onPress={handleSubmit(onSubmit)}>
-          <Text style={{ textAlign: "center", color: "white" }}>Login</Text>
-        </Pressable>
-        {/* <Button title="Submit" onPress={handleSubmit(onSubmit)} /> */}
-      </View>
+        <View
+          style={{
+            backgroundColor: "teal",
+            borderRadius: 100,
+            marginTop: 10,
+            padding: 10,
+          }}
+        >
+          <Pressable onPress={handleSubmit(onSubmit)}>
+            <Text style={{ textAlign: "center", color: "white" }}>
+              Đăng nhập
+            </Text>
+          </Pressable>
+          {/* <Button title="Submit" onPress={handleSubmit(onSubmit)} /> */}
+        </View>
 
-      <View style={styles.footerContainer}>
-        <Text style={styles.accountText}>Don’t have an account?</Text>
+        {/* <View style={styles.footerContainer}>
+        <Text style={styles.accountText}>Chưa có tài khoản?</Text>
         <TouchableOpacity onPress={handleSignup}>
           <Text style={styles.signupText}>Sign up</Text>
         </TouchableOpacity>
+      </View> */}
       </View>
-    </View>
+    </ImageBackground>
   );
 };
 
@@ -155,11 +181,13 @@ export default LoginScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
+    justifyContent: "center",
     backgroundColor: "white",
     padding: 20,
-    marginVertical: 50,
-    marginHorizontal: 20,
+    // marginVertical: 50,
+    // marginHorizontal: 20,
+    margin: "auto",
     shadowColor: "slate",
     borderRadius: 15,
     shadowRadius: 150,
@@ -174,10 +202,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   textContainer: {
-    marginVertical: 20,
+    marginVertical: 10,
+    alignItems: "center",
   },
   headingText: {
-    fontSize: 32,
+    fontSize: 22,
     color: "teal",
     fontWeight: "bold",
   },
@@ -191,7 +220,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     flexDirection: "row",
     alignItems: "center",
-    padding: 10,
+    paddingVertical: 8,
     marginVertical: 10,
   },
   textInput: {
@@ -199,7 +228,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   forgotPasswordText: {
-    textAlign: "right",
+    textAlign: "center",
     color: "dimgrey",
     marginVertical: 10,
   },
