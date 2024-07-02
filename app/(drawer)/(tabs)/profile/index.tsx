@@ -30,7 +30,8 @@ const Profile = () => {
     () => getProfile(userContext),
     {
       onSuccess: (response) => {
-        return response?.object;
+        // console.log("Successfully get profile", response?.object);
+        // return response?.object;
       },
       onError: (error: AxiosError<{ message: string }>) => {
         ToastAndroid.show(
@@ -168,20 +169,22 @@ const Profile = () => {
             alignItems: "center",
           }}
         >
-          <Image
-            source={{
-              uri: data?.avatar || "https://via.placeholder.com/150",
-            }}
-            resizeMode="contain"
-            style={{
-              height: 155,
-              width: 155,
-              borderRadius: 999,
-              borderColor: "gray",
-              borderWidth: 2,
-              marginTop: -90,
-            }}
-          />
+          {data?.object.avatar && (
+            <Image
+              source={{
+                uri: data?.object?.avatar || "https://via.placeholder.com/150",
+              }}
+              resizeMode="contain"
+              style={{
+                height: 155,
+                width: 155,
+                borderRadius: 999,
+                borderColor: "gray",
+                borderWidth: 2,
+                marginTop: -90,
+              }}
+            />
+          )}
 
           <View
             style={{
@@ -204,7 +207,7 @@ const Profile = () => {
                   fontWeight: "bold",
                 }}
               >
-                {(data as { name: string }).name}
+                {data?.object.name}
               </Text>
             </View>
             <View
@@ -222,7 +225,7 @@ const Profile = () => {
                   fontSize: 16,
                 }}
               >
-                {(data as { email: string }).email}
+                {data?.object.email}
               </Text>
             </View>
 
@@ -240,7 +243,7 @@ const Profile = () => {
                   marginLeft: 4,
                 }}
               >
-                {(data as { phone: string }).phone}
+                {data?.object.phone}
               </Text>
             </View>
           </View>
@@ -270,7 +273,7 @@ const Profile = () => {
                   color: "black",
                 }}
               >
-                {(data as { department: string }).department}
+                {data?.object.department}
               </Text>
             </View>
 
@@ -293,7 +296,7 @@ const Profile = () => {
                   color: "black",
                 }}
               >
-                {(data as { position: string }).position}
+                {data?.object.position}
               </Text>
             </View>
 
@@ -316,7 +319,7 @@ const Profile = () => {
                   color: "black",
                 }}
               >
-                {data.gender ? "Nam" : "Nữ"}
+                {data?.object.gender ? "Nam" : "Nữ"}
               </Text>
             </View>
           </View>
@@ -344,7 +347,7 @@ const Profile = () => {
                     color: "white",
                   }}
                 >
-                  Edit Profile
+                  Chỉnh sửa
                 </Text>
               </Pressable>
             </TouchableOpacity>
@@ -355,7 +358,7 @@ const Profile = () => {
                 height: 36,
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: "green",
+                backgroundColor: "firebrick",
                 borderRadius: 10,
                 marginHorizontal: 20,
               }}
@@ -365,7 +368,7 @@ const Profile = () => {
                   await removeToken();
                   await removeUser();
                   setUserContext(null);
-                  queryClient.clear();
+                  // queryClient.clear();
                   router.navigate("/(auth)/signin");
                 }}
               >
