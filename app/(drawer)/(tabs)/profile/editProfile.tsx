@@ -630,19 +630,16 @@ const EditProfile = () => {
             control={control}
             rules={{ required: true }}
             render={({ field: { onChange, value } }) => (
-              <>
-                {/* <Text>Giới tính</Text> */}
-                <View>
-                  <Picker
-                    selectedValue={value}
-                    onValueChange={(itemValue) => onChange(itemValue)}
-                  >
-                    <Picker.Item label="Chọn giới tính" value="" />
-                    <Picker.Item label="Nam" value={true} />
-                    <Picker.Item label="Nữ" value={false} />
-                  </Picker>
-                </View>
-              </>
+              <View>
+                <Picker
+                  selectedValue={value}
+                  onValueChange={(itemValue) => onChange(itemValue)}
+                >
+                  <Picker.Item label="Chọn giới tính" value="" />
+                  <Picker.Item label="Nam" value={true} />
+                  <Picker.Item label="Nữ" value={false} />
+                </Picker>
+              </View>
             )}
             name="gender"
             defaultValue=""
