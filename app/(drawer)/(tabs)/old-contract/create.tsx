@@ -338,7 +338,7 @@ export default function UploadOldContract() {
         console.log("result", typeof result);
 
         setOcr(result);
-        formData.append("content", ocr || "Lỗi scan text");
+        formData.append("content", result || "Lỗi scan text");
       } catch (error) {
         console.error("loi he thong", error);
       }
