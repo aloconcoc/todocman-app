@@ -29,6 +29,7 @@ import {
 import { router } from "expo-router";
 import { getUserInfo } from "@/config/tokenUser";
 import { AxiosError } from "axios";
+import Pagination from "@/components/utils/pagination";
 
 const NewContract = () => {
   const [page, setPage] = useState(0);
@@ -115,6 +116,9 @@ const NewContract = () => {
     setPopUp(false);
     setDeleteModal(false);
     setSelectedContract(null);
+  };
+  const handlePageChange = (page: any) => {
+    setPage(page - 1);
   };
 
   const handleOfAdReject = async () => {
@@ -242,14 +246,13 @@ const NewContract = () => {
   const renderItem = ({ item, index }: any) => (
     <View style={styles.row}>
       <Text style={styles.cell}>{(index + 1).toString()}</Text>
-      <>
-        <Text style={styles.cell}>
-          {item?.status != "SUCCESS" && item?.urgent && (
-            <Entypo name="warning" size={20} color="red" />
-          )}
-          {item.name}
-        </Text>
-      </>
+      <Text style={[styles.cell, { flex: 0.4 }]}>
+        {item?.status != "SUCCESS" && item?.urgent && (
+          <Entypo name="warning" size={20} color="red" />
+        )}
+        {item.name}
+      </Text>
+      <Text style={[styles.cell, { color: "green" }]}>Thành công</Text>
       <TouchableOpacity style={styles.cell} onPress={() => openModal(item)}>
         <MaterialCommunityIcons
           name="dots-vertical"
@@ -280,8 +283,12 @@ const NewContract = () => {
                       alignItems: "center",
                     }}
                   >
-                    <FontAwesome5 name="signature" size={24} color="black" />
-                    <Text style={styles.menuOptionText}>Ký hợp đồng</Text>
+                    {/* <FontAwesome5 name="signature" size={24} color="green" /> */}
+                    <Text
+                      style={[styles.menuOptionText, { color: "forestgreen" }]}
+                    >
+                      ✍️ Ký hợp đồng
+                    </Text>
                   </View>
                 </TouchableOpacity>
                 <View style={styles.seperator} />
@@ -293,12 +300,14 @@ const NewContract = () => {
                       alignItems: "center",
                     }}
                   >
-                    <MaterialCommunityIcons
-                      name="signature-freehand"
-                      size={28}
-                      color="black"
-                    />
-                    <Text style={styles.menuOptionText}>Từ chối ký</Text>
+                    {/* <MaterialCommunityIcons
+                      name="format-color-marker-cancel"
+                      size={36}
+                      color="red"
+                    /> */}
+                    <Text style={[styles.menuOptionText, { color: "red" }]}>
+                      🚨 Từ chối ký
+                    </Text>
                   </View>
                 </TouchableOpacity>
               </>
@@ -315,7 +324,9 @@ const NewContract = () => {
                       }}
                     >
                       <Entypo name="check" size={24} color="black" />
-                      <Text style={styles.menuOptionText}>Duyệt hợp đồng</Text>
+                      <Text style={[styles.menuOptionText]}>
+                        Duyệt hợp đồng
+                      </Text>
                     </View>
                   </TouchableOpacity>
                   <View style={styles.seperator} />
@@ -328,7 +339,7 @@ const NewContract = () => {
                       }}
                     >
                       <FontAwesome name="close" size={24} color="black" />
-                      <Text style={styles.menuOptionText}>Từ chối duyệt</Text>
+                      <Text style={[styles.menuOptionText]}>Từ chối duyệt</Text>
                     </View>
                   </TouchableOpacity>
                   <View style={styles.seperator} />
@@ -341,7 +352,7 @@ const NewContract = () => {
                       }}
                     >
                       <FontAwesome5 name="signature" size={24} color="black" />
-                      <Text style={styles.menuOptionText}>Trình ký</Text>
+                      <Text style={[styles.menuOptionText]}>Trình ký</Text>
                     </View>
                   </TouchableOpacity>
                 </>
@@ -358,7 +369,7 @@ const NewContract = () => {
                       }}
                     >
                       <FontAwesome5 name="signature" size={24} color="black" />
-                      <Text style={styles.menuOptionText}>Trình duyệt</Text>
+                      <Text style={[styles.menuOptionText]}>Trình duyệt</Text>
                     </View>
                   </TouchableOpacity>
                   <View style={styles.seperator} />
@@ -377,9 +388,7 @@ const NewContract = () => {
                         size={28}
                         color="black"
                       />
-                      <Text style={styles.menuOptionText}>
-                        Gửi cho khách hàng
-                      </Text>
+                      <Text style={[styles.menuOptionText]}>Gửi cho khách</Text>
                     </View>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => handleAction("Xóa")}>
@@ -391,7 +400,7 @@ const NewContract = () => {
                       }}
                     >
                       <MaterialIcons name="delete" size={24} color="black" />
-                      <Text style={styles.menuOptionText}>Xóa</Text>
+                      <Text style={[styles.menuOptionText]}>Xóa</Text>
                     </View>
                   </TouchableOpacity>
                 </>
@@ -423,7 +432,8 @@ const NewContract = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerCell}>STT</Text>
-        <Text style={styles.headerCell}>Tên hợp đồng</Text>
+        <Text style={[styles.headerCell, { flex: 0.3 }]}>Tên hợp đồng</Text>
+        <Text style={styles.headerCell}>Trạng thái</Text>
         <Text style={styles.headerCell}>Hành động</Text>
       </View>
       <FlatList
@@ -431,14 +441,24 @@ const NewContract = () => {
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
       />
+      {data && data?.content?.length != 0 && (
+        <Pagination
+          totalPages={totalPage}
+          currentPage={page + 1}
+          size={size}
+          setSize={setSize}
+          setPage={setPage}
+          onPageChange={handlePageChange}
+        />
+      )}
     </View>
   );
 };
 const styles = StyleSheet.create({
   container: {
     // flex: 1,
-    maxHeight: "90%",
-    padding: 10,
+    maxHeight: "96%",
+    paddingVertical: 5,
     backgroundColor: "#fff",
   },
   header: {
@@ -448,7 +468,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   headerCell: {
-    flex: 1,
+    flex: 0.2,
     fontWeight: "bold",
     padding: 5,
     textAlign: "center",
@@ -464,11 +484,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cell: {
-    flex: 1,
+    flex: 0.2,
     padding: 8,
     textAlign: "center",
     alignItems: "center",
   },
+
   linkText: {
     color: "blue",
     textAlign: "center",
@@ -529,7 +550,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 2,
     marginVertical: 10,
-    fontSize: 22,
+    fontSize: 21,
+    fontWeight: "bold",
   },
 
   pdf: {
