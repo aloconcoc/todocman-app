@@ -18,7 +18,6 @@ import {
   getNewContract,
   sendMail,
 } from "@/services/contract.service";
-import WebView from "react-native-webview";
 import {
   Entypo,
   FontAwesome,
@@ -26,13 +25,7 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
-import {
-  Menu,
-  MenuOptions,
-  MenuOption,
-  MenuTrigger,
-  MenuProvider,
-} from "react-native-popup-menu";
+
 import { router } from "expo-router";
 import { getUserInfo } from "@/config/tokenUser";
 import { AxiosError } from "axios";
@@ -252,7 +245,7 @@ const NewContract = () => {
       <>
         <Text style={styles.cell}>
           {item?.status != "SUCCESS" && item?.urgent && (
-            <Entypo name="warning" size={24} color="red" />
+            <Entypo name="warning" size={20} color="red" />
           )}
           {item.name}
         </Text>
@@ -277,7 +270,7 @@ const NewContract = () => {
             <View style={styles.modalOverlay} />
           </TouchableWithoutFeedback>
           <View style={styles.modalContent1}>
-            {userInfo?.role === "ADMIN" && (
+            {userInfo?.role == "ADMIN" && (
               <>
                 <TouchableOpacity onPress={() => handleAction("Xem")}>
                   <View
@@ -310,97 +303,99 @@ const NewContract = () => {
                 </TouchableOpacity>
               </>
             )}
-            {userInfo?.permissions.includes("OFFICE_ADMIN") && (
-              <>
-                <TouchableOpacity onPress={handleOfAdAccept}>
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
+            {userInfo?.role == "OFFICE_ADMIN" &&
+              userInfo?.permissions.includes("OFFICE_ADMIN") && (
+                <>
+                  <TouchableOpacity onPress={handleOfAdAccept}>
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Entypo name="check" size={24} color="black" />
+                      <Text style={styles.menuOptionText}>Duyệt hợp đồng</Text>
+                    </View>
+                  </TouchableOpacity>
+                  <View style={styles.seperator} />
+                  <TouchableOpacity onPress={handleOfAdReject}>
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <FontAwesome name="close" size={24} color="black" />
+                      <Text style={styles.menuOptionText}>Từ chối duyệt</Text>
+                    </View>
+                  </TouchableOpacity>
+                  <View style={styles.seperator} />
+                  <TouchableOpacity onPress={() => handleAction("Trình ký")}>
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <FontAwesome5 name="signature" size={24} color="black" />
+                      <Text style={styles.menuOptionText}>Trình ký</Text>
+                    </View>
+                  </TouchableOpacity>
+                </>
+              )}
+            {userInfo?.role == "USER" &&
+              userInfo?.permissions.includes("SALE") && (
+                <>
+                  <TouchableOpacity onPress={() => handleAction("Trình duyệt")}>
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <FontAwesome5 name="signature" size={24} color="black" />
+                      <Text style={styles.menuOptionText}>Trình duyệt</Text>
+                    </View>
+                  </TouchableOpacity>
+                  <View style={styles.seperator} />
+                  <TouchableOpacity
+                    onPress={() => handleAction("Gửi cho khách hàng")}
                   >
-                    <Entypo name="check" size={24} color="black" />
-                    <Text style={styles.menuOptionText}>Duyệt hợp đồng</Text>
-                  </View>
-                </TouchableOpacity>
-                <View style={styles.seperator} />
-                <TouchableOpacity onPress={handleOfAdReject}>
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <FontAwesome name="close" size={24} color="black" />
-                    <Text style={styles.menuOptionText}>Từ chối duyệt</Text>
-                  </View>
-                </TouchableOpacity>
-                <View style={styles.seperator} />
-                <TouchableOpacity onPress={() => handleAction("Trình ký")}>
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <FontAwesome5 name="signature" size={24} color="black" />
-                    <Text style={styles.menuOptionText}>Trình ký</Text>
-                  </View>
-                </TouchableOpacity>
-              </>
-            )}
-            {userInfo?.permissions.includes("SALE") && (
-              <>
-                <TouchableOpacity onPress={() => handleAction("Trình duyệt")}>
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <FontAwesome5 name="signature" size={24} color="black" />
-                    <Text style={styles.menuOptionText}>Trình duyệt</Text>
-                  </View>
-                </TouchableOpacity>
-                <View style={styles.seperator} />
-                <TouchableOpacity
-                  onPress={() => handleAction("Gửi cho khách hàng")}
-                >
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <MaterialCommunityIcons
-                      name="send"
-                      size={28}
-                      color="black"
-                    />
-                    <Text style={styles.menuOptionText}>
-                      Gửi cho khách hàng
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleAction("Xóa")}>
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <MaterialIcons name="delete" size={24} color="black" />
-                    <Text style={styles.menuOptionText}>Xóa</Text>
-                  </View>
-                </TouchableOpacity>
-              </>
-            )}
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name="send"
+                        size={28}
+                        color="black"
+                      />
+                      <Text style={styles.menuOptionText}>
+                        Gửi cho khách hàng
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleAction("Xóa")}>
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <MaterialIcons name="delete" size={24} color="black" />
+                      <Text style={styles.menuOptionText}>Xóa</Text>
+                    </View>
+                  </TouchableOpacity>
+                </>
+              )}
           </View>
         </Modal>
       )}
@@ -432,7 +427,7 @@ const NewContract = () => {
         <Text style={styles.headerCell}>Hành động</Text>
       </View>
       <FlatList
-        data={data.content}
+        data={data?.object?.content}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
       />

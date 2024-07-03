@@ -154,11 +154,9 @@ const Profile = () => {
             {" "}
             Thông tin cá nhân
           </Text>
-          <Image
-            resizeMode="cover"
+          <View
             style={{
-              height: 100,
-              width: "100%",
+              height: 80,
             }}
           />
         </View>
@@ -169,22 +167,24 @@ const Profile = () => {
             alignItems: "center",
           }}
         >
-          {data?.object.avatar && (
-            <Image
-              source={{
-                uri: data?.object?.avatar || "https://via.placeholder.com/150",
-              }}
-              resizeMode="contain"
-              style={{
-                height: 155,
-                width: 155,
-                borderRadius: 999,
-                borderColor: "gray",
-                borderWidth: 2,
-                marginTop: -90,
-              }}
-            />
-          )}
+          <Image
+            resizeMode="cover"
+            style={{
+              height: 155,
+              width: 155,
+              borderRadius: 999,
+              borderColor: "gray",
+              borderWidth: 2,
+              marginTop: -90,
+            }}
+            source={
+              data?.object?.avatar
+                ? { uri: data?.object?.avatar }
+                : {
+                    uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/User-info.svg/1024px-User-info.svg.png",
+                  }
+            }
+          />
 
           <View
             style={{
