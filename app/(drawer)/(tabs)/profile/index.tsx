@@ -11,7 +11,7 @@ import {
 import React, { useContext, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { ScrollView } from "react-native-gesture-handler";
 import { getProfile } from "@/services/user.service";
@@ -82,13 +82,16 @@ const Profile = () => {
 
   const cacheAndCellularItems = [
     {
-      icon: "rule",
-      text: "Privacy Policy",
+      icon: "cached",
+      text: "Sửa mật khẩu",
       action: navigateToFreeSpace,
     },
-    { icon: "update", text: "About", action: navigateToDateSaver },
-    { icon: "crop", text: "Service", action: navigateToDateSaver },
-    { icon: "list", text: "Help & Support", action: navigateToDateSaver },
+    { icon: "info-outline", text: "Thông tin", action: navigateToDateSaver },
+    {
+      icon: "support-agent",
+      text: "Tư vấn & giúp đỡ",
+      action: navigateToDateSaver,
+    },
   ];
 
   const renderSettingsItem = ({ icon, text, action }: any) => (
@@ -97,7 +100,8 @@ const Profile = () => {
       style={{
         flexDirection: "row",
         alignItems: "center",
-        paddingVertical: 8,
+        marginTop: 5,
+        paddingVertical: 10,
         paddingLeft: 12,
         backgroundColor: "white",
       }}
@@ -105,7 +109,7 @@ const Profile = () => {
       <MaterialIcons name={icon} size={24} color="black" />
       <Text
         style={{
-          marginLeft: 36,
+          marginLeft: 20,
           fontWeight: 600,
           fontSize: 16,
         }}
@@ -173,8 +177,8 @@ const Profile = () => {
               height: 155,
               width: 155,
               borderRadius: 999,
-              borderColor: "gray",
-              borderWidth: 2,
+              borderColor: "dimgray",
+              borderWidth: 1,
               marginTop: -90,
             }}
             source={
@@ -369,7 +373,7 @@ const Profile = () => {
                   await removeUser();
                   setUserContext(null);
                   // queryClient.clear();
-                  router.navigate("/(auth)/signin");
+                  router.push("/(auth)/signin");
                 }}
               >
                 <Text
@@ -383,13 +387,25 @@ const Profile = () => {
             </TouchableOpacity>
           </View>
         </View>
-        {/* --------------------- */}
-        <View style={{ marginVertical: 12 }}>
-          <Text style={{ fontSize: 20, margin: 10 }}>Settings</Text>
+        <View
+          style={{
+            borderBottomWidth: 1,
+            borderColor: "#ccc",
+            marginTop: 20,
+            marginHorizontal: 10,
+          }}
+        ></View>
+        <View style={{ marginVertical: 10, marginLeft: 15 }}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Ionicons name="settings" size={24} color="black" />
+            <Text style={{ fontSize: 20, marginLeft: 5, fontWeight: "bold" }}>
+              Tiện ích
+            </Text>
+          </View>
+
           <View
             style={{
               borderRadius: 12,
-              backgroundColor: "gray",
             }}
           >
             {cacheAndCellularItems.map((item, index) => (
