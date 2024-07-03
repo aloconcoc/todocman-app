@@ -19,6 +19,7 @@ import Pdf from "react-native-pdf";
 import Pagination from "@/components/utils/pagination";
 import { AntDesign } from "@expo/vector-icons";
 import { AxiosError } from "axios";
+import { getContractType } from "@/services/contract-type";
 
 const { width, height } = Dimensions.get("window");
 
@@ -48,6 +49,15 @@ const ManageOldContract = () => {
       },
     }
   );
+  const {
+    data: typeContract,
+    isLoading: typeContractLoading,
+    isError,
+  } = useQuery(
+    "type-contract",
+    () => getContractType({ page: 0, size: 100 }),
+    {}
+  );
   const handlePageChange = (page: any) => {
     setPage(page - 1);
   };
@@ -59,7 +69,7 @@ const ManageOldContract = () => {
     }
   }, [page, refetch, size]);
 
-  if (isLoading) {
+  if (isLoading || typeContractLoading) {
     return (
       <View style={styles.loader}>
         <LottieView
@@ -94,8 +104,15 @@ const ManageOldContract = () => {
 
   const renderItem = ({ item, index }: any) => (
     <View style={styles.row}>
-      <Text style={styles.cell}>{(index + 1).toString()}</Text>
-      <Text style={styles.cell}>{item?.contractName}</Text>
+      <Text style={[styles.cell, { flex: 0.1 }]}>{(index + 1).toString()}</Text>
+      <Text style={[styles.cell, { flex: 0.4 }]}>{item?.contractName}</Text>
+      <Text style={[styles.cell, { flex: 0.3 }]}>
+        {
+          typeContract?.content?.find((t: any) => t.id == item?.contractTypeId)
+            ?.title
+        }
+        Hợp đồng mua bán trẻ con
+      </Text>
       <TouchableOpacity style={styles.cell} onPress={() => openModal(item)}>
         <Text style={styles.linkText}>Xem</Text>
       </TouchableOpacity>
@@ -106,7 +123,8 @@ const ManageOldContract = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerCell}>STT</Text>
-        <Text style={styles.headerCell}>Tên hợp đồng</Text>
+        <Text style={styles.headerName}>Tên hợp đồng</Text>
+        <Text style={styles.headerName}>Loại hợp đồng</Text>
         <Text style={styles.headerCell}>Hành động</Text>
       </View>
       <FlatList
@@ -114,6 +132,7 @@ const ManageOldContract = () => {
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
       />
+
       {data && data?.content?.length != 0 && (
         <Pagination
           totalPages={totalPage}
@@ -124,6 +143,7 @@ const ManageOldContract = () => {
           onPageChange={handlePageChange}
         />
       )}
+
       {selectedContract && (
         <Modal
           transparent={true}
@@ -194,10 +214,10 @@ const ManageOldContract = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
     padding: 10,
     backgroundColor: "#fff",
-    maxHeight: "90%",
+    maxHeight: "96%",
   },
   header: {
     flexDirection: "row",
@@ -205,7 +225,13 @@ const styles = StyleSheet.create({
     borderBottomColor: "#000",
   },
   headerCell: {
-    flex: 1,
+    flex: 0.2,
+    fontWeight: "bold",
+    padding: 5,
+    textAlign: "center",
+  },
+  headerName: {
+    flex: 0.3,
     fontWeight: "bold",
     padding: 5,
     textAlign: "center",
@@ -221,7 +247,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cell: {
-    flex: 1,
+    flex: 0.2,
     padding: 8,
     textAlign: "center",
   },
