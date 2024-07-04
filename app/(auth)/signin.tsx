@@ -12,7 +12,11 @@ import {
 } from "react-native";
 import React, { useContext, useState } from "react";
 import Colors from "@/constants/Colors";
-import { SimpleLineIcons, Ionicons } from "@expo/vector-icons";
+import {
+  SimpleLineIcons,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
 import { setToken, setUser, setUserInfo } from "@/config/tokenUser";
@@ -79,9 +83,7 @@ const LoginScreen = () => {
       <View style={styles.container}>
         <View style={styles.textContainer}>
           <Text style={styles.headingText}>Chào mừng bạn đến với</Text>
-          <Text
-            style={{ fontSize: 30, color: "darkturquoise", fontWeight: "900" }}
-          >
+          <Text style={{ fontSize: 30, color: "white", fontWeight: "900" }}>
             Tdocman
           </Text>
         </View>
@@ -92,7 +94,11 @@ const LoginScreen = () => {
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <View style={styles.inputContainer}>
-              <Ionicons name={"mail-outline"} size={30} color="teal" />
+              <MaterialCommunityIcons
+                name={"email-outline"}
+                size={24}
+                color="teal"
+              />
               <TextInput
                 placeholder="Email"
                 onBlur={onBlur}
@@ -119,7 +125,11 @@ const LoginScreen = () => {
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <View style={styles.inputContainer}>
-              <SimpleLineIcons name={"lock"} size={30} color="teal" />
+              <MaterialCommunityIcons
+                name={"shield-lock-outline"}
+                size={24}
+                color="teal"
+              />
               <TextInput
                 style={styles.textInput}
                 placeholder="Mật khẩu"
@@ -156,6 +166,7 @@ const LoginScreen = () => {
             borderRadius: 100,
             marginTop: 10,
             padding: 10,
+            marginHorizontal: 20,
           }}
         >
           <Pressable onPress={handleSubmit(onSubmit)}>
@@ -184,7 +195,7 @@ const styles = StyleSheet.create({
     // flex: 1,
     justifyContent: "center",
     backgroundColor: "white",
-    padding: 20,
+    paddingBottom: 20,
     // marginVertical: 50,
     // marginHorizontal: 20,
     margin: "auto",
@@ -202,8 +213,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   textContainer: {
-    marginVertical: 10,
+    paddingVertical: 20,
+    borderBottomEndRadius: 50,
+    borderBottomStartRadius: 50,
     alignItems: "center",
+    backgroundColor: "teal",
+    shadowColor: "gray",
+    shadowRadius: 10,
   },
   headingText: {
     fontSize: 22,
@@ -214,7 +230,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   inputContainer: {
-    borderWidth: 1,
+    borderBottomWidth: 1,
     borderColor: "teal",
     borderRadius: 100,
     paddingHorizontal: 20,
@@ -222,6 +238,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 8,
     marginVertical: 10,
+    marginHorizontal: 20,
   },
   textInput: {
     flex: 1,

@@ -87,7 +87,6 @@ export default function TabOneScreen() {
   }, []);
   return (
     <View style={styles.container}>
-      {/* <Text style={styles.title}>home</Text> */}
       <Timeline
         style={{ flex: 1, marginTop: 20 }}
         data={data}
@@ -108,12 +107,9 @@ export default function TabOneScreen() {
           borderRadius: 10,
           padding: 5,
         }}
-        // options={{
-        //   style:{paddingTop:5}
-        // }}
         innerCircle={"icon"}
       />
-      {/* <TouchableOpacity
+      <TouchableOpacity
         style={{
           width: 124,
           height: 36,
@@ -140,7 +136,7 @@ export default function TabOneScreen() {
             out
           </Text>
         </Pressable>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
     </View>
   );
 }
