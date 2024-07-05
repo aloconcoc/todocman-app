@@ -111,7 +111,6 @@ const ManageOldContract = () => {
           typeContract?.content?.find((t: any) => t.id == item?.contractTypeId)
             ?.title
         }
-        Hợp đồng mua bán trẻ con
       </Text>
       <TouchableOpacity style={styles.cell} onPress={() => openModal(item)}>
         <Text style={styles.linkText}>Xem</Text>

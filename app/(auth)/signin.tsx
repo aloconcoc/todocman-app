@@ -87,78 +87,71 @@ const LoginScreen = () => {
             Tdocman
           </Text>
         </View>
-        <Controller
-          control={control}
-          rules={{
-            required: true,
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <View style={styles.inputContainer}>
-              <MaterialCommunityIcons
-                name={"email-outline"}
-                size={24}
-                color="teal"
-              />
-              <TextInput
-                placeholder="Email"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                style={styles.textInput}
-                placeholderTextColor="teal"
-                keyboardType="email-address"
-              />
-            </View>
+        <View style={{ marginVertical: 30 }}>
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <View style={styles.inputContainer}>
+                <MaterialCommunityIcons
+                  name={"email-outline"}
+                  size={24}
+                  color="teal"
+                />
+                <TextInput
+                  placeholder="Email"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  style={styles.textInput}
+                  placeholderTextColor="teal"
+                  keyboardType="email-address"
+                />
+              </View>
+            )}
+            name="email"
+          />
+          {errors.email && (
+            <Text style={{ color: "red" }}>
+              Trường 'email' không được để trống
+            </Text>
           )}
-          name="email"
-        />
-        {errors.email && (
-          <Text style={{ color: "red" }}>
-            Trường 'email' không được để trống
-          </Text>
-        )}
 
-        <Controller
-          control={control}
-          rules={{
-            maxLength: 100,
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <View style={styles.inputContainer}>
-              <MaterialCommunityIcons
-                name={"shield-lock-outline"}
-                size={24}
-                color="teal"
-              />
-              <TextInput
-                style={styles.textInput}
-                placeholder="Mật khẩu"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                placeholderTextColor="teal"
-                secureTextEntry={secureEntery}
-              />
-              <TouchableOpacity
-                onPress={() => {
-                  setSecureEntery((prev: any) => !prev);
-                }}
-              >
-                <SimpleLineIcons name={"eye"} size={20} color="teal" />
-              </TouchableOpacity>
-            </View>
-          )}
-          name="password"
-        />
-        {/* {errors.password && (
-        <Text style={{ color: "red" }}>
-          Trường 'mật khẩu' không được để trống
-        </Text>
-      )} */}
-
-        <TouchableOpacity>
-          <Text style={styles.forgotPasswordText}>Quên mật khẩu?</Text>
-        </TouchableOpacity>
+          <Controller
+            control={control}
+            rules={{
+              maxLength: 100,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <View style={styles.inputContainer}>
+                <MaterialCommunityIcons
+                  name={"shield-lock-outline"}
+                  size={24}
+                  color="teal"
+                />
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="Mật khẩu"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  placeholderTextColor="teal"
+                  secureTextEntry={secureEntery}
+                />
+                <TouchableOpacity
+                  onPress={() => {
+                    setSecureEntery((prev: any) => !prev);
+                  }}
+                >
+                  <SimpleLineIcons name={"eye"} size={20} color="teal" />
+                </TouchableOpacity>
+              </View>
+            )}
+            name="password"
+          />
+        </View>
 
         <View
           style={{
@@ -174,15 +167,7 @@ const LoginScreen = () => {
               Đăng nhập
             </Text>
           </Pressable>
-          {/* <Button title="Submit" onPress={handleSubmit(onSubmit)} /> */}
         </View>
-
-        {/* <View style={styles.footerContainer}>
-        <Text style={styles.accountText}>Chưa có tài khoản?</Text>
-        <TouchableOpacity onPress={handleSignup}>
-          <Text style={styles.signupText}>Sign up</Text>
-        </TouchableOpacity>
-      </View> */}
       </View>
     </ImageBackground>
   );
@@ -196,8 +181,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "white",
     paddingBottom: 20,
-    // marginVertical: 50,
-    // marginHorizontal: 20,
     margin: "auto",
     shadowColor: "slate",
     borderRadius: 15,
@@ -214,6 +197,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     paddingVertical: 20,
+    paddingHorizontal: 15,
     borderBottomEndRadius: 50,
     borderBottomStartRadius: 50,
     alignItems: "center",
@@ -227,7 +211,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   formContainer: {
-    marginTop: 20,
+    marginTop: 50,
   },
   inputContainer: {
     borderBottomWidth: 1,
@@ -237,7 +221,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 8,
-    marginVertical: 10,
+    marginVertical: 20,
     marginHorizontal: 20,
   },
   textInput: {
