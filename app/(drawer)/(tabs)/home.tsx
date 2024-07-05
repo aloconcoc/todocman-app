@@ -109,7 +109,7 @@ export default function TabOneScreen() {
         }}
         innerCircle={"icon"}
       />
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={{
           width: 124,
           height: 36,
@@ -136,7 +136,7 @@ export default function TabOneScreen() {
             out
           </Text>
         </Pressable>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 }

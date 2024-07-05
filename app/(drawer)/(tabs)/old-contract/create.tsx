@@ -272,7 +272,7 @@ export default function UploadOldContract() {
 
   const handleCreateOldContract = useMutation(createOldContract, {
     onSuccess: async (res) => {
-      console.log("redm: ", res);
+      // console.log("redm: ", res);
 
       if (res.code === "00" && res.object) {
         ToastAndroid.show("Tạo hợp đồng thành công!", ToastAndroid.SHORT);
@@ -327,6 +327,7 @@ export default function UploadOldContract() {
         formData.append("images", image);
       });
       try {
+        setLoadingOcr(true);
         const response = await fetch("http://192.168.1.186:2002/ocr", {
           method: "POST",
           body: formData,
@@ -341,6 +342,7 @@ export default function UploadOldContract() {
         formData.append("content", result || "Lỗi scan text");
       } catch (error) {
         console.error("loi he thong", error);
+        setLoadingOcr(false);
       }
     } else if (selectedPdf) {
       formData.append("images", selectedPdf);
@@ -348,6 +350,7 @@ export default function UploadOldContract() {
     }
     handleCreateOldContract.mutate(formData);
   };
+  const { isLoading: loadingCreate } = handleCreateOldContract;
 
   // Render image list item
   const renderItem = ({ item, drag, isActive }: any) => {
@@ -385,7 +388,7 @@ export default function UploadOldContract() {
       // {/* </ScaleDecorator> */}
     );
   };
-  if (isLoading) {
+  if (isLoading || loadingOcr || loadingCreate) {
     return (
       <View
         style={{
