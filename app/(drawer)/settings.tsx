@@ -1,211 +1,142 @@
-// import React, { useState, useEffect } from "react";
-// import {
-//   Button,
-//   Image,
-//   View,
-//   StyleSheet,
-//   ActivityIndicator,
-//   SafeAreaView,
-//   Text,
-//   FlatList,
-// } from "react-native";
-// import * as ImagePicker from "expo-image-picker";
-// import * as FileSystem from "expo-file-system";
-// import Ionicons from "@expo/vector-icons/Ionicons";
+import { useState, useEffect, useRef } from "react";
+import { Text, View, Button, Platform } from "react-native";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
 
-// const imgDir = FileSystem.documentDirectory + "images/";
-
-// const ensureDirExists = async () => {
-//   const dirInfo = await FileSystem.getInfoAsync(imgDir);
-//   if (!dirInfo.exists) {
-//     await FileSystem.makeDirectoryAsync(imgDir, { intermediates: true });
-//   }
-// };
-
-// export default function App() {
-//   const [uploading, setUploading] = useState(false);
-//   const [images, setImages] = useState<any[]>([]);
-
-//   // Load images on startup
-//   useEffect(() => {
-//     loadImages();
-//   }, []);
-
-//   // Load images from file system
-//   const loadImages = async () => {
-//     await ensureDirExists();
-//     const files = await FileSystem.readDirectoryAsync(imgDir);
-//     if (files.length > 0) {
-//       setImages(files.map((f) => imgDir + f));
-//     }
-//   };
-
-//   // Select image from library or camera
-//   const selectImage = async (useLibrary: boolean) => {
-//     let result;
-//     const options: ImagePicker.ImagePickerOptions = {
-//       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-//       allowsEditing: true,
-//       aspect: [4, 3],
-//       quality: 0.75,
-//     };
-
-//     if (useLibrary) {
-//       result = await ImagePicker.launchImageLibraryAsync(options);
-//     } else {
-//       await ImagePicker.requestCameraPermissionsAsync();
-//       result = await ImagePicker.launchCameraAsync(options);
-//     }
-
-//     // Save image if not cancelled
-//     if (!result.canceled) {
-//       saveImage(result.assets[0].uri);
-//     }
-//   };
-//   // Save image to file system
-//   const saveImage = async (uri: string) => {
-//     await ensureDirExists();
-//     const filename = new Date().getTime() + ".jpeg";
-//     const dest = imgDir + filename;
-//     await FileSystem.copyAsync({ from: uri, to: dest });
-//     setImages([...images, dest]);
-//   };
-
-//   // Upload image to server
-//   const uploadImage = async (uri: string) => {
-//     setUploading(true);
-//     console.log("uploading image", uri);
-//     setUploading(false);
-//   };
-
-//   // Delete image from file system
-//   const deleteImage = async (uri: string) => {
-//     await FileSystem.deleteAsync(uri);
-//     setImages(images.filter((i) => i !== uri));
-//   };
-
-//   // Render image list item
-//   const renderItem = ({ item }: { item: any }) => {
-//     const filename = item.split("/").pop();
-//     return (
-//       <View
-//         style={{
-//           flexDirection: "row",
-//           margin: 1,
-//           alignItems: "center",
-//           gap: 5,
-//         }}
-//       >
-//         <Image style={{ width: 80, height: 80 }} source={{ uri: item }} />
-//         <Text style={{ flex: 1 }}>{filename}</Text>
-//         <Ionicons.Button
-//           name="cloud-upload"
-//           onPress={() => uploadImage(item)}
-//         />
-//         <Ionicons.Button name="trash" onPress={() => deleteImage(item)} />
-//       </View>
-//     );
-//   };
-//   return (
-//     <SafeAreaView style={{ flex: 1, gap: 20 }}>
-//       <View
-//         style={{
-//           flexDirection: "row",
-//           justifyContent: "space-evenly",
-//           marginVertical: 20,
-//         }}
-//       >
-//         <Button title="Photo Library" onPress={() => selectImage(true)} />
-//         <Button title="Capture Image" onPress={() => selectImage(false)} />
-//       </View>
-
-//       <Text style={{ textAlign: "center", fontSize: 20, fontWeight: "500" }}>
-//         My Images
-//       </Text>
-//       <FlatList data={images} renderItem={renderItem} />
-
-//       {uploading && (
-//         <View
-//           style={[
-//             StyleSheet.absoluteFill,
-//             {
-//               backgroundColor: "rgba(0,0,0,0.4)",
-//               alignItems: "center",
-//               justifyContent: "center",
-//             },
-//           ]}
-//         >
-//           <ActivityIndicator color="#fff" animating size="large" />
-//         </View>
-//       )}
-//     </SafeAreaView>
-//   );
-// }
-
-//================================================================
-
-import React, { useState } from "react";
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
-import DraggableFlatList, {
-  RenderItemParams,
-  ScaleDecorator,
-} from "react-native-draggable-flatlist";
-
-const NUM_ITEMS = 5;
-
-type Item = {
-  key: string;
-  label: string;
-};
-
-const initialData: Item[] = [...Array(NUM_ITEMS)].map((d, index) => {
-  return {
-    key: `item-${index}`,
-    label: "Item " + index,
-  };
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
 });
 
-export default function App() {
-  const [data, setData] = useState(initialData);
-
-  const renderItem = ({ item, drag, isActive }: RenderItemParams<Item>) => {
-    return (
-      <ScaleDecorator>
-        <TouchableOpacity
-          onLongPress={drag}
-          disabled={isActive}
-          style={[
-            styles.rowItem,
-            { backgroundColor: isActive ? "green" : "black" },
-          ]}
-        >
-          <Text style={styles.text}>{item.label}</Text>
-        </TouchableOpacity>
-      </ScaleDecorator>
-    );
+async function sendPushNotification(expoPushToken: string) {
+  const message = {
+    to: expoPushToken,
+    sound: "default",
+    title: "Original Title",
+    body: "And here is the body!",
+    data: { someData: "goes here" },
   };
 
-  return (
-    <DraggableFlatList
-      data={data}
-      onDragEnd={({ data }) => setData(data)}
-      keyExtractor={(item) => item.key}
-      renderItem={renderItem}
-    />
-  );
+  await fetch("https://exp.host/--/api/v2/push/send", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Accept-encoding": "gzip, deflate",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(message),
+  });
 }
 
-const styles = StyleSheet.create({
-  rowItem: {
-    height: 100,
-    width: 100,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  text: {
-    color: "white",
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-});
+function handleRegistrationError(errorMessage: string) {
+  alert(errorMessage);
+  throw new Error(errorMessage);
+}
+
+async function registerForPushNotificationsAsync() {
+  if (Platform.OS === "android") {
+    Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    });
+  }
+
+  if (Device.isDevice) {
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      handleRegistrationError(
+        "Permission not granted to get push token for push notification!"
+      );
+      return;
+    }
+    const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ??
+      Constants?.easConfig?.projectId;
+    if (!projectId) {
+      handleRegistrationError("Project ID not found");
+    }
+    try {
+      const pushTokenString = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId,
+        })
+      ).data;
+      console.log(pushTokenString);
+      return pushTokenString;
+    } catch (e: unknown) {
+      handleRegistrationError(`${e}`);
+    }
+  } else {
+    handleRegistrationError("Must use physical device for push notifications");
+  }
+}
+
+export default function App() {
+  const [expoPushToken, setExpoPushToken] = useState("");
+  const [notification, setNotification] = useState<
+    Notifications.Notification | undefined
+  >(undefined);
+  const notificationListener = useRef<Notifications.Subscription>();
+  const responseListener = useRef<Notifications.Subscription>();
+
+  useEffect(() => {
+    registerForPushNotificationsAsync()
+      .then((token) => setExpoPushToken(token ?? ""))
+      .catch((error: any) => setExpoPushToken(`${error}`));
+
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        setNotification(notification);
+      });
+
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log(response);
+      });
+
+    return () => {
+      notificationListener.current &&
+        Notifications.removeNotificationSubscription(
+          notificationListener.current
+        );
+      responseListener.current &&
+        Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
+
+  return (
+    <View
+      style={{ flex: 1, alignItems: "center", justifyContent: "space-around" }}
+    >
+      <Text>Your Expo push token: {expoPushToken}</Text>
+      <View style={{ alignItems: "center", justifyContent: "center" }}>
+        <Text>
+          Title: {notification && notification.request.content.title}{" "}
+        </Text>
+        <Text>Body: {notification && notification.request.content.body}</Text>
+        <Text>
+          Data:{" "}
+          {notification && JSON.stringify(notification.request.content.data)}
+        </Text>
+      </View>
+      <Button
+        title="Press to Send Notification"
+        onPress={async () => {
+          await sendPushNotification(expoPushToken);
+        }}
+      />
+    </View>
+  );
+}

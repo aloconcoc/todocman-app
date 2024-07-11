@@ -53,6 +53,17 @@
         {
           "launchMode": "most-recent"
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./local/path/to/myNotificationIcon.png",
+          "color": "#ffffff",
+          "sounds": [
+            "~/assets/mixkit-positive-notification-951.wav"
+          ],
+          "mode": "production"
+        }
       ]
     ],
     "experiments": {
