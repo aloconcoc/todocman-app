@@ -78,24 +78,24 @@ const CustomDrawerContent = (props: any) => {
           router.push("/(drawer)/(tabs)/home");
         }}
       />
-      {/* <DrawerItem
+      <DrawerItem
         icon={({ color, size }) => (
           <MaterialIcons
             name="favorite-outline"
             size={size}
-            color={pathname == "/signature" ? "#fff" : "#000"}
+            color={pathname == "/settings" ? "#fff" : "#000"}
           />
         )}
-        label={"Signature"}
+        label={"Settings"}
         labelStyle={[
           styles.navItemLabel,
-          { color: pathname == "/signature" ? "#fff" : "#000" },
+          { color: pathname == "/settings" ? "#fff" : "#000" },
         ]}
-        style={{ backgroundColor: pathname == "/signature" ? "teal" : "#fff" }}
+        style={{ backgroundColor: pathname == "/settings" ? "teal" : "#fff" }}
         onPress={() => {
-          router.push("/(drawer)/(tabs)/signature");
+          router.push("/(drawer)/settings");
         }}
-      /> */}
+      />
 
       <DrawerItem
         icon={({ color, size }) => (
