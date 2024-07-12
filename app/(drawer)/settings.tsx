@@ -14,11 +14,11 @@ Notifications.setNotificationHandler({
 
 async function sendPushNotification(expoPushToken: string) {
   const message = {
-    to: expoPushToken,
+    to: "ExponentPushToken[AJ3sAcCd0f2i4Nhkn0uYe2]",
     sound: "default",
-    title: "Original Title",
-    body: "And here is the body!",
-    data: { someData: "goes here" },
+    title: "title",
+    body: "body",
+    data: { someData: "data" },
   };
 
   await fetch("https://exp.host/--/api/v2/push/send", {
