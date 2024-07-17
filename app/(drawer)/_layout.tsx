@@ -15,6 +15,7 @@ import {
 import { router, usePathname } from "expo-router";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { getUserInfo } from "@/config/tokenUser";
+import NotificationProvider from "@/utils/useNotification";
 
 const CustomDrawerContent = (props: any) => {
   const pathname = usePathname();
@@ -161,21 +162,26 @@ const CustomDrawerContent = (props: any) => {
 
 export default function Layout() {
   return (
-    <Drawer
-      drawerContent={(props: any) => <CustomDrawerContent {...props} />}
-      screenOptions={{ headerShown: false }}
-    >
-      <Drawer.Screen name="(tabs)" options={{ headerShown: true, title: "" }} />
-      <Drawer.Screen
-        name="settings"
-        options={
-          {
-            //  headerShown: true,
-            // title: '',
+    <NotificationProvider>
+      <Drawer
+        drawerContent={(props: any) => <CustomDrawerContent {...props} />}
+        screenOptions={{ headerShown: false }}
+      >
+        <Drawer.Screen
+          name="(tabs)"
+          options={{ headerShown: true, title: "" }}
+        />
+        <Drawer.Screen
+          name="settings"
+          options={
+            {
+              //  headerShown: true,
+              // title: '',
+            }
           }
-        }
-      />
-    </Drawer>
+        />
+      </Drawer>
+    </NotificationProvider>
   );
 }
 
