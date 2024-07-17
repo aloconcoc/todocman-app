@@ -16,6 +16,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { AppProvider } from "./Context/Context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import NotificationProvider from "@/utils/useNotification";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -70,24 +71,29 @@ function RootLayoutNav() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <QueryClientProvider client={client}>
-          <AppProvider>
-            <ThemeProvider
-              value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-            >
-              <Stack>
-                <Stack.Screen name="index" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="(drawer)"
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="modal"
-                  options={{ presentation: "modal" }}
-                />
-              </Stack>
-            </ThemeProvider>
-          </AppProvider>
+          <NotificationProvider>
+            <AppProvider>
+              <ThemeProvider
+                value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+              >
+                <Stack>
+                  <Stack.Screen name="index" options={{ headerShown: false }} />
+                  <Stack.Screen
+                    name="(drawer)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="(auth)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="modal"
+                    options={{ presentation: "modal" }}
+                  />
+                </Stack>
+              </ThemeProvider>
+            </AppProvider>
+          </NotificationProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
