@@ -4,6 +4,8 @@ import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import { router } from "expo-router";
+import SockJS from "sockjs-client";
+import { Stomp } from "@stomp/stompjs";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -14,14 +16,16 @@ Notifications.setNotificationHandler({
 });
 
 export async function sendPushNotification(expoPushToken: string) {
+  console.log("123", expoPushToken);
+
   const noti = [];
   noti.push(expoPushToken);
   const message = {
-    to: expoPushToken,
+    to: "ExponentPushToken[JHYq3FF8-w7VHNgEqNpbfQ]",
     sound: "default",
-    title: "Trình duyệt",
-    body: "Quản lý đã duyệt hợp đồng",
-    data: { screen: "/modal" },
+    title: "Thông báo",
+    body: "Duyệt hợp đồng thành công",
+    data: { screen: "/(tabs)/settings" },
   };
 
   await fetch("https://exp.host/--/api/v2/push/send", {
@@ -33,7 +37,8 @@ export async function sendPushNotification(expoPushToken: string) {
     },
     body: JSON.stringify(message),
   });
-  // await fetch("http://192.168.1.63:2002/send-notification", {
+
+  // await fetch("http://192.168.1.31:2002/send-notification", {
   //   method: "POST",
   //   headers: {
   //     Accept: "application/json",
@@ -104,10 +109,14 @@ export default function NotificationProvider({ children }: any) {
   const responseListener = useRef<Notifications.Subscription>();
 
   useEffect(() => {
-    registerForPushNotificationsAsync()
-      .then((token) => setExpoPushToken(token ?? ""))
-      .catch((error: any) => setExpoPushToken(`${error}`));
+    console.log("abc");
 
+    registerForPushNotificationsAsync()
+      .then((token) => setExpoPushToken(token ?? "a"))
+      .catch((error: any) => setExpoPushToken(`${error}`));
+  });
+
+  useEffect(() => {
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
         console.log("forground: ", notification.request.content.data);
@@ -134,9 +143,70 @@ export default function NotificationProvider({ children }: any) {
   }, []);
 
   useEffect(() => {
+    const socket = new SockJS(`http://192.168.1.31:8080/ws`);
+    // const fetchAPI = async () => {
+    //   try {
+    //     const notificationData = await getNotification()
+    //     const total = await getNumberUnreadNotify()
+    //     setTotalNotRead(total)
+    //     setNotifications(notificationData)
+    //   } catch (e) {
+    //     console.log(e)
+    //   }
+    // }
+
+    // fetchAPI()
+    const stompClient = Stomp.over(socket);
+    stompClient.connect({}, (frame: any) => {
+      console.log("Connected: " + frame);
+      stompClient.subscribe(
+        `/topic/notifications/officeadminsep490@gmail.com`,
+        (message) => {
+          console.log(message.body);
+          try {
+            sendPushNotification(expoPushToken);
+          } catch (e) {
+            console.log(e);
+          }
+
+          // if (message.body) {
+          //   setTotalNotRead((totalNotRead) => totalNotRead + 1)
+          //   setNotifications((prevNotifications) => [JSON.parse(message.body), ...prevNotifications])
+          // }
+        }
+      );
+    });
+    return () => {
+      if (stompClient) {
+        stompClient.disconnect();
+      }
+    };
+  }, []);
+  useEffect(() => {
     // Check if there's a notification that triggered the app launch
     Notifications.getLastNotificationResponseAsync().then((response) => {
       if (response) {
+        const socket = new SockJS(`http://192.168.1.31:8080/ws`);
+        const stompClient = Stomp.over(socket);
+        stompClient.connect({}, (frame: any) => {
+          console.log("Connected: " + frame);
+          stompClient.subscribe(
+            `/topic/notifications/officeadminsep490@gmail.com`,
+            (message) => {
+              sendPushNotification(expoPushToken);
+
+              // if (message.body) {
+              //   setTotalNotRead((totalNotRead) => totalNotRead + 1)
+              //   setNotifications((prevNotifications) => [JSON.parse(message.body), ...prevNotifications])
+              // }
+            }
+          );
+        });
+
+        if (stompClient) {
+          stompClient.disconnect();
+        }
+
         const dataString = response.notification.request.content.dataString;
         console.log("quit: ", response.notification.request.content);
 
