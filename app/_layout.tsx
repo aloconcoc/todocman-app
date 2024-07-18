@@ -16,7 +16,6 @@ import { useColorScheme } from "@/components/useColorScheme";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { AppProvider } from "./Context/Context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import NotificationProvider from "@/utils/useNotification";
 
 export {
   // Catch any errors thrown by the Layout component.
