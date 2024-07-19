@@ -13,14 +13,10 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "runtimeVersion": {
-        "policy": "appVersion"
-      },
-      "bundleIdentifier": "com.leopan.sepApp"
+      "supportsTablet": true
+     
     },
     "android": {
-      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -53,13 +49,8 @@
         {
           "launchMode": "most-recent"
         }
-      ],
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/images/logo-noti.png"
-        }
       ]
+      
     ],
     "experiments": {
       "typedRoutes": true
