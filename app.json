@@ -32,7 +32,6 @@
         "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION",
         "android.permission.ACCESS_NETWORK_STATE"
       ],
-      "package": "com.leopan.sepApp",
       "runtimeVersion": "1.0.0"
     },
     "web": {
