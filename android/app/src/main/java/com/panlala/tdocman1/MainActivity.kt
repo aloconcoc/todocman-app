@@ -1,4 +1,4 @@
-package com.leopan.sepApp
+package com.panlala.tdocman1
 
 import android.os.Build
 import android.os.Bundle
