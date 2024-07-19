@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "647600810276",
+    "project_id": "noti1-6b31a",
+    "storage_bucket": "noti1-6b31a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:647600810276:android:ec7e095238dc5f21da2bb1",
+        "android_client_info": {
+          "package_name": "com.leopan.sepApp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSJZIHdaBfQ8yaaxTda66-0DEXqt2ZGzY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -57,7 +57,6 @@
       [
         "expo-notifications",
         {
-          "sounds": ["./assets/mixkit-positive-notification-951.wav"],
           "icon": "./assets/images/logo-noti.png"
         }
       ]
