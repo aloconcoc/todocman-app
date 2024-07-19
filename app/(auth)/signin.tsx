@@ -29,12 +29,7 @@ import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 
 const LoginScreen = () => {
-  const navigation = useNavigation();
   const [secureEntery, setSecureEntery] = useState(true);
-
-  const handleSignup = () => {
-    router.navigate("/(auth)/signup");
-  };
 
   const { userContext, setUserContext }: any = useContext(AppContext);
   const [expoPushToken, setExpoPushToken] = useState("");
@@ -112,11 +107,22 @@ const LoginScreen = () => {
   });
   const onSubmit = async (data: LoginRequest) => {
     try {
-      const response = await login(data);
+      const dataWithDeviceToken = {
+        ...data,
+        tokenDevice: expoPushToken,
+      };
+      console.log("token hula: ", expoPushToken);
+
+      const response = await login(dataWithDeviceToken);
       if (response) {
         setToken(response?.access_token);
         setUser(response?.user.id);
-        setUserInfo(JSON.stringify(response?.user));
+
+        const userInfoWithToken = {
+          ...response?.user,
+          tokenDevice: expoPushToken,
+        };
+        setUserInfo(JSON.stringify(userInfoWithToken));
         console.log("response", response.user);
 
         setUserContext(response?.user.id);
