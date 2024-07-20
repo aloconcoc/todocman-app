@@ -13,11 +13,7 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "runtimeVersion": {
-        "policy": "appVersion"
-      },
-      "bundleIdentifier": "com.leopan.sepApp"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
@@ -31,8 +27,8 @@
         "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION",
         "android.permission.ACCESS_NETWORK_STATE"
       ],
-      "package": "com.leopan.sepApp",
-      "runtimeVersion": "1.0.0"
+      "runtimeVersion": "1.0.0",
+      "package": "com.kimasa.tdocman1"
     },
     "web": {
       "bundler": "metro",
@@ -63,7 +59,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "ab26d6fe-e569-4558-b7e3-d14d66fc1660"
+        "projectId": "7d8d109b-e034-47b4-9c54-e0982a4c5b85"
       }
     }
   }
