@@ -10,7 +10,7 @@ export const AppContext = React.createContext(null);
 export const AppProvider = ({ children }: any) => {
   const [loading, setLoading] = useState(true);
   const [userContext, setUserContext] = useState("");
-  const [userInfo, setUserInfo] = useState("");
+  const [userInfoC, setUserInfoC] = useState("");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -55,7 +55,7 @@ export const AppProvider = ({ children }: any) => {
 
   return (
     <AppContext.Provider
-      value={{ userContext, setUserContext, userInfo, setUserInfo } as any}
+      value={{ userContext, setUserContext, userInfoC, setUserInfoC } as any}
     >
       {children}
     </AppContext.Provider>
