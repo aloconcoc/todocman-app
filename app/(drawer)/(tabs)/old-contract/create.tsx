@@ -33,7 +33,7 @@ import DraggableFlatList, {
 import * as DocumentPicker from "expo-document-picker";
 import axios, { AxiosError } from "axios";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { getContractType } from "@/services/contract-type";
+import { getContractType } from "@/services/contract-type.service";
 import { Picker } from "@react-native-picker/picker";
 
 const imgDir = FileSystem.documentDirectory + "images/";

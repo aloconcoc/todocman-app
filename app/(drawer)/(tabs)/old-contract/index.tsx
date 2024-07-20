@@ -19,7 +19,7 @@ import Pdf from "react-native-pdf";
 import Pagination from "@/components/utils/pagination";
 import { AntDesign } from "@expo/vector-icons";
 import { AxiosError } from "axios";
-import { getContractType } from "@/services/contract-type";
+import { getContractType } from "@/services/contract-type.service";
 
 const { width, height } = Dimensions.get("window");
 
