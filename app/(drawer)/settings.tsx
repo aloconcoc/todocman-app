@@ -3,6 +3,7 @@ import { Text, View, Button, Platform } from "react-native";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
+import { router } from "expo-router";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -114,6 +115,24 @@ export default function App() {
       responseListener.current &&
         Notifications.removeNotificationSubscription(responseListener.current);
     };
+  }, []);
+
+  useEffect(() => {
+    // Check if there's a notification that triggered the app launch
+    Notifications.getLastNotificationResponseAsync().then((response) => {
+      if (response) {
+        const dataString = response.notification.request.content.dataString;
+        console.log("quit: ", response.notification.request.content);
+
+        if (dataString) {
+          const data = JSON.parse(dataString);
+          const screen = data.screen;
+          if (screen) {
+            router.push(screen);
+          }
+        }
+      }
+    });
   }, []);
 
   return (
