@@ -14,15 +14,16 @@ import { StatusBar } from "expo-status-bar";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { ScrollView } from "react-native-gesture-handler";
-import { getProfile } from "@/services/user.service";
-import { removeToken, removeUser } from "@/config/tokenUser";
+import { getProfile, logout } from "@/services/user.service";
+import { clearAll, removeToken, removeUser } from "@/config/tokenUser";
 import LottieView from "lottie-react-native";
-import { useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { AppContext } from "@/app/Context/Context";
 import { AxiosError } from "axios";
 
 const Profile = () => {
-  const { userContext, setUserContext }: any = useContext(AppContext);
+  const { userContext, setUserContext, userInfoC, setUserInfoC }: any =
+    useContext(AppContext);
   const queryClient = useQueryClient();
 
   const { data, isLoading, isError, error } = useQuery(
@@ -41,6 +42,31 @@ const Profile = () => {
       },
     }
   );
+
+  const logoutQuery = useMutation(
+    async () => {
+      if (userInfoC.email) await logout(userInfoC.email);
+    },
+    {
+      onSuccess: async () => {
+        ToastAndroid.show("Đăng xuất thành công!", ToastAndroid.SHORT);
+        queryClient.clear();
+        await clearAll();
+        setUserContext(null);
+        setUserInfoC(null);
+        router.push("/(auth)/signin");
+      },
+      onError: (e) => {
+        console.log("error up", e);
+        ToastAndroid.show("Lỗi hệ thống!", ToastAndroid.SHORT);
+        return;
+      },
+    }
+  );
+
+  const handleLogout = async () => {
+    logoutQuery.mutate();
+  };
 
   if (isLoading) {
     return (
@@ -369,11 +395,7 @@ const Profile = () => {
             >
               <Pressable
                 onPress={async () => {
-                  await removeToken();
-                  await removeUser();
-                  setUserContext(null);
-                  // queryClient.clear();
-                  router.push("/(auth)/signin");
+                  handleLogout();
                 }}
               >
                 <Text
@@ -395,7 +417,7 @@ const Profile = () => {
             marginHorizontal: 10,
           }}
         ></View>
-        <View style={{ marginVertical: 10, marginLeft: 15 }}>
+        <View style={{ marginVertical: 20, marginLeft: 15 }}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Ionicons name="settings" size={24} color="black" />
             <Text style={{ fontSize: 20, marginLeft: 5, fontWeight: "bold" }}>
@@ -406,6 +428,7 @@ const Profile = () => {
           <View
             style={{
               borderRadius: 12,
+              marginTop: 10,
             }}
           >
             {cacheAndCellularItems.map((item, index) => (
