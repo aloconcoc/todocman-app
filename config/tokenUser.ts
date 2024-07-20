@@ -82,3 +82,10 @@ export const removeUser = async () => {
     console.log(e);
   }
 };
+export const clearAll = async () => {
+  try {
+    await AsyncStorage.clear();
+  } catch (e) {
+    console.log(e);
+  }
+};
