@@ -6,14 +6,45 @@ import { Pressable, Text } from "react-native";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
-import { FontAwesome5 } from "@expo/vector-icons";
+import {
+  FontAwesome5,
+  FontAwesome6,
+  Ionicons,
+  Octicons,
+} from "@expo/vector-icons";
+import { useNotification } from "@/app/Context/NotifyContext";
+const {
+  notifications,
+  totalNotRead,
+  isReadNotify,
+  isDeleteNotify,
+  viewMoreNotify,
+  setNotifications,
+  setTotalNotRead,
+  loading,
+  page,
+  totalPages,
+} = useNotification();
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
+console.log(
+  "bnk: ",
+  notifications,
+  totalNotRead,
+  isReadNotify,
+  isDeleteNotify,
+  viewMoreNotify,
+  setNotifications,
+  setTotalNotRead,
+  loading,
+  page,
+  totalPages
+);
+
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
   color: string;
 }) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+  return <FontAwesome size={24} style={{ marginBottom: -3 }} {...props} />;
 }
 
 export default function TabLayout() {
@@ -33,7 +64,7 @@ export default function TabLayout() {
         options={{
           title: "Trang chủ",
           tabBarIcon: ({ color }: any) => (
-            <TabBarIcon name="home" color={color} />
+            <Ionicons name="home" size={24} color={color} />
           ),
           headerRight: () => (
             <Link href="/modal" asChild>
@@ -51,15 +82,21 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="notify/index"
+        options={{
+          title: "Thông báo",
+          tabBarIcon: ({ color }: any) => (
+            <Octicons name="bell-fill" color={color} size={23} />
+          ),
+          // tabBarBadge: 10,
+        }}
+      />
 
       <Tabs.Screen
         name="new-contract"
         options={{
-          title: "Hợp đồng mới",
-          headerShown: false,
-          tabBarIcon: ({ color }: any) => (
-            <FontAwesome5 name="file-signature" color={color} size={24} />
-          ),
+          tabBarButton: () => null,
         }}
       />
       <Tabs.Screen
@@ -78,7 +115,7 @@ export default function TabLayout() {
           title: "Trang cá nhân",
           headerShown: false,
           tabBarIcon: ({ color }: any) => (
-            <TabBarIcon name="user" color={color} />
+            <FontAwesome5 name="user-alt" size={23} color={color} />
           ),
         }}
       />
