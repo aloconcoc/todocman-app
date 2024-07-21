@@ -13,6 +13,7 @@ import {
   Octicons,
 } from "@expo/vector-icons";
 import NotifyProvider, { useNotification } from "@/app/Context/NotifyContext";
+import NotifyScreen from "./notify";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -23,32 +24,7 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const {
-    notifications,
-    totalNotRead,
-    isReadNotify,
-    isDeleteNotify,
-    viewMoreNotify,
-    setNotifications,
-    setTotalNotRead,
-    loading,
-    page,
-    totalPages,
-  } = useNotification();
-
-  console.log(
-    "bnk: ",
-    notifications,
-    totalNotRead,
-    isReadNotify,
-    isDeleteNotify,
-    viewMoreNotify,
-    setNotifications,
-    setTotalNotRead,
-    loading,
-    page,
-    totalPages
-  );
+  const { totalNotRead, loading } = useNotification();
 
   return (
     <Tabs
@@ -89,7 +65,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }: any) => (
             <Octicons name="bell-fill" color={color} size={23} />
           ),
-          // tabBarBadge: 10,
+          tabBarBadge: !loading && totalNotRead > 0 ? totalNotRead : undefined,
         }}
       />
 
