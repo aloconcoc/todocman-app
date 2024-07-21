@@ -262,6 +262,7 @@ export default function UploadOldContract() {
       ...prevState,
       [field]: formatDate(currentDate),
     }));
+    console.log("date: ", typeof currentDate);
   };
   const showDatepicker = (picker: any) => {
     setDatePickerState((prevState) => ({
@@ -300,10 +301,42 @@ export default function UploadOldContract() {
         ToastAndroid.LONG,
         ToastAndroid.BOTTOM,
         -48,
-        1040
+        1050
       );
       return;
     }
+    // Kiểm tra ngày
+    const startDate = new Date(birthDate);
+    const endDate = new Date(registrationDate);
+    const signDate = new Date(enrollmentDate);
+
+    // Kiểm tra ngày kết thúc không trước ngày bắt đầu
+    if (endDate < startDate) {
+      ToastAndroid.show(
+        "Ngày kết thúc không thể trước ngày bắt đầu",
+        ToastAndroid.SHORT
+      );
+      return;
+    }
+
+    // Kiểm tra ngày ký không bé hơn ngày bắt đầu
+    if (signDate < startDate) {
+      ToastAndroid.show(
+        "Ngày ký không thể trước ngày bắt đầu",
+        ToastAndroid.SHORT
+      );
+      return;
+    }
+
+    // Kiểm tra ngày ký không sau ngày kết thúc
+    if (signDate > endDate) {
+      ToastAndroid.show(
+        "Ngày ký không thể sau ngày kết thúc",
+        ToastAndroid.SHORT
+      );
+      return;
+    }
+
     if (
       images.length === 0 &&
       (selectedPdf === null || selectedPdf === undefined)
@@ -328,7 +361,7 @@ export default function UploadOldContract() {
       });
       try {
         setLoadingOcr(true);
-        const response = await fetch("http://192.168.1.186:2002/ocr", {
+        const response = await fetch("http://192.168.1.31:2002/ocr", {
           method: "POST",
           body: formData,
           headers: {
@@ -350,7 +383,6 @@ export default function UploadOldContract() {
     }
     handleCreateOldContract.mutate(formData);
   };
-  const { isLoading: loadingCreate } = handleCreateOldContract;
 
   // Render image list item
   const renderItem = ({ item, drag, isActive }: any) => {
@@ -388,7 +420,7 @@ export default function UploadOldContract() {
       // {/* </ScaleDecorator> */}
     );
   };
-  if (isLoading || loadingOcr || loadingCreate) {
+  if (isLoading) {
     return (
       <View
         style={{
@@ -454,6 +486,7 @@ export default function UploadOldContract() {
         >
           <Text>Ngày bắt đầu</Text>
           <TouchableOpacity
+            disabled={handleCreateOldContract.isLoading || loadingOcr}
             onPress={() => showDatepicker("birthDate")}
             style={{
               borderWidth: 1,
@@ -484,6 +517,7 @@ export default function UploadOldContract() {
         >
           <Text>Ngày kết thúc</Text>
           <TouchableOpacity
+            disabled={handleCreateOldContract.isLoading || loadingOcr}
             onPress={() => showDatepicker("registrationDate")}
             style={{
               borderWidth: 1,
@@ -514,6 +548,7 @@ export default function UploadOldContract() {
         >
           <Text>Ngày kí</Text>
           <TouchableOpacity
+            disabled={handleCreateOldContract.isLoading || loadingOcr}
             onPress={() => showDatepicker("enrollmentDate")}
             style={{
               borderWidth: 1,
@@ -554,7 +589,7 @@ export default function UploadOldContract() {
         }}
       >
         <TouchableOpacity
-          disabled={ispdf}
+          disabled={ispdf || handleCreateOldContract.isLoading || loadingOcr}
           style={styles.button}
           onPress={() => setOpenMenu(!openMenu)}
         >
@@ -564,7 +599,9 @@ export default function UploadOldContract() {
         {openMenu && (
           <View style={styles.menu}>
             <TouchableOpacity
-              disabled={ispdf}
+              disabled={
+                ispdf || handleCreateOldContract.isLoading || loadingOcr
+              }
               style={styles.menuOption}
               onPress={() => {
                 console.log("Option 1 selected");
@@ -575,7 +612,9 @@ export default function UploadOldContract() {
               <Text style={styles.menuText}>📂 Thư viện</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              disabled={ispdf}
+              disabled={
+                ispdf || handleCreateOldContract.isLoading || loadingOcr
+              }
               style={styles.menuOption}
               onPress={() => {
                 console.log("Option 2 selected");
@@ -586,7 +625,9 @@ export default function UploadOldContract() {
               <Text style={styles.menuText}>📷 Máy ảnh</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              disabled={ispdf}
+              disabled={
+                ispdf || handleCreateOldContract.isLoading || loadingOcr
+              }
               style={styles.menuOption}
               onPress={() => {
                 console.log("Option 3 selected");
@@ -625,6 +666,7 @@ export default function UploadOldContract() {
                 value={d.id}
                 key={d.id}
                 style={{ color: contractType === d.id ? "green" : "black" }}
+                enabled={!handleCreateOldContract.isLoading || !loadingOcr}
               />
             ))}
           </Picker>
@@ -749,18 +791,19 @@ const styles = StyleSheet.create({
   },
   menu: {
     position: "absolute",
+    backgroundColor: "white",
     top: 40,
-    left: 38,
+    left: 28,
     borderRadius: 5,
     zIndex: 100,
     borderColor: "#cccccc",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: "#cccccc",
+    shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.5,
     shadowRadius: 3,
   },
   menuOption: {
-    paddingHorizontal: 25,
+    paddingHorizontal: 20,
     paddingVertical: 5,
     borderBottomWidth: 1,
     borderColor: "#cccccc",
