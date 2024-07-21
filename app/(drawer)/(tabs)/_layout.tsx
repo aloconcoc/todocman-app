@@ -12,33 +12,7 @@ import {
   Ionicons,
   Octicons,
 } from "@expo/vector-icons";
-import { useNotification } from "@/app/Context/NotifyContext";
-const {
-  notifications,
-  totalNotRead,
-  isReadNotify,
-  isDeleteNotify,
-  viewMoreNotify,
-  setNotifications,
-  setTotalNotRead,
-  loading,
-  page,
-  totalPages,
-} = useNotification();
-
-console.log(
-  "bnk: ",
-  notifications,
-  totalNotRead,
-  isReadNotify,
-  isDeleteNotify,
-  viewMoreNotify,
-  setNotifications,
-  setTotalNotRead,
-  loading,
-  page,
-  totalPages
-);
+import NotifyProvider, { useNotification } from "@/app/Context/NotifyContext";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -49,6 +23,32 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const {
+    notifications,
+    totalNotRead,
+    isReadNotify,
+    isDeleteNotify,
+    viewMoreNotify,
+    setNotifications,
+    setTotalNotRead,
+    loading,
+    page,
+    totalPages,
+  } = useNotification();
+
+  console.log(
+    "bnk: ",
+    notifications,
+    totalNotRead,
+    isReadNotify,
+    isDeleteNotify,
+    viewMoreNotify,
+    setNotifications,
+    setTotalNotRead,
+    loading,
+    page,
+    totalPages
+  );
 
   return (
     <Tabs

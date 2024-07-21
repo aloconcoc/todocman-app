@@ -10,7 +10,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-
+import { TextEncoder } from "text-encoding";
 import { useColorScheme } from "@/components/useColorScheme";
 
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -93,3 +93,4 @@ function RootLayoutNav() {
     </GestureHandlerRootView>
   );
 }
+global.TextEncoder = TextEncoder;
