@@ -27,6 +27,7 @@ import { AppContext } from "../Context/Context";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
+import { useMutation } from "react-query";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -105,15 +106,9 @@ const LoginScreen = () => {
       password: "",
     },
   });
-  const onSubmit = async (data: LoginRequest) => {
-    try {
-      const dataWithDeviceToken = {
-        ...data,
-        tokenDevice: expoPushToken,
-      };
-      console.log("token hula: ", expoPushToken);
-
-      const response = await login(dataWithDeviceToken);
+  const mutation = useMutation({
+    mutationFn: login,
+    onSuccess: async (response) => {
       if (response) {
         setToken(response?.access_token);
         setUser(response?.user.id);
@@ -134,13 +129,21 @@ const LoginScreen = () => {
           ToastAndroid.SHORT
         );
       }
-    } catch (e) {
+    },
+    onError: (error) => {
       ToastAndroid.show(
         "Lỗi hệ thống! Vui lòng thử lại sau!",
         ToastAndroid.SHORT
       );
-      console.log(e);
-    }
+      console.error(error);
+    },
+  });
+  const onSubmit = (data: LoginRequest) => {
+    const dataWithDeviceToken = {
+      ...data,
+      tokenDevice: expoPushToken,
+    };
+    mutation.mutate(dataWithDeviceToken);
   };
 
   return (
@@ -174,6 +177,7 @@ const LoginScreen = () => {
                   color="teal"
                 />
                 <TextInput
+                  aria-disabled={mutation.isLoading}
                   placeholder="Email"
                   onBlur={onBlur}
                   onChangeText={onChange}
@@ -205,6 +209,7 @@ const LoginScreen = () => {
                   color="teal"
                 />
                 <TextInput
+                  aria-disabled={mutation.isLoading}
                   style={styles.textInput}
                   placeholder="Mật khẩu"
                   onBlur={onBlur}
@@ -235,7 +240,10 @@ const LoginScreen = () => {
             marginHorizontal: 20,
           }}
         >
-          <Pressable onPress={handleSubmit(onSubmit)}>
+          <Pressable
+            disabled={mutation.isLoading}
+            onPress={handleSubmit(onSubmit)}
+          >
             <Text style={{ textAlign: "center", color: "white" }}>
               Đăng nhập
             </Text>
