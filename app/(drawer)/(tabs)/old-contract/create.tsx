@@ -463,6 +463,7 @@ export default function UploadOldContract() {
           onChangeText={(text) => setContractName(text)}
           placeholder="Tên hợp đồng"
           editable
+          aria-disabled={handleCreateOldContract.isLoading || loadingOcr}
           style={{
             borderColor: "black",
             borderWidth: 1,
