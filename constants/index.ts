@@ -1,5 +1,5 @@
-// export const BASE_URL = "http://192.168.1.31:8080/";
-export const BASE_URL = "http://api.tdocman.id.vn/api/";
+export const BASE_URL = "http://192.168.1.31:8080/";
+// export const BASE_URL = "http://api.tdocman.id.vn/api/";
 
 export const INTERNAL_SERVER_ERROR = 500;
 export const NOT_FOUND = 404;
