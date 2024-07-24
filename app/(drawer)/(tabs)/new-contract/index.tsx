@@ -47,12 +47,10 @@ const NewContract = () => {
   useEffect(() => {
     const checkUser = async () => {
       const c = await getUserInfo();
-      // console.log("userdmm", c);
-
-      setUserInfo(c);
       if (!c) {
         router.navigate("(auth/signin)");
       }
+      setUserInfo(c);
     };
     checkUser();
   }, []);
@@ -283,8 +281,10 @@ const NewContract = () => {
                       alignItems: "center",
                     }}
                   >
-                    {/* <FontAwesome5 name="signature" size={24} color="green" /> */}
                     <Text
+                      disabled={
+                        !item?.canSign && userInfo?.email != item.createdBy
+                      }
                       style={[styles.menuOptionText, { color: "forestgreen" }]}
                     >
                       ✍️ Ký hợp đồng
@@ -300,12 +300,10 @@ const NewContract = () => {
                       alignItems: "center",
                     }}
                   >
-                    {/* <MaterialCommunityIcons
-                      name="format-color-marker-cancel"
-                      size={36}
-                      color="red"
-                    /> */}
-                    <Text style={[styles.menuOptionText, { color: "red" }]}>
+                    <Text
+                      disabled={!item?.canSign}
+                      style={[styles.menuOptionText, { color: "red" }]}
+                    >
                       🚨 Từ chối ký
                     </Text>
                   </View>
