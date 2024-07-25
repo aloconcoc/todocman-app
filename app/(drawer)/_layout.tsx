@@ -31,7 +31,6 @@ const CustomDrawerContent = (props: any) => {
   useEffect(() => {
     const checkUser = async () => {
       const c = await getUserInfo();
-      // console.log("userdmm", c);
 
       if (!c) {
         router.navigate("(auth/signin)");
@@ -85,25 +84,25 @@ const CustomDrawerContent = (props: any) => {
       />
       <DrawerItem
         icon={({ color, size }) => (
-          <MaterialIcons
-            name="favorite-outline"
+          <Ionicons
+            name="search-circle"
             size={size}
-            color={pathname == "/settings" ? "#fff" : "#000"}
+            color={pathname == "/search" ? "#fff" : "#000"}
           />
         )}
-        label={"Settings"}
+        label={"Tìm kiếm"}
         labelStyle={[
           styles.navItemLabel,
-          { color: pathname == "/settings" ? "#fff" : "#000" },
+          { color: pathname == "/search" ? "#fff" : "#000" },
         ]}
-        style={{ backgroundColor: pathname == "/settings" ? "teal" : "#fff" }}
+        style={{ backgroundColor: pathname == "/search" ? "teal" : "#fff" }}
         onPress={() => {
-          router.push("/(drawer)/settings");
+          router.push("/(drawer)/search");
         }}
       />
 
       <DrawerItem
-        icon={({ color, size }) => (
+        icon={() => (
           <FontAwesome5
             name="file-signature"
             size={24}
