@@ -2,6 +2,7 @@ import {
   Button,
   Image,
   ImageBackground,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -10,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Colors from "@/constants/Colors";
 import {
   SimpleLineIcons,
@@ -23,15 +24,76 @@ import { setToken, setUser, setUserInfo } from "@/config/tokenUser";
 import { useForm, Controller } from "react-hook-form";
 import { LoginRequest, login } from "@/services/user.service";
 import { AppContext } from "../Context/Context";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
+
 const LoginScreen = () => {
-  const navigation = useNavigation();
   const [secureEntery, setSecureEntery] = useState(true);
 
-  const handleSignup = () => {
-    router.navigate("/(auth)/signup");
-  };
-
   const { userContext, setUserContext }: any = useContext(AppContext);
+  const [expoPushToken, setExpoPushToken] = useState("");
+
+  function handleRegistrationError(errorMessage: string) {
+    alert(errorMessage);
+    throw new Error(errorMessage);
+  }
+
+  async function registerForPushNotificationsAsync() {
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+    }
+
+    if (Device.isDevice) {
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== "granted") {
+        handleRegistrationError(
+          "Permission not granted to get push token for push notification!"
+        );
+        return;
+      }
+      const projectId =
+        Constants?.expoConfig?.extra?.eas?.projectId ??
+        Constants?.easConfig?.projectId;
+      if (!projectId) {
+        handleRegistrationError("Project ID not found");
+      }
+      try {
+        const pushTokenString = (
+          await Notifications.getExpoPushTokenAsync({
+            projectId,
+          })
+        ).data;
+        console.log(pushTokenString);
+        return pushTokenString;
+      } catch (e: unknown) {
+        handleRegistrationError(`${e}`);
+      }
+    } else {
+      handleRegistrationError(
+        "Must use physical device for push notifications"
+      );
+    }
+  }
+
+  useEffect(() => {
+    console.log("abc");
+
+    registerForPushNotificationsAsync()
+      .then((token) => setExpoPushToken(token ?? "a"))
+      .catch((error: any) => setExpoPushToken(`${error}`));
+  });
 
   const {
     control,
@@ -45,11 +107,22 @@ const LoginScreen = () => {
   });
   const onSubmit = async (data: LoginRequest) => {
     try {
-      const response = await login(data);
+      const dataWithDeviceToken = {
+        ...data,
+        tokenDevice: expoPushToken,
+      };
+      console.log("token hula: ", expoPushToken);
+
+      const response = await login(dataWithDeviceToken);
       if (response) {
         setToken(response?.access_token);
         setUser(response?.user.id);
-        setUserInfo(JSON.stringify(response?.user));
+
+        const userInfoWithToken = {
+          ...response?.user,
+          tokenDevice: expoPushToken,
+        };
+        setUserInfo(JSON.stringify(userInfoWithToken));
         console.log("response", response.user);
 
         setUserContext(response?.user.id);

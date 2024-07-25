@@ -13,13 +13,10 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "runtimeVersion": {
-        "policy": "appVersion"
-      },
-      "bundleIdentifier": "com.leopan.sepApp"
+      "supportsTablet": true
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -31,8 +28,7 @@
         "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION",
         "android.permission.ACCESS_NETWORK_STATE"
       ],
-      "package": "com.leopan.sepApp",
-      "runtimeVersion": "1.0.0"
+      "package": "com.panlala.tdocman1"
     },
     "web": {
       "bundler": "metro",
@@ -41,6 +37,12 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/logo-noti.png"
+        }
+      ],
       [
         "expo-image-picker",
         {
@@ -74,7 +76,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "ab26d6fe-e569-4558-b7e3-d14d66fc1660"
+        "projectId": "0b25928d-85d7-48f8-b3fa-6116b084e69b"
       }
     }
   }

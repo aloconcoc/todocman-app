@@ -15,11 +15,14 @@ import {
 import { router, usePathname } from "expo-router";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { getUserInfo } from "@/config/tokenUser";
+
+import { AppContext } from "../Context/Context";
 import NotificationProvider from "@/utils/useNotification";
 
 const CustomDrawerContent = (props: any) => {
   const pathname = usePathname();
   const [userInfo, setUserInfo] = useState<any>("");
+  const { setUserInfoC }: any = useContext(AppContext);
 
   // useEffect(() => {
   //   console.log(pathname);
@@ -30,9 +33,10 @@ const CustomDrawerContent = (props: any) => {
       const c = await getUserInfo();
       // console.log("userdmm", c);
 
-      setUserInfo(c);
       if (!c) {
         router.navigate("(auth/signin)");
+        setUserInfo(c);
+        setUserInfoC(c);
       }
     };
     checkUser();

@@ -3,20 +3,35 @@ import axiosInstance, { axiosInstanceFormData } from "@/config/axiosConfig";
 export type LoginRequest = {
   email: string;
   password: string;
+  tokenDevice: string;
 };
 
-export const login = async ({ email, password }: LoginRequest) => {
+export const login = async ({ email, password, tokenDevice }: LoginRequest) => {
   try {
-    console.log({ email, password });
+    console.log({ email, password, tokenDevice });
 
     const response = await axiosInstance.post("public/auth/login", {
       email,
       password,
+      tokenDevice,
     });
 
     return response.data;
   } catch (e) {
     console.log(e);
+  }
+};
+
+export const logout = async (email: any) => {
+  try {
+    console.log("edm", email);
+
+    const response = await axiosInstance.post(
+      `public/auth/logout?email=${email}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log(error);
   }
 };
 

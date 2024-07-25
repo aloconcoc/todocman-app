@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "213135860013",
+    "project_id": "noti3-e9d74",
+    "storage_bucket": "noti3-e9d74.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213135860013:android:bc81f9c2dbea7523e833a4",
+        "android_client_info": {
+          "package_name": "com.panlala.tdocman1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByA0lwIqvDGmGbO-y3K4d4voHzm0ISSlQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

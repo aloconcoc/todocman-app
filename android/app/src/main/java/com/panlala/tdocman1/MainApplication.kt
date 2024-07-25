@@ -1,4 +1,4 @@
-package com.leopan.sepApp
+package com.panlala.tdocman1
 
 import android.app.Application
 import android.content.res.Configuration
