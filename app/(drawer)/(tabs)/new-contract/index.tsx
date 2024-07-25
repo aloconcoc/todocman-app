@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -22,6 +22,7 @@ import {
   Entypo,
   FontAwesome,
   FontAwesome5,
+  Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
@@ -30,19 +31,137 @@ import { router } from "expo-router";
 import { getUserInfo } from "@/config/tokenUser";
 import { AxiosError } from "axios";
 import Pagination from "@/components/utils/pagination";
+import { ADMIN, permissionObject } from "@/components/utils/permissions";
+
+type STATUS = "ADMIN" | "OFFICE_ADMIN" | "SALE" | "OFFICE_STAFF";
 
 const NewContract = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
-  const [modalVisible, setModalVisible] = useState(false);
   const [selectedContract, setSelectedContract] = useState<any>(null);
   const [totalPage, setTotalPage] = useState(1);
   const prevPageRef = useRef(page);
   const prevSizeRef = useRef(size);
   const [popUp, setPopUp] = useState(false);
   const [userInfo, setUserInfo] = useState<any>(null);
-  const client = useQueryClient();
   const [deleteModal, setDeleteModal] = useState(false);
+  const [statusModal, setStatusModal] = useState(false);
+  const [statusContract, setStatusContract] = useState<any>({
+    id: 1,
+    title: "🗂️ Quản lí hợp đồng",
+    status: "MANAGER_CONTRACT",
+  });
+  const permissionUser: STATUS = useMemo(() => {
+    if (
+      userInfo?.role == ADMIN ||
+      userInfo?.permissions.includes(permissionObject.MANAGER)
+    )
+      return ADMIN;
+    else if (userInfo?.permissions.includes(permissionObject.OFFICE_ADMIN))
+      return "OFFICE_ADMIN";
+    else if (userInfo?.permissions.includes(permissionObject.SALE))
+      return "SALE";
+    else return "OFFICE_STAFF";
+  }, [userInfo]);
+
+  const saleContract = [
+    {
+      id: 1,
+      title: "🗂️ Quản lí hợp đồng",
+      status: "MANAGER_CONTRACT",
+    },
+    {
+      id: 2,
+      title: "🕒 Đợi duyệt",
+      status: "WAIT_APPROVE",
+    },
+    {
+      id: 3,
+      title: "🎯 Đã được duyệt",
+      status: "APPROVED",
+    },
+    {
+      id: 4,
+      title: "✍️ Chờ sếp ký",
+      status: "WAIT_SIGN_A",
+    },
+    {
+      id: 5,
+      title: "👌 Sếp ký thành công",
+      status: "SIGN_A_OK",
+    },
+    {
+      id: 6,
+      title: "⏳ Chờ khách hàng ký",
+      status: "WAIT_SIGN_B",
+    },
+    {
+      id: 7,
+      title: "✅ Đã Hoàn thành",
+      status: "SUCCESS",
+    },
+  ];
+  const adminOfficeContract = [
+    {
+      id: 1,
+      title: "🗂️ Quản lí hợp đồng",
+      status: "MANAGER_CONTRACT",
+    },
+    {
+      id: 2,
+      title: "🔎 Cần duyệt",
+      status: "WAIT_APPROVE",
+    },
+    {
+      id: 3,
+      title: "🎯 Đã duyệt",
+      status: "APPROVED",
+    },
+    {
+      id: 4,
+      title: "✍️ Chờ sếp ký",
+      status: "WAIT_SIGN_A",
+    },
+    {
+      id: 5,
+      title: "👌 Đã ký",
+      status: "SIGN_A_OK",
+    },
+    {
+      id: 6,
+      title: "✅ Đã Hoàn thành",
+      status: "SUCCESS",
+    },
+  ];
+  const adminContract = [
+    {
+      id: 1,
+      title: "🗂️ Quản lí hợp đồng",
+      status: "MANAGER_CONTRACT",
+    },
+    {
+      id: 2,
+      title: "✍️ Chờ ký",
+      status: "WAIT_SIGN_A",
+    },
+    {
+      id: 3,
+      title: "👌 Đã ký",
+      status: "SIGN_A_OK",
+    },
+    {
+      id: 4,
+      title: "✅ Đã Hoàn thành",
+      status: "SUCCESS",
+    },
+  ];
+
+  const menuContract = {
+    ADMIN: adminContract,
+    SALE: saleContract,
+    OFFICE_ADMIN: adminOfficeContract,
+    OFFICE_STAFF: [],
+  };
 
   useEffect(() => {
     const checkUser = async () => {
@@ -114,7 +233,19 @@ const NewContract = () => {
     setPopUp(false);
     setDeleteModal(false);
     setSelectedContract(null);
+    setStatusModal(false);
   };
+
+  const openStatus = () => {
+    setStatusModal(true);
+  };
+
+  const closeStatus = () => {
+    setStatusModal(false);
+    setPopUp(false);
+    setDeleteModal(false);
+  };
+
   const handlePageChange = (page: any) => {
     setPage(page - 1);
   };
@@ -172,7 +303,6 @@ const NewContract = () => {
   //   onSuccess: () => {
   //     ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
   //     closeModal();
-  //     // client.invalidateQueries({ queryKey: ["new-contract"] });
   //     setTimeout(() => refetch(), 500);
   //   },
   //   onError: (error: AxiosError<{ message: string }>) => {
@@ -243,15 +373,35 @@ const NewContract = () => {
 
   const renderItem = ({ item, index }: any) => (
     <View style={styles.row}>
-      <Text style={styles.cell}>{(index + 1).toString()}</Text>
-      <Text style={[styles.cell, { flex: 0.4 }]}>
+      <Text style={[styles.cell, { flex: 0.2 }]}>{(index + 1).toString()}</Text>
+      <Text style={[styles.cell, { flex: 0.4, padding: 2 }]}>
         {item?.status != "SUCCESS" && item?.urgent && (
           <Entypo name="warning" size={20} color="red" />
         )}
         {item.name}
       </Text>
-      <Text style={[styles.cell, { color: "green" }]}>Thành công</Text>
-      <TouchableOpacity style={styles.cell} onPress={() => openModal(item)}>
+      <Text
+        style={[
+          styles.cell,
+          {
+            color: item.status === "SUCCESS" ? "green" : "red",
+            flex: 0.3,
+            textAlign: "left",
+          },
+        ]}
+      >
+        {item.status === "SUCCESS" ? "Thành công" : "Thất bại"}
+      </Text>
+      <TouchableOpacity
+        onPress={() => openModal(item)}
+        style={[
+          styles.cell,
+          {
+            flex: 0.2,
+            marginHorizontal: "auto",
+          },
+        ]}
+      >
         <MaterialCommunityIcons
           name="dots-vertical"
           size={24}
@@ -264,7 +414,6 @@ const NewContract = () => {
         <Modal
           animationType="fade"
           transparent={true}
-          visible={popUp}
           onRequestClose={closeModal}
         >
           <TouchableWithoutFeedback onPress={closeModal}>
@@ -308,6 +457,22 @@ const NewContract = () => {
                     </Text>
                   </View>
                 </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleAction("Xóa")}>
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text
+                      disabled={!item.canDelete}
+                      style={[styles.menuOptionText, { color: "red" }]}
+                    >
+                      ❌ Xoá
+                    </Text>
+                  </View>
+                </TouchableOpacity>
               </>
             )}
             {userInfo?.role == "OFFICE_ADMIN" &&
@@ -322,8 +487,11 @@ const NewContract = () => {
                       }}
                     >
                       <Entypo name="check" size={24} color="black" />
-                      <Text style={[styles.menuOptionText]}>
-                        Duyệt hợp đồng
+                      <Text
+                        disabled={!item.canApprove}
+                        style={[styles.menuOptionText]}
+                      >
+                        ✅ Duyệt hợp đồng
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -337,7 +505,12 @@ const NewContract = () => {
                       }}
                     >
                       <FontAwesome name="close" size={24} color="black" />
-                      <Text style={[styles.menuOptionText]}>Từ chối duyệt</Text>
+                      <Text
+                        disabled={!item.canApprove}
+                        style={[styles.menuOptionText]}
+                      >
+                        🛑 Từ chối duyệt
+                      </Text>
                     </View>
                   </TouchableOpacity>
                   <View style={styles.seperator} />
@@ -350,7 +523,29 @@ const NewContract = () => {
                       }}
                     >
                       <FontAwesome5 name="signature" size={24} color="black" />
-                      <Text style={[styles.menuOptionText]}>Trình ký</Text>
+                      <Text
+                        disabled={!item?.canSendForMng}
+                        style={[styles.menuOptionText]}
+                      >
+                        ✍️ Trình ký
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleAction("Xóa")}>
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <FontAwesome5 name="signature" size={24} color="black" />
+                      <Text
+                        disabled={!item?.canSendForMng}
+                        style={[styles.menuOptionText]}
+                      >
+                        ❌ Xóa
+                      </Text>
                     </View>
                   </TouchableOpacity>
                 </>
@@ -367,7 +562,12 @@ const NewContract = () => {
                       }}
                     >
                       <FontAwesome5 name="signature" size={24} color="black" />
-                      <Text style={[styles.menuOptionText]}>Trình duyệt</Text>
+                      <Text
+                        disabled={!item?.canSend}
+                        style={[styles.menuOptionText]}
+                      >
+                        📤 Trình duyệt
+                      </Text>
                     </View>
                   </TouchableOpacity>
                   <View style={styles.seperator} />
@@ -386,7 +586,9 @@ const NewContract = () => {
                         size={28}
                         color="black"
                       />
-                      <Text style={[styles.menuOptionText]}>Gửi cho khách</Text>
+                      <Text style={[styles.menuOptionText]}>
+                        📧 Gửi cho khách
+                      </Text>
                     </View>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => handleAction("Xóa")}>
@@ -398,7 +600,12 @@ const NewContract = () => {
                       }}
                     >
                       <MaterialIcons name="delete" size={24} color="black" />
-                      <Text style={[styles.menuOptionText]}>Xóa</Text>
+                      <Text
+                        disabled={!item?.canDelete}
+                        style={[styles.menuOptionText]}
+                      >
+                        ❌ Xóa
+                      </Text>
                     </View>
                   </TouchableOpacity>
                 </>
@@ -410,7 +617,6 @@ const NewContract = () => {
         <Modal
           animationType="fade"
           transparent={true}
-          visible={popUp}
           onRequestClose={closeModal}
         >
           <TouchableWithoutFeedback onPress={closeModal}>
@@ -428,17 +634,93 @@ const NewContract = () => {
 
   return (
     <View style={styles.container}>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginHorizontal: 20,
+          marginVertical: 5,
+        }}
+      >
+        <TouchableOpacity style={styles.contractStatus} onPress={openStatus}>
+          <Text style={{ padding: 5 }}>Trạng thái▼</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={{ alignItems: "center", justifyContent: "center" }}
+        >
+          <Ionicons name="search" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
       <View style={styles.header}>
-        <Text style={styles.headerCell}>STT</Text>
-        <Text style={[styles.headerCell, { flex: 0.3 }]}>Tên hợp đồng</Text>
-        <Text style={styles.headerCell}>Trạng thái</Text>
-        <Text style={styles.headerCell}>Hành động</Text>
+        <Text style={[styles.headerCell, { flex: 0.2 }]}>STT</Text>
+        <Text style={[styles.headerCell, { flex: 0.4 }]}>Tên hợp đồng</Text>
+        <Text style={[styles.headerCell, { flex: 0.3, textAlign: "left" }]}>
+          Trạng thái
+        </Text>
+        <Text style={[styles.headerCell, { flex: 0.2 }]}>Hành động</Text>
       </View>
       <FlatList
         data={data?.object?.content}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
       />
+      {statusModal && (
+        <Modal
+          animationType="fade"
+          transparent={true}
+          onRequestClose={closeModal}
+        >
+          <TouchableWithoutFeedback onPress={closeModal}>
+            <View style={styles.modalOverlay} />
+          </TouchableWithoutFeedback>
+          <View
+            style={{
+              alignItems: "center",
+              justifyContent: "flex-start",
+              backgroundColor: "white",
+              position: "absolute",
+              width: "80%",
+              height: "auto",
+              borderRadius: 10,
+              top: "50%",
+              left: "50%",
+              transform: [
+                { translateX: -(Dimensions.get("window").width * 0.4) },
+                { translateY: -(Dimensions.get("window").height * 0.25) },
+              ],
+            }}
+          >
+            <TouchableOpacity onPress={closeModal}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  marginBottom: 10,
+                }}
+              >
+                ✘
+              </Text>
+            </TouchableOpacity>
+            <View style={{ paddingHorizontal: 2 }}>
+              {menuContract["OFFICE_ADMIN"].map((item: any) => (
+                <Text
+                  key={item.id}
+                  style={{
+                    fontSize: 20,
+                    padding: 5,
+                    borderBottomWidth: 1,
+                    borderBottomColor: "gainsboro",
+                    fontWeight: "bold",
+                    marginVertical: 5,
+                  }}
+                >
+                  {item.title}
+                </Text>
+              ))}
+            </View>
+          </View>
+        </Modal>
+      )}
       {data && data?.content?.length != 0 && (
         <Pagination
           totalPages={totalPage}
@@ -483,7 +765,7 @@ const styles = StyleSheet.create({
   },
   cell: {
     flex: 0.2,
-    padding: 8,
+    padding: 6,
     textAlign: "center",
     alignItems: "center",
   },
@@ -561,6 +843,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#ccc",
     width: "82%",
+  },
+  contractStatus: {
+    borderRadius: 5,
+    backgroundColor: "darkturquoise",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 120,
   },
 });
 
