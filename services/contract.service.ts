@@ -28,8 +28,14 @@ export const deleteOldContract = async (id: string) => {
   }
 };
 
-export const getNewContract = async (page: number, size: number) => {
-  const response = await axiosInstance.get(`contract/${page}/${size}`);
+export const getNewContract = async (
+  page: number,
+  size: number,
+  statusContract: string
+) => {
+  const response = await axiosInstance.get(
+    `contract/${page}/${size}?status=${statusContract}`
+  );
   return response.data;
 };
 
