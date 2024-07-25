@@ -5,6 +5,43 @@ import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import { router } from "expo-router";
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
+
+async function sendPushNotification(expoPushToken: string) {
+  const noti = [];
+  noti.push(expoPushToken);
+  const message = {
+    to: expoPushToken,
+    sound: "default",
+    title: "title",
+    body: "body",
+    data: { screen: "/(tabs)/explore" },
+  };
+
+  await fetch("https://exp.host/--/api/v2/push/send", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Accept-encoding": "gzip, deflate",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(message),
+  });
+}
+
+export default function App() {
+  const [expoPushToken, setExpoPushToken] = useState(
+    "ExponentPushToken[JHYq3FF8-w7VHNgEqNpbfQ]"
+  );
+  const [notification, setNotification] = useState<
+    Notifications.Notification | undefined
+  >(undefined);
 // Notifications.setNotificationHandler({
 //   handleNotification: async () => ({
 //     shouldShowAlert: true,
@@ -139,7 +176,7 @@ export default function App() {
     <View
       style={{ flex: 1, alignItems: "center", justifyContent: "space-around" }}
     >
-      <Text>Expo push token: {expoPushToken}</Text>
+
       <View style={{ alignItems: "center", justifyContent: "center" }}>
         <Text>
           Title: {notification && notification.request.content.title}{" "}
@@ -151,11 +188,7 @@ export default function App() {
         </Text>
       </View>
       <Button
-        title="Press to Send Notification"
-        onPress={async () => {
-          //   await sendPushNotification(expoPushToken);
-        }}
-      />
+
     </View>
   );
 }
