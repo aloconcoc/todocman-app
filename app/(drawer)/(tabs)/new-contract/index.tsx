@@ -174,9 +174,9 @@ const NewContract = () => {
     checkUser();
   }, []);
 
-  const { data, isLoading, isError, refetch, isFetching, error } = useQuery(
-    ["new-contract", userInfo?.id],
-    () => getNewContract(page, size),
+  const { data, isLoading, isError, refetch, error } = useQuery(
+    ["new-contract", userInfo?.id, statusContract?.status],
+    () => getNewContract(page, size, statusContract?.status as string),
     {
       onSuccess: (response) => {
         setTotalPage(response?.object?.totalPages);
@@ -702,7 +702,7 @@ const NewContract = () => {
               </Text>
             </TouchableOpacity>
             <View style={{ paddingHorizontal: 2 }}>
-              {menuContract["OFFICE_ADMIN"].map((item: any) => (
+              {menuContract[permissionUser]?.map((item: any) => (
                 <Text
                   key={item.id}
                   style={{
