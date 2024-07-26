@@ -2,6 +2,7 @@ import { View } from "@/components/Themed";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
+  ActivityIndicator,
   Image,
   Platform,
   Pressable,
@@ -32,7 +33,6 @@ const EditProfile = () => {
   const [datePickerState, setDatePickerState] = useState(false);
   const [date, setDate] = useState<Date>(new Date());
   const { userContext }: any = useContext(AppContext);
-  const [img, setImg] = useState("");
   const [ocr, setOcr] = useState<any>();
   type ProfileType = {
     name: string;
@@ -95,6 +95,8 @@ const EditProfile = () => {
                 ? response.object?.position
                 : "",
           });
+          // console.log("avt: ", response.object.avatar);
+
           setAvatar(
             response.object?.avatar == null ? avatar : response.object?.avatar
           );
@@ -110,6 +112,8 @@ const EditProfile = () => {
   );
   useEffect(() => {
     if (data?.object) {
+      // console.log("data", data.object);
+
       reset({
         ...data.object,
       });
@@ -155,7 +159,7 @@ const EditProfile = () => {
   const onSubmit = async (data: any) => {
     try {
       if (date) {
-        console.log("date", date);
+        // console.log("date", date);
 
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -169,12 +173,12 @@ const EditProfile = () => {
       }
 
       if (avatar) {
-        console.log("img: " + JSON.stringify(ocr));
+        // console.log("img: " + JSON.stringify(ocr));
 
         formData.append("file", ocr);
       }
-      console.log("avatar", avatar);
-      console.log("data: ", data);
+      // console.log("avatar", avatar);
+      // console.log("data: ", data);
 
       mutation.mutate(formData);
     } catch (error) {
@@ -194,14 +198,14 @@ const EditProfile = () => {
 
     // Save image if not cancelled
     if (!result.canceled) {
-      console.log(result.assets[0]);
-
-      setAvatar(result.assets[0]);
+      // console.log(result.assets[0]);
+      setAvatar(result.assets[0].uri);
       const trimmedURI =
         Platform.OS === "android"
-          ? result.assets[0].uri
-          : result.assets[0].uri.replace("file://", "");
+          ? result.assets[0]?.uri
+          : result.assets[0]?.uri.replace("file://", "");
       const fileName = trimmedURI.split("/").pop();
+
       setOcr({
         uri: trimmedURI,
         type: mime.getType(trimmedURI),
@@ -224,7 +228,6 @@ const EditProfile = () => {
           flex: 1,
         }}
       >
-        {/* <Image source={require('../../assets/images/load.jpg')} /> */}
         <LottieView
           autoPlay
           style={{
@@ -232,7 +235,6 @@ const EditProfile = () => {
             height: "100%",
             backgroundColor: "white",
           }}
-          // Find more Lottie files at https://lottiefiles.com/featured
           source={require("@/assets/load.json")}
         />
       </View>
@@ -271,10 +273,7 @@ const EditProfile = () => {
           <TouchableOpacity>
             <Image
               source={{
-                uri:
-                  avatar?.uri ||
-                  data.avatar ||
-                  "https://via.placeholder.com/150",
+                uri: avatar || "https://via.placeholder.com/150",
               }}
               style={{
                 height: 170,
@@ -656,13 +655,17 @@ const EditProfile = () => {
           }}
           onPress={() => onSubmit(control._formValues)}
         >
-          <Text
-            style={{
-              color: "white",
-            }}
-          >
-            Lưu
-          </Text>
+          {mutation.isLoading ? (
+            <ActivityIndicator size="large" color="lightseagreen" />
+          ) : (
+            <Text
+              style={{
+                color: "white",
+              }}
+            >
+              Lưu
+            </Text>
+          )}
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
