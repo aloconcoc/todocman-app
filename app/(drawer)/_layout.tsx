@@ -84,9 +84,9 @@ const CustomDrawerContent = (props: any) => {
       />
       <DrawerItem
         icon={({ color, size }) => (
-          <Ionicons
-            name="search-circle"
-            size={size}
+          <FontAwesome
+            name="search"
+            size={24}
             color={pathname == "/search" ? "#fff" : "#000"}
           />
         )}
@@ -97,7 +97,7 @@ const CustomDrawerContent = (props: any) => {
         ]}
         style={{ backgroundColor: pathname == "/search" ? "teal" : "#fff" }}
         onPress={() => {
-          router.push("/(drawer)/search");
+          router.push("/(drawer)/(tabs)/search");
         }}
       />
 
@@ -174,15 +174,6 @@ export default function Layout() {
           <Drawer.Screen
             name="(tabs)"
             options={{ headerShown: true, title: "" }}
-          />
-          <Drawer.Screen
-            name="settings"
-            options={
-              {
-                //  headerShown: true,
-                // title: '',
-              }
-            }
           />
         </Drawer>
       </NotifyProvider>
