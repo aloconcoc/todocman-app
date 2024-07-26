@@ -360,7 +360,7 @@ export default function UploadOldContract() {
       });
       try {
         setLoadingOcr(true);
-        const response = await fetch("http://192.168.1.31:2002/ocr", {
+        const response = await fetch("http://192.168.1.42:2002/ocr", {
           // const response = await fetch("https://ocr-service-kxpc.onrender.com", {
           method: "POST",
           body: formData,

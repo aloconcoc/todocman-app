@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Tdocman",
-    "slug": "tdocman",
+    "slug": "sepApp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

@@ -19,7 +19,7 @@ import Pagination from "@/components/utils/pagination";
 const SearchScreen = () => {
   const [query, setQuery] = useState<string>("");
   const [searched, setSearched] = useState<boolean>(false);
-  const [contractType, setContractType] = useState<string>("");
+  const [contractType, setContractType] = useState<string>("contract");
   const [totalPage, setTotalPage] = useState(1);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
@@ -34,7 +34,7 @@ const SearchScreen = () => {
   });
 
   useEffect(() => {
-    if (contractType) {
+    if (contractType && searched) {
       searchQuery.mutate({
         fieldSearch: contractType,
         data: { page, size, key: query },
@@ -102,45 +102,47 @@ const SearchScreen = () => {
         <TouchableOpacity
           style={[
             styles.button,
+            contractType === "contract" && styles.buttonSelected,
+          ]}
+          onPress={() => setContractType("contract")}
+        >
+          <Text style={styles.buttonText}>Hợp đồng mới</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.button,
             contractType === "old-contract" && styles.buttonSelected,
           ]}
           onPress={() => setContractType("old-contract")}
         >
           <Text style={styles.buttonText}>Hợp đồng cũ</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            contractType === "new-contract" && styles.buttonSelected,
-          ]}
-          onPress={() => setContractType("new-contract")}
-        >
-          <Text style={styles.buttonText}>Hợp đồng mới</Text>
-        </TouchableOpacity>
       </View>
 
       {searchQuery.isLoading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="lightseagreen" />
       ) : searched && (!data || !data.content || data.content.length === 0) ? (
         <Text style={styles.noResults}>Không có kết quả</Text>
       ) : (
-        <>
-          <Text style={styles.resultCount}>
-            Hiển thị {data?.totalElements} kết quả cho "{query}" của{" "}
-            {contractType === "new-contract" ? "Hợp đồng mới" : "Hợp đồng cũ"}
-          </Text>
-          <FlatList
-            data={data?.content || []}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) =>
-              contractType === "new-contract" ? (
-                <ItemNewContract data={item} />
-              ) : (
-                <ItemOldContract data={item} />
-              )
-            }
-          />
-        </>
+        searched && (
+          <>
+            <Text style={styles.resultCount}>
+              Hiển thị {data?.totalElements} kết quả cho "{query}" của{" "}
+              {contractType === "contract" ? "Hợp đồng mới" : "Hợp đồng cũ"}
+            </Text>
+            <FlatList
+              data={data?.content || []}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) =>
+                contractType === "contract" ? (
+                  <ItemNewContract data={item} />
+                ) : (
+                  <ItemOldContract data={item} />
+                )
+              }
+            />
+          </>
+        )
       )}
 
       {data && data?.content?.length != 0 && (
@@ -188,16 +190,16 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    padding: 10,
-    marginHorizontal: 5,
-    borderWidth: 1,
-    borderColor: "gray",
+    paddingVertical: 10,
+    marginHorizontal: 28,
+    borderBottomWidth: 1,
     borderRadius: 5,
     alignItems: "center",
     justifyContent: "center",
   },
   buttonSelected: {
-    backgroundColor: "lightgray",
+    borderBottomWidth: 5,
+    borderBottomColor: "blue",
   },
   buttonText: {
     color: "black",
@@ -218,6 +220,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginVertical: 10,
     fontSize: 16,
+    color: "gray",
   },
 });
 
