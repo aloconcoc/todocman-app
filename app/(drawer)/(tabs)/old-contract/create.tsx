@@ -206,8 +206,8 @@ export default function UploadOldContract() {
     const options: ImagePicker.ImagePickerOptions = {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      quality: 1,
-      base64: true,
+      quality: 0.5,
+      // base64: true,
     };
 
     const result = await ImagePicker.launchCameraAsync(options);
@@ -273,11 +273,8 @@ export default function UploadOldContract() {
 
   const handleCreateOldContract = useMutation(createOldContract, {
     onSuccess: async (res) => {
-      // console.log("redm: ", res);
-
       if (res.code === "00" && res.object) {
         ToastAndroid.show("Tạo hợp đồng thành công!", ToastAndroid.SHORT);
-        // queryClient.invalidateQueries("old-contract-list");
         await queryClient.refetchQueries("old-contract-list");
         router.navigate("old-contract");
       } else {
@@ -286,6 +283,8 @@ export default function UploadOldContract() {
       }
     },
     onError: (error: AxiosError<{ message: string }>) => {
+      console.log("Lỗi api: ", error.response?.data.message);
+
       ToastAndroid.show(
         error.response?.data?.message || "Lỗi hệ thống",
         ToastAndroid.SHORT
@@ -362,6 +361,7 @@ export default function UploadOldContract() {
       try {
         setLoadingOcr(true);
         const response = await fetch("http://192.168.1.31:2002/ocr", {
+          // const response = await fetch("https://ocr-service-kxpc.onrender.com", {
           method: "POST",
           body: formData,
           headers: {
@@ -462,8 +462,7 @@ export default function UploadOldContract() {
         <TextInput
           onChangeText={(text) => setContractName(text)}
           placeholder="Tên hợp đồng"
-          editable
-          aria-disabled={handleCreateOldContract.isLoading || loadingOcr}
+          editable={!handleCreateOldContract.isLoading && !loadingOcr}
           style={{
             borderColor: "black",
             borderWidth: 1,
@@ -473,7 +472,11 @@ export default function UploadOldContract() {
             marginHorizontal: 10,
           }}
         ></TextInput>
-        <Button title="Lưu" onPress={() => handleSubmit()}></Button>
+        {handleCreateOldContract.isLoading || loadingOcr ? (
+          <ActivityIndicator size="large" color="lightseagreen" />
+        ) : (
+          <Button title="Lưu" onPress={handleSubmit} />
+        )}
       </View>
       <View>
         <View
@@ -627,7 +630,10 @@ export default function UploadOldContract() {
             </TouchableOpacity>
             <TouchableOpacity
               disabled={
-                ispdf || handleCreateOldContract.isLoading || loadingOcr
+                ispdf ||
+                handleCreateOldContract.isLoading ||
+                loadingOcr ||
+                isimg
               }
               style={styles.menuOption}
               onPress={() => {
@@ -653,6 +659,7 @@ export default function UploadOldContract() {
           <Picker
             selectedValue={contractType}
             onValueChange={(itemValue) => setContractType(itemValue as string)}
+            enabled={!handleCreateOldContract.isLoading && !loadingOcr}
           >
             <Picker.Item
               style={{ color: "gray" }}
@@ -667,7 +674,6 @@ export default function UploadOldContract() {
                 value={d.id}
                 key={d.id}
                 style={{ color: contractType === d.id ? "green" : "black" }}
-                enabled={!handleCreateOldContract.isLoading || !loadingOcr}
               />
             ))}
           </Picker>
@@ -678,7 +684,7 @@ export default function UploadOldContract() {
           <Text
             style={{ fontSize: 20, fontWeight: "bold", marginVertical: 10 }}
           >
-            File PDF
+            Tệp PDF
           </Text>
           <View
             style={{
@@ -750,22 +756,37 @@ export default function UploadOldContract() {
       )}
       {/* Modal to display selected image */}
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         visible={modalVisible}
         onRequestClose={closeModal}
       >
         <View style={styles.modalContainer}>
-          <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-            <Ionicons
-              name="close"
-              size={35}
-              color="papayawhip"
-              style={{ backgroundColor: "turquoise", borderRadius: 50 }}
-            />
-          </TouchableOpacity>
           {selectedImage && (
-            <Image style={styles.modalImage} source={{ uri: selectedImage }} />
+            <>
+              <View
+                style={{
+                  width: "90%",
+                  height: "80%",
+                }}
+              >
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={closeModal}
+                >
+                  <Ionicons
+                    name="close"
+                    size={35}
+                    color="papayawhip"
+                    style={{ backgroundColor: "turquoise", borderRadius: 50 }}
+                  />
+                </TouchableOpacity>
+                <Image
+                  style={styles.modalImage}
+                  source={{ uri: selectedImage }}
+                />
+              </View>
+            </>
           )}
         </View>
       </Modal>
@@ -774,6 +795,12 @@ export default function UploadOldContract() {
 }
 
 const styles = StyleSheet.create({
+  modalOverlay: {
+    // flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -781,14 +808,15 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalImage: {
-    width: "80%",
-    height: "80%",
-    resizeMode: "contain",
+    width: "100%",
+    height: "95%",
+    backgroundColor: "pink",
+    resizeMode: "stretch",
   },
   closeButton: {
-    position: "absolute",
-    top: 30,
-    right: 160,
+    width: 36,
+    marginBottom: 10,
+    marginHorizontal: "auto",
   },
   menu: {
     position: "absolute",
