@@ -7,6 +7,7 @@ import {
   FlatList,
   Pressable,
   ToastAndroid,
+  ActivityIndicator,
 } from "react-native";
 import React, { useContext, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -398,13 +399,17 @@ const Profile = () => {
                   handleLogout();
                 }}
               >
-                <Text
-                  style={{
-                    color: "white",
-                  }}
-                >
-                  Đăng xuất
-                </Text>
+                {logoutQuery.isLoading ? (
+                  <ActivityIndicator size="large" color="firebrick" />
+                ) : (
+                  <Text
+                    style={{
+                      color: "white",
+                    }}
+                  >
+                    Đăng xuất
+                  </Text>
+                )}
               </Pressable>
             </TouchableOpacity>
           </View>
