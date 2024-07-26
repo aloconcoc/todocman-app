@@ -115,7 +115,9 @@ const NotifyScreen = () => {
   if (notifications.length === 0) {
     return (
       <View style={styles.emptyContainer}>
-        <Text>Không có thông báo</Text>
+        <Text style={{ fontSize: 20, fontWeight: "bold", color: "gray" }}>
+          Không có thông báo
+        </Text>
       </View>
     );
   }
@@ -200,6 +202,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    fontSize: 20,
   },
   footer: {
     borderTopWidth: 2,
