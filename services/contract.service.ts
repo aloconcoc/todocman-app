@@ -82,3 +82,8 @@ export const getNewContractById = async (id: any) => {
   const response = await axiosInstance.get(`contract/${id}`);
   return response.data;
 };
+
+export const getSearchContract = async ({ fieldSearch, data }: any) => {
+  const response = await axiosInstance.post(`${fieldSearch}/search`, data);
+  return response.data;
+};
