@@ -7,7 +7,7 @@ export default function _layout() {
     <Stack>
       <Stack.Screen
         name="index"
-        options={{ headerShown: true, title: "Hợp đồng mới" }}
+        options={{ headerShown: false, title: "Hợp đồng mới" }}
       />
       <Stack.Screen
         name="view-contract"
