@@ -386,7 +386,7 @@ const NewContract = () => {
           {
             color: item.status === "SUCCESS" ? "green" : "red",
             flex: 0.3,
-            textAlign: "left",
+            textAlign: "center",
           },
         ]}
       >
@@ -639,17 +639,17 @@ const NewContract = () => {
           flexDirection: "row",
           justifyContent: "space-between",
           marginHorizontal: 20,
-          marginVertical: 5,
+          marginVertical: 10,
         }}
       >
         <TouchableOpacity style={styles.contractStatus} onPress={openStatus}>
-          <Text style={{ padding: 5 }}>Trạng thái▼</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={{ alignItems: "center", justifyContent: "center" }}
-        >
-          <Ionicons name="search" size={24} color="black" />
+          <Text
+            style={{
+              padding: 5,
+            }}
+          >
+            Trạng thái hợp đồng ▼
+          </Text>
         </TouchableOpacity>
       </View>
       <View style={styles.header}>
@@ -669,9 +669,9 @@ const NewContract = () => {
         <Modal
           animationType="fade"
           transparent={true}
-          onRequestClose={closeModal}
+          onRequestClose={closeStatus}
         >
-          <TouchableWithoutFeedback onPress={closeModal}>
+          <TouchableWithoutFeedback onPress={closeStatus}>
             <View style={styles.modalOverlay} />
           </TouchableWithoutFeedback>
           <View
@@ -691,31 +691,48 @@ const NewContract = () => {
               ],
             }}
           >
-            <TouchableOpacity onPress={closeModal}>
-              <Text
-                style={{
-                  fontSize: 20,
-                  marginBottom: 10,
-                }}
-              >
-                ✘
-              </Text>
-            </TouchableOpacity>
-            <View style={{ paddingHorizontal: 2 }}>
-              {menuContract[permissionUser]?.map((item: any) => (
+            <View
+              style={{
+                width: "100%",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <Text></Text>
+              <TouchableOpacity onPress={closeModal}>
                 <Text
-                  key={item.id}
                   style={{
                     fontSize: 20,
-                    padding: 5,
-                    borderBottomWidth: 1,
-                    borderBottomColor: "gainsboro",
-                    fontWeight: "bold",
-                    marginVertical: 5,
+                    // marginBottom: 5,
+                    paddingRight: 15,
                   }}
                 >
-                  {item.title}
+                  ✘
                 </Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{ paddingHorizontal: 2 }}>
+              {menuContract[permissionUser]?.map((item: any) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    setStatusContract(item);
+                    closeStatus();
+                  }}
+                >
+                  <Text
+                    key={item.id}
+                    style={{
+                      fontSize: 20,
+                      padding: 5,
+                      borderBottomWidth: 1,
+                      borderBottomColor: "gainsboro",
+                      fontWeight: "bold",
+                      marginVertical: 5,
+                    }}
+                  >
+                    {item.title}
+                  </Text>
+                </TouchableOpacity>
               ))}
             </View>
           </View>
@@ -737,15 +754,17 @@ const NewContract = () => {
 const styles = StyleSheet.create({
   container: {
     // flex: 1,
-    maxHeight: "96%",
+    maxHeight: "98%",
     paddingVertical: 5,
     backgroundColor: "#fff",
   },
   header: {
     flexDirection: "row",
     borderBottomWidth: 1,
+    borderTopWidth: 1,
     borderBottomColor: "#000",
     justifyContent: "space-between",
+    alignItems: "center",
   },
   headerCell: {
     flex: 0.2,
@@ -765,7 +784,7 @@ const styles = StyleSheet.create({
   },
   cell: {
     flex: 0.2,
-    padding: 6,
+    padding: 8,
     textAlign: "center",
     alignItems: "center",
   },
@@ -846,10 +865,12 @@ const styles = StyleSheet.create({
   },
   contractStatus: {
     borderRadius: 5,
-    backgroundColor: "darkturquoise",
+    borderWidth: 1,
+    borderBlockColor: "#ccc",
     justifyContent: "center",
     alignItems: "center",
-    width: 120,
+    margin: "auto",
+    width: 180,
   },
 });
 
