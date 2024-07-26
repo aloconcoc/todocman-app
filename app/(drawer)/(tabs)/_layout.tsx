@@ -1,7 +1,7 @@
 import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Link, Tabs } from "expo-router";
-import { Pressable, Text } from "react-native";
+import { Link, router, Tabs } from "expo-router";
+import { Pressable, Text, TouchableOpacity } from "react-native";
 
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
@@ -69,7 +69,25 @@ export default function TabLayout() {
       <Tabs.Screen
         name="new-contract"
         options={{
+          title: "Hợp đồng mới",
           tabBarButton: () => null,
+          headerRight: () => (
+            <TouchableOpacity onPress={() => router.navigate("/(tabs)/search")}>
+              <FontAwesome
+                name="search"
+                size={25}
+                color={Colors[colorScheme ?? "light"].text}
+                style={{ marginRight: 15 }}
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{
+          tabBarButton: () => null,
+          title: "Tìm kiếm",
         }}
       />
       <Tabs.Screen
