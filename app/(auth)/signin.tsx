@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Button,
   Image,
   ImageBackground,
@@ -244,9 +245,13 @@ const LoginScreen = () => {
             disabled={mutation.isLoading}
             onPress={handleSubmit(onSubmit)}
           >
-            <Text style={{ textAlign: "center", color: "white" }}>
-              Đăng nhập
-            </Text>
+            {mutation.isLoading ? (
+              <ActivityIndicator size="small" color="lightseagreen" />
+            ) : (
+              <Text style={{ textAlign: "center", color: "white" }}>
+                Đăng nhập
+              </Text>
+            )}
           </Pressable>
         </View>
       </View>
