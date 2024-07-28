@@ -6,7 +6,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Button,
   ActivityIndicator,
 } from "react-native";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
