@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet, Image, ToastAndroid } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { Drawer } from "expo-router/drawer";
 import {
@@ -18,16 +18,28 @@ import { getUserInfo } from "@/config/tokenUser";
 import { AppContext } from "../Context/Context";
 import NotificationProvider from "@/utils/useNotification";
 import NotifyProvider from "../Context/NotifyContext";
+import { useQuery } from "react-query";
+import { getProfile } from "@/services/user.service";
+import { AxiosError } from "axios";
 
 const CustomDrawerContent = (props: any) => {
   const pathname = usePathname();
-  const [userInfo, setUserInfo] = useState<any>("");
-  const { setUserInfoC }: any = useContext(AppContext);
+  const { userContext, setUserContext, userInfoC, setUserInfoC }: any =
+    useContext(AppContext);
 
-  // useEffect(() => {
-  //   console.log(pathname);
-  // }, [pathname]);
-
+  const { data, isLoading, isError, error } = useQuery(
+    ["userDetail", userContext],
+    () => getProfile(userContext),
+    {
+      onSuccess: (response) => {},
+      onError: (error: AxiosError<{ message: string }>) => {
+        ToastAndroid.show(
+          error.response?.data?.message || "Lỗi hệ thống",
+          ToastAndroid.SHORT
+        );
+      },
+    }
+  );
   useEffect(() => {
     const checkUser = async () => {
       const c = await getUserInfo();
@@ -35,7 +47,6 @@ const CustomDrawerContent = (props: any) => {
       if (!c) {
         router.navigate("(auth/signin)");
       }
-      setUserInfo(c);
       setUserInfoC(c);
     };
     checkUser();
@@ -51,7 +62,7 @@ const CustomDrawerContent = (props: any) => {
         >
           <Image
             source={{
-              uri: userInfo?.avatar || "https://via.placeholder.com/150",
+              uri: data?.object?.avatar || "https://via.placeholder.com/150",
             }}
             resizeMode="cover"
             width={80}
@@ -60,8 +71,8 @@ const CustomDrawerContent = (props: any) => {
           />
         </TouchableOpacity>
         <View style={styles.userDetailsWrapper}>
-          <Text style={styles.userName}>{userInfo?.name}</Text>
-          <Text style={styles.userEmail}>{userInfo?.email}</Text>
+          <Text style={styles.userName}>{data?.object?.name}</Text>
+          <Text style={styles.userEmail}>{data?.object?.email}</Text>
         </View>
       </View>
       <DrawerItem
