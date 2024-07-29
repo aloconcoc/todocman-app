@@ -110,6 +110,13 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="download-contract"
+        options={{
+          title: "Đang tải",
+          tabBarButton: () => null,
+        }}
+      />
     </Tabs>
   );
 }
