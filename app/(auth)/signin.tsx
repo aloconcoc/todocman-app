@@ -31,9 +31,8 @@ import Constants from "expo-constants";
 import { useMutation } from "react-query";
 
 const LoginScreen = () => {
-  const navigation = useNavigation();
   const [secureEntery, setSecureEntery] = useState(true);
-  const { userContext, setUserContext }: any = useContext(AppContext);
+  const { setUserContext }: any = useContext(AppContext);
   const [expoPushToken, setExpoPushToken] = useState("");
 
   function handleRegistrationError(errorMessage: string) {
@@ -119,7 +118,7 @@ const LoginScreen = () => {
           tokenDevice: expoPushToken,
         };
         setUserInfo(JSON.stringify(userInfoWithToken));
-        console.log("response", response.user);
+        // console.log("response", response.user);
 
         setUserContext(response?.user.id);
         ToastAndroid.show("Đăng nhập thành công!", ToastAndroid.SHORT);
@@ -141,7 +140,8 @@ const LoginScreen = () => {
   });
   const onSubmit = (data: LoginRequest) => {
     const dataWithDeviceToken = {
-      ...data,
+      email: data.email.trim(),
+      password: data.password.trim(),
       tokenDevice: expoPushToken,
     };
     mutation.mutate(dataWithDeviceToken);
