@@ -126,7 +126,8 @@ const SearchScreen = () => {
         searched && (
           <>
             <Text style={styles.resultCount}>
-              Hiển thị {data?.totalElements} kết quả cho "{query}" của{" "}
+              Hiển thị {data?.totalElements} kết quả cho "
+              <Text style={styles.queryText}>{query}</Text>" của{" "}
               {contractType === "contract" ? "Hợp đồng mới" : "Hợp đồng cũ"}
             </Text>
             <FlatList
@@ -139,20 +140,19 @@ const SearchScreen = () => {
                   <ItemOldContract data={item} />
                 )
               }
+              ListFooterComponent={() => (
+                <Pagination
+                  totalPages={totalPage}
+                  currentPage={page + 1}
+                  size={size}
+                  setSize={setSize}
+                  setPage={setPage}
+                  onPageChange={handlePageChange}
+                />
+              )}
             />
           </>
         )
-      )}
-
-      {data && data?.content?.length != 0 && (
-        <Pagination
-          totalPages={totalPage}
-          currentPage={page + 1}
-          size={size}
-          setSize={setSize}
-          setPage={setPage}
-          onPageChange={handlePageChange}
-        />
       )}
     </View>
   );
@@ -192,6 +192,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginHorizontal: 28,
     borderBottomWidth: 1,
+    borderBottomColor: "gray",
     borderRadius: 5,
     alignItems: "center",
     justifyContent: "center",
@@ -217,9 +218,13 @@ const styles = StyleSheet.create({
   },
   resultCount: {
     textAlign: "center",
-    marginVertical: 10,
+    marginBottom: 10,
+    paddingHorizontal: 10,
     fontSize: 16,
     color: "gray",
+  },
+  queryText: {
+    fontWeight: "bold",
   },
 });
 
