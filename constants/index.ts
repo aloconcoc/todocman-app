@@ -1,4 +1,4 @@
-export const BASE_URL = "http://192.168.1.42:8080/";
+export const BASE_URL = "http://192.168.1.161:8080/";
 // export const BASE_URL = "http://api.tdocman.id.vn/api/";
 
 export const INTERNAL_SERVER_ERROR = 500;
