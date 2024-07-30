@@ -24,10 +24,8 @@ const PDFExample = () => {
   const [commentVisible, setCommentVisible] = useState(false);
   const [value, onChangeText] = React.useState("");
   const [signText, setSignText] = useState<string>("");
-  const [comment, setComment] = useState<string>("");
   const { contract } = useLocalSearchParams();
   const contractData = JSON.parse(contract as string);
-  console.log("contractData", contractData);
 
   const openModal = () => {
     setCommentVisible(false);
@@ -192,9 +190,12 @@ const PDFExample = () => {
           ]}
           shouldOpenOnLongPress={false}
         > */}
-        <TouchableOpacity onPress={openComment}>
-          <Feather name="list" size={24} color="black" />
-        </TouchableOpacity>
+        {contractData?.role == "ADMIN" ? (
+          <TouchableOpacity onPress={openComment}>
+            <Feather name="list" size={24} color="black" />
+          </TouchableOpacity>
+        ) : null}
+
         {/* </MenuView> */}
       </View>
     </View>
