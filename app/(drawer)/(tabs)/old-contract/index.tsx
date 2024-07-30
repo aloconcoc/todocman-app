@@ -11,13 +11,18 @@ import {
   TouchableWithoutFeedback,
   ToastAndroid,
 } from "react-native";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import LottieView from "lottie-react-native";
-import { getOldContract } from "@/services/contract.service";
+import { deleteOldContract, getOldContract } from "@/services/contract.service";
 import WebView from "react-native-webview";
 import Pdf from "react-native-pdf";
 import Pagination from "@/components/utils/pagination";
-import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  FontAwesome5,
+  FontAwesome6,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { AxiosError } from "axios";
 import { getContractType } from "@/services/contract-type.service";
 import { router } from "expo-router";
@@ -34,6 +39,8 @@ const ManageOldContract = () => {
   const [actionModal, setActionModal] = useState(false);
   const prevPageRef = useRef(page);
   const prevSizeRef = useRef(size);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [deleteloading, setDeleteloading] = useState(false);
 
   const { isLoading, refetch } = useQuery(
     ["old-contract-list", page, size],
@@ -108,6 +115,35 @@ const ManageOldContract = () => {
     setModalVisible(false);
   };
 
+  const openDeleteModal = () => {
+    setActionModal(false);
+    setModalVisible(false);
+    setDeleteModal(true);
+  };
+  const closeDeleteModal = () => {
+    setActionModal(false);
+    setModalVisible(false);
+    setDeleteModal(false);
+    setSelectedContract(null);
+  };
+  const handleDeleteContract = async () => {
+    try {
+      if (selectedContract?.id) {
+        setDeleteloading(true);
+        const res = await deleteOldContract(selectedContract?.id);
+        if (res) {
+          closeDeleteModal();
+          ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
+          setTimeout(() => refetch(), 100);
+        } else ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
+      console.log(error);
+    } finally {
+      setDeleteloading(false);
+    }
+  };
   const renderItem = ({ item, index }: any) => (
     <View style={styles.row}>
       <Text style={[styles.cell, { flex: 0.1 }]}>{(index + 1).toString()}</Text>
@@ -148,7 +184,7 @@ const ManageOldContract = () => {
         keyExtractor={(item) => item.id.toString()}
       />
 
-      {data && data?.content?.length != 0 && (
+      {data && data?.content?.length != 0 ? (
         <Pagination
           totalPages={totalPage}
           currentPage={page + 1}
@@ -157,6 +193,19 @@ const ManageOldContract = () => {
           setPage={setPage}
           onPageChange={handlePageChange}
         />
+      ) : (
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
+          <Text
+            style={{
+              fontSize: 18,
+              color: "gray",
+              opacity: 0.5,
+              fontWeight: "bold",
+            }}
+          >
+            Không có hợp đồng
+          </Text>
+        </View>
       )}
 
       {actionModal && (
@@ -220,9 +269,10 @@ const ManageOldContract = () => {
                     borderBottomColor: "gainsboro",
                     fontWeight: "bold",
                     marginVertical: 5,
+                    color: "dodgerblue",
                   }}
                 >
-                  📋 Xem chi tiết
+                  🔎 Xem chi tiết
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -242,9 +292,29 @@ const ManageOldContract = () => {
                     borderBottomColor: "gainsboro",
                     fontWeight: "bold",
                     marginVertical: 5,
+                    color: "#fabf1b",
                   }}
                 >
                   📥 Tải về máy
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={openDeleteModal}
+                style={{
+                  padding: 5,
+                  borderBottomWidth: 1,
+                  borderBottomColor: "gainsboro",
+                  marginVertical: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 20,
+                    fontWeight: "bold",
+                    color: "red",
+                  }}
+                >
+                  🚨 Xoá
                 </Text>
               </TouchableOpacity>
             </View>
@@ -259,39 +329,8 @@ const ManageOldContract = () => {
           visible={modalVisible}
           onRequestClose={closeModal}
         >
-          {/* <TouchableWithoutFeedback onPress={closeModal}>
-            <View style={styles.modalOverlay} />
-          </TouchableWithoutFeedback> */}
           <View style={styles.modalContainer}>
             <View>
-              {/* <Text style={styles.modalTitle}>Chi tiết hợp đồng</Text>
-              <Text style={styles.textGap}>
-                Tên hợp đồng:{" "}
-                <Text style={{ fontWeight: "bold" }}>
-                  {selectedContract.contractName}
-                </Text>
-              </Text>
-              <Text style={styles.textGap}>
-                Ngày bắt đầu:{" "}
-                <Text style={{ fontWeight: "bold" }}>
-                  {formatDate(selectedContract.contractStartDate)}
-                </Text>
-              </Text>
-              <Text style={styles.textGap}>
-                Ngày hết hạn:{" "}
-                <Text style={{ fontWeight: "bold" }}>
-                  {formatDate(selectedContract.contractEndDate)}
-                </Text>
-              </Text>
-              <Text style={styles.textGap}>
-                Ngày kí:{" "}
-                <Text style={{ fontWeight: "bold" }}>
-                  {formatDate(selectedContract.contractSignDate)}
-                </Text>
-              </Text>
-              <Text style={{ marginTop: 10, opacity: 0.5 }}>
-                --Kiểm tra mục tải xuống trên máy--
-              </Text> */}
               <TouchableOpacity onPress={closeModal}>
                 <AntDesign
                   style={styles.closeButton}
@@ -311,6 +350,69 @@ const ManageOldContract = () => {
               />
             </View>
             <View style={{ height: 20 }}></View>
+          </View>
+        </Modal>
+      )}
+      {deleteModal && selectedContract && (
+        <Modal
+          animationType="fade"
+          transparent={true}
+          onRequestClose={closeModal}
+        >
+          <TouchableWithoutFeedback onPress={closeDeleteModal}>
+            <View style={styles.modalOverlay} />
+          </TouchableWithoutFeedback>
+          <View style={styles.modalContent}>
+            <TouchableOpacity onPress={closeDeleteModal}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  marginBottom: 10,
+                  alignSelf: "flex-end",
+                }}
+              >
+                ✘
+              </Text>
+            </TouchableOpacity>
+            <Text
+              style={{
+                textAlign: "center",
+                fontSize: 20,
+                marginBottom: 20,
+              }}
+            >
+              Xác nhận xoá hợp đồng{" "}
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  fontSize: 22,
+                  fontStyle: "italic",
+                }}
+              >
+                {selectedContract?.contractName}
+              </Text>
+            </Text>
+            <TouchableOpacity
+              style={{
+                backgroundColor: "crimson",
+                padding: 10,
+                borderRadius: 20,
+                width: 80,
+                alignSelf: "flex-end",
+              }}
+              onPress={handleDeleteContract}
+              disabled={deleteloading}
+            >
+              {deleteloading ? (
+                <ActivityIndicator size="small" color="white" />
+              ) : (
+                <Text style={{ color: "white", textAlign: "center" }}>
+                  <FontAwesome5 name="trash" size={14} />
+                  <Text> </Text>
+                  Xoá
+                </Text>
+              )}
+            </TouchableOpacity>
           </View>
         </Modal>
       )}
@@ -375,11 +477,14 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    width: 300,
+    position: "absolute",
+    bottom: "38%",
+    left: "10%",
+    width: "80%",
     padding: 20,
-    backgroundColor: "#fff",
+    paddingTop: 0,
+    backgroundColor: "white",
     borderRadius: 10,
-    alignItems: "center",
   },
   modalTitle: {
     fontSize: 18,
@@ -389,7 +494,7 @@ const styles = StyleSheet.create({
   closeButton: {
     marginTop: 20,
     marginBottom: 5,
-    color: "aquamarine",
+    color: "#03ecfc",
     width: 50,
     borderRadius: 50,
     textAlign: "center",
@@ -399,7 +504,7 @@ const styles = StyleSheet.create({
   },
   pdf: {
     width: width * 0.99,
-    height: height * 0.9,
+    height: height * 0.92,
   },
   modalOverlay: {
     flex: 1,

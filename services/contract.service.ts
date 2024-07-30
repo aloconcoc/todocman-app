@@ -20,12 +20,8 @@ export const createOldContract = async (formData: any) => {
 };
 
 export const deleteOldContract = async (id: string) => {
-  try {
-    const response = await axiosInstance.delete(`old-contract/${id}`);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
+  const response = await axiosInstance.delete(`old-contract/${id}`);
+  return response.data;
 };
 
 export const getNewContract = async (
