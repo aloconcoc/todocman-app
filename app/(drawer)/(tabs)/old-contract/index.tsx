@@ -17,9 +17,10 @@ import { getOldContract } from "@/services/contract.service";
 import WebView from "react-native-webview";
 import Pdf from "react-native-pdf";
 import Pagination from "@/components/utils/pagination";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import { AxiosError } from "axios";
 import { getContractType } from "@/services/contract-type.service";
+import { router } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 
@@ -30,6 +31,7 @@ const ManageOldContract = () => {
   const [selectedContract, setSelectedContract] = useState<any>(null);
   const [data, setData] = useState<any>(null);
   const [totalPage, setTotalPage] = useState(1);
+  const [actionModal, setActionModal] = useState(false);
   const prevPageRef = useRef(page);
   const prevSizeRef = useRef(size);
 
@@ -93,6 +95,17 @@ const ManageOldContract = () => {
   const closeModal = () => {
     setModalVisible(false);
     setSelectedContract(null);
+    setActionModal(false);
+  };
+
+  const openActionModal = (contract: any) => {
+    setSelectedContract(contract);
+    setActionModal(true);
+  };
+  const closeActionModal = () => {
+    setActionModal(false);
+    setSelectedContract(null);
+    setModalVisible(false);
   };
 
   const renderItem = ({ item, index }: any) => (
@@ -105,8 +118,16 @@ const ManageOldContract = () => {
             ?.title
         }
       </Text>
-      <TouchableOpacity style={styles.cell} onPress={() => openModal(item)}>
-        <Text style={styles.linkText}>Xem</Text>
+      <TouchableOpacity
+        style={styles.cell}
+        onPress={() => openActionModal(item)}
+      >
+        <MaterialCommunityIcons
+          name="dots-vertical"
+          size={24}
+          color="black"
+          style={{ textAlign: "center", alignItems: "center" }}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -114,10 +135,12 @@ const ManageOldContract = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerCell}>STT</Text>
-        <Text style={styles.headerName}>Tên hợp đồng</Text>
-        <Text style={styles.headerName}>Loại hợp đồng</Text>
-        <Text style={styles.headerCell}>Hành động</Text>
+        <Text style={[styles.headerCell, { flex: 0.1, fontSize: 13.8 }]}>
+          STT
+        </Text>
+        <Text style={[styles.headerCell, { flex: 0.4 }]}>Tên hợp đồng</Text>
+        <Text style={[styles.headerCell, { flex: 0.3 }]}>Loại hợp đồng</Text>
+        <Text style={[styles.headerCell, { flex: 0.2 }]}>Hành động</Text>
       </View>
       <FlatList
         data={data?.content}
@@ -134,6 +157,99 @@ const ManageOldContract = () => {
           setPage={setPage}
           onPageChange={handlePageChange}
         />
+      )}
+
+      {actionModal && (
+        <Modal
+          animationType="fade"
+          transparent={true}
+          onRequestClose={closeActionModal}
+        >
+          <TouchableWithoutFeedback onPress={closeActionModal}>
+            <View style={styles.modalOverlay} />
+          </TouchableWithoutFeedback>
+          <View
+            style={{
+              alignItems: "center",
+              justifyContent: "flex-start",
+              backgroundColor: "white",
+              position: "absolute",
+              width: "80%",
+              height: "auto",
+              borderRadius: 10,
+              top: "50%",
+              left: "50%",
+              transform: [
+                { translateX: -(Dimensions.get("window").width * 0.4) },
+                { translateY: -Dimensions.get("window").height * 0.1 },
+              ],
+            }}
+          >
+            <View
+              style={{
+                width: "100%",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <Text></Text>
+              <TouchableOpacity onPress={closeModal}>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    marginBottom: 5,
+                    paddingRight: 15,
+                  }}
+                >
+                  ✘
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{ paddingHorizontal: 2 }}>
+              <TouchableOpacity
+                onPress={() => {
+                  closeActionModal();
+                  openModal(selectedContract);
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 20,
+                    padding: 5,
+                    borderBottomWidth: 1,
+                    borderBottomColor: "gainsboro",
+                    fontWeight: "bold",
+                    marginVertical: 5,
+                  }}
+                >
+                  📋 Xem chi tiết
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  closeActionModal();
+                  router.push({
+                    pathname: "/(tabs)/download-contract",
+                    params: { contract: JSON.stringify(selectedContract) },
+                  });
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 20,
+                    padding: 5,
+                    borderBottomWidth: 1,
+                    borderBottomColor: "gainsboro",
+                    fontWeight: "bold",
+                    marginVertical: 5,
+                  }}
+                >
+                  📥 Tải về máy
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       )}
 
       {selectedContract && (
@@ -180,12 +296,10 @@ const ManageOldContract = () => {
                 <AntDesign
                   style={styles.closeButton}
                   name="closecircle"
-                  size={24}
+                  size={28}
                   color="black"
                 />
               </TouchableOpacity>
-
-              <WebView source={{ uri: selectedContract?.file }} />
 
               <Pdf
                 trustAllCerts={false}
@@ -209,11 +323,12 @@ const styles = StyleSheet.create({
     // flex: 1,
     padding: 10,
     backgroundColor: "#fff",
-    maxHeight: "98%",
+    maxHeight: "99%",
   },
   header: {
     flexDirection: "row",
     borderBottomWidth: 1,
+    alignItems: "center",
     borderBottomColor: "#000",
   },
   headerCell: {
@@ -222,12 +337,7 @@ const styles = StyleSheet.create({
     padding: 5,
     textAlign: "center",
   },
-  headerName: {
-    flex: 0.3,
-    fontWeight: "bold",
-    padding: 5,
-    textAlign: "center",
-  },
+
   textGap: {
     marginVertical: 2,
   },
@@ -278,8 +388,8 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     marginTop: 20,
-    marginBottom: 2,
-    color: "aqua",
+    marginBottom: 5,
+    color: "aquamarine",
     width: 50,
     borderRadius: 50,
     textAlign: "center",
@@ -288,9 +398,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   pdf: {
-    // flex: 1,
-    width: width * 0.8,
-    height: height * 0.8,
+    width: width * 0.99,
+    height: height * 0.9,
   },
   modalOverlay: {
     flex: 1,
