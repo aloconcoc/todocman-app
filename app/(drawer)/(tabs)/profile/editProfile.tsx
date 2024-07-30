@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getProfile, updateProfile } from "@/services/user.service";
-import { getToken, getUser } from "@/config/tokenUser";
+import { getToken, getUser, setUserInfo } from "@/config/tokenUser";
 import { useContext, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { router } from "expo-router";
@@ -34,6 +34,7 @@ const EditProfile = () => {
   const [date, setDate] = useState<Date>(new Date());
   const { userContext }: any = useContext(AppContext);
   const [ocr, setOcr] = useState<any>();
+  const [gender, setGender] = useState<string>("");
   type ProfileType = {
     name: string;
     email: string;
@@ -51,19 +52,6 @@ const EditProfile = () => {
     reset,
   } = useForm<ProfileType>();
 
-  // const { data, isLoading, isError, error } = useQuery({
-  //   queryKey: ["profile"],
-  //   queryFn: async () => {
-  //     const response = await getProfile(userContext);
-  //     setAvatar(response?.object?.avatar);
-  //     console.log("respon", response.object.dob);
-
-  //     const p = new Date(response.object.dob);
-  //     setDate(p);
-
-  //     return response.object;
-  //   },
-  // });
   const { data, isLoading, error, refetch } = useQuery(
     ["userDetail", userContext],
     () => getProfile(userContext),
@@ -95,7 +83,6 @@ const EditProfile = () => {
                 ? response.object?.position
                 : "",
           });
-          // console.log("avt: ", response.object.avatar);
 
           setAvatar(
             response.object?.avatar == null ? avatar : response.object?.avatar
@@ -112,8 +99,6 @@ const EditProfile = () => {
   );
   useEffect(() => {
     if (data?.object) {
-      // console.log("data", data.object);
-
       reset({
         ...data.object,
       });
@@ -132,6 +117,8 @@ const EditProfile = () => {
 
   const mutation = useMutation(
     async (data: any) => {
+      console.log("data", data);
+
       if (userContext) await updateProfile(userContext, data);
     },
     {
@@ -159,13 +146,14 @@ const EditProfile = () => {
   const onSubmit = async (data: any) => {
     try {
       if (date) {
-        // console.log("date", date);
-
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
         data.dob = `${day}/${month}/${year}`;
       }
+      if (gender == "nu") {
+        data.gender = false;
+      } else data.gender = true;
 
       const formData = new FormData();
       for (const key in data) {
@@ -173,12 +161,8 @@ const EditProfile = () => {
       }
 
       if (avatar) {
-        // console.log("img: " + JSON.stringify(ocr));
-
         formData.append("file", ocr);
       }
-      // console.log("avatar", avatar);
-      // console.log("data: ", data);
 
       mutation.mutate(formData);
     } catch (error) {
@@ -198,7 +182,6 @@ const EditProfile = () => {
 
     // Save image if not cancelled
     if (!result.canceled) {
-      // console.log(result.assets[0]);
       setAvatar(result.assets[0].uri);
       const trimmedURI =
         Platform.OS === "android"
@@ -296,6 +279,7 @@ const EditProfile = () => {
                 onPress={() => {
                   selectImage();
                 }}
+                disabled={mutation.isLoading}
               >
                 <MaterialIcons name="photo-camera" size={32} color={"gray"} />
               </Pressable>
@@ -332,7 +316,7 @@ const EditProfile = () => {
                   >
                     <TextInput
                       value={value}
-                      editable={true}
+                      editable={!mutation.isLoading}
                       onBlur={onBlur}
                       onChangeText={onChange}
                     />
@@ -371,7 +355,7 @@ const EditProfile = () => {
                   >
                     <TextInput
                       value={value}
-                      editable={true}
+                      editable={!mutation.isLoading}
                       onBlur={onBlur}
                       onChangeText={onChange}
                     />
@@ -410,7 +394,7 @@ const EditProfile = () => {
                   >
                     <TextInput
                       value={value}
-                      editable={true}
+                      editable={!mutation.isLoading}
                       onBlur={onBlur}
                       onChangeText={onChange}
                     />
@@ -481,7 +465,7 @@ const EditProfile = () => {
                   >
                     <TextInput
                       value={value}
-                      editable={true}
+                      editable={!mutation.isLoading}
                       onBlur={onBlur}
                       onChangeText={onChange}
                     />
@@ -521,7 +505,7 @@ const EditProfile = () => {
                 >
                   <TextInput
                     value={value}
-                    editable={true}
+                    editable={!mutation.isLoading}
                     onBlur={onBlur}
                     onChangeText={onChange}
                     keyboardType="phone-pad"
@@ -561,7 +545,7 @@ const EditProfile = () => {
                 >
                   <TextInput
                     value={value}
-                    editable={true}
+                    editable={!mutation.isLoading}
                     onBlur={onBlur}
                     onChangeText={onChange}
                   />
@@ -584,6 +568,7 @@ const EditProfile = () => {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <>
+                <Text style={{ marginBottom: 8 }}>Ngày sinh</Text>
                 <TouchableOpacity
                   onPress={() => setDatePickerState(true)}
                   style={{
@@ -591,6 +576,7 @@ const EditProfile = () => {
                     borderRadius: 5,
                     padding: 7,
                   }}
+                  disabled={mutation.isLoading}
                 >
                   <View pointerEvents="none">
                     <TextInput
@@ -625,24 +611,17 @@ const EditProfile = () => {
             marginBottom: 6,
           }}
         >
-          <Controller
-            control={control}
-            rules={{ required: true }}
-            render={({ field: { onChange, value } }) => (
-              <View>
-                <Picker
-                  selectedValue={value}
-                  onValueChange={(itemValue) => onChange(itemValue)}
-                >
-                  <Picker.Item label="Chọn giới tính" value="" />
-                  <Picker.Item label="Nam" value={true} />
-                  <Picker.Item label="Nữ" value={false} />
-                </Picker>
-              </View>
-            )}
-            name="gender"
-            defaultValue=""
-          />
+          <View>
+            <Picker
+              selectedValue={gender}
+              onValueChange={(itemValue) => setGender(itemValue)}
+              enabled={!mutation.isLoading}
+            >
+              <Picker.Item label="Chọn giới tính" value="" />
+              <Picker.Item label="Nam" value={"nam"} />
+              <Picker.Item label="Nữ" value={"nu"} />
+            </Picker>
+          </View>
         </View>
 
         <TouchableOpacity
@@ -654,6 +633,7 @@ const EditProfile = () => {
             justifyContent: "center",
           }}
           onPress={() => onSubmit(control._formValues)}
+          disabled={mutation.isLoading}
         >
           {mutation.isLoading ? (
             <ActivityIndicator size="large" color="lightseagreen" />
