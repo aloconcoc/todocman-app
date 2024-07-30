@@ -4,7 +4,7 @@ import { Button } from "react-native";
 
 export default function _layout() {
   return (
-    <Stack screenOptions={{}}>
+    <Stack>
       <Stack.Screen
         name="index"
         options={{
@@ -15,12 +15,6 @@ export default function _layout() {
               title="Tạo"
             />
           ),
-        }}
-      />
-      <Stack.Screen
-        name="create"
-        options={{
-          title: "Tải hợp đồng",
         }}
       />
     </Stack>

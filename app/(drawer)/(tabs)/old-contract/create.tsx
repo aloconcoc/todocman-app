@@ -349,7 +349,7 @@ export default function UploadOldContract() {
     }
 
     const formData = new FormData();
-    formData.append("contractName", contractName);
+    formData.append("contractName", contractName.trim());
     formData.append("contractTypeId", contractType);
     formData.append("contractStartDate", formatDate(birthDate));
     formData.append("contractEndDate", formatDate(registrationDate));
@@ -360,7 +360,7 @@ export default function UploadOldContract() {
       });
       try {
         setLoadingOcr(true);
-        const response = await fetch("http://192.168.1.42:2002/ocr", {
+        const response = await fetch("http://192.168.1.161:2002/ocr", {
           // const response = await fetch("https://ocr-service-kxpc.onrender.com", {
           method: "POST",
           body: formData,
@@ -381,7 +381,7 @@ export default function UploadOldContract() {
       formData.append("images", selectedPdf);
       formData.append("content", "Hợp đồng tải lên từ file pdf");
     }
-    handleCreateOldContract.mutate(formData);
+    // handleCreateOldContract.mutate(formData);
   };
 
   // Render image list item
