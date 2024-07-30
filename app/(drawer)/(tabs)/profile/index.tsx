@@ -31,10 +31,7 @@ const Profile = () => {
     ["userDetail", userContext],
     () => getProfile(userContext),
     {
-      onSuccess: (response) => {
-        // console.log("Successfully get profile", response?.object);
-        // return response?.object;
-      },
+      onSuccess: (response) => {},
       onError: (error: AxiosError<{ message: string }>) => {
         ToastAndroid.show(
           error.response?.data?.message || "Lỗi hệ thống",
@@ -371,16 +368,16 @@ const Profile = () => {
                 borderRadius: 10,
                 marginHorizontal: 20,
               }}
+              onPress={() => router.navigate("profile/editProfile")}
+              disabled={logoutQuery.isLoading}
             >
-              <Pressable onPress={() => router.navigate("profile/editProfile")}>
-                <Text
-                  style={{
-                    color: "white",
-                  }}
-                >
-                  Chỉnh sửa
-                </Text>
-              </Pressable>
+              <Text
+                style={{
+                  color: "white",
+                }}
+              >
+                Chỉnh sửa
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -393,24 +390,21 @@ const Profile = () => {
                 borderRadius: 10,
                 marginHorizontal: 20,
               }}
+              onPress={async () => {
+                handleLogout();
+              }}
             >
-              <Pressable
-                onPress={async () => {
-                  handleLogout();
-                }}
-              >
-                {logoutQuery.isLoading ? (
-                  <ActivityIndicator size="large" color="firebrick" />
-                ) : (
-                  <Text
-                    style={{
-                      color: "white",
-                    }}
-                  >
-                    Đăng xuất
-                  </Text>
-                )}
-              </Pressable>
+              {logoutQuery.isLoading ? (
+                <ActivityIndicator size="large" color="white" />
+              ) : (
+                <Text
+                  style={{
+                    color: "white",
+                  }}
+                >
+                  Đăng xuất
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>
