@@ -46,8 +46,6 @@ const SendMail = () => {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const richText = React.useRef(null);
-  const [popUp, setPopUp] = useState(false);
 
   const { isLoading: loadingSALE, data: dataSale } = useQuery(
     "getUserByRoleSale",
@@ -99,14 +97,6 @@ const SendMail = () => {
     else if (contractData?.status == 4) return dataAdmin;
     else return [];
   }, [contractData?.status, dataAO, dataAdmin, dataSale]);
-
-  const openModal = (contract: any) => {
-    setPopUp(true);
-  };
-
-  const closeModal = () => {
-    setPopUp(false);
-  };
 
   const handleSubmit = async () => {
     if (value1?.length === 0) {
