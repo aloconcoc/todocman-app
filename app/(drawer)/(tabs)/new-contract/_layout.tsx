@@ -12,7 +12,8 @@ export default function _layout() {
       <Stack.Screen
         name="view-contract"
         options={{
-          title: "Ký hợp đồng",
+          title: "Xem hợp đồng",
+          // headerShown: false,
         }}
       />
       <Stack.Screen
