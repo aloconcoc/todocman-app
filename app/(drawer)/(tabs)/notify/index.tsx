@@ -10,6 +10,10 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
+import moment from "moment";
+import "moment/locale/vi";
+
+moment.locale("vi");
 
 const NotifyScreen = () => {
   const {
@@ -24,19 +28,6 @@ const NotifyScreen = () => {
     page,
     totalPages,
   } = useNotification();
-  console.log(
-    "bnk: ",
-    notifications,
-    totalNotRead,
-    isReadNotify,
-    isDeleteNotify,
-    viewMoreNotify,
-    setNotifications,
-    setTotalNotRead,
-    loading,
-    page,
-    totalPages
-  );
 
   const handleReadNotify = (id: any, markRead: boolean) => {
     if (!markRead) {
@@ -56,6 +47,7 @@ const NotifyScreen = () => {
   };
 
   const renderFriend = ({ item }: any) => {
+    const timeAgo = moment(item.createdDate).fromNow();
     return (
       <TouchableOpacity
         onPress={() => handleReadNotify(item.id, item.markRead)}
@@ -67,12 +59,24 @@ const NotifyScreen = () => {
           />
           <View style={styles.info}>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={styles.name}>{item.title}</Text>
-              {!item.markRead && (
-                <Octicons name="dot-fill" size={24} color="green" />
+              {!item.markRead ? (
+                <>
+                  <Text style={styles.name}>{item.title} </Text>
+                  <Octicons name="dot-fill" size={24} color="green" />
+                </>
+              ) : (
+                <Text
+                  style={{
+                    fontSize: 18,
+                    opacity: 0.5,
+                  }}
+                >
+                  {item.title}{" "}
+                </Text>
               )}
             </View>
             <Text style={styles.details}>{item.message}</Text>
+            <Text style={styles.timeAgo}>{timeAgo}</Text>
           </View>
           <TouchableOpacity
             style={styles.button}
@@ -144,17 +148,16 @@ const NotifyScreen = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
-    paddingTop: 40,
+    paddingTop: 20,
   },
   card: {
     flexDirection: "row",
     backgroundColor: "#fbfbfb",
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: "#DCDCDC",
     padding: 10,
     borderRadius: 10,
     marginBottom: 10,
-    elevation: 2,
   },
   image: {
     width: 30,
@@ -214,6 +217,11 @@ const styles = StyleSheet.create({
     color: "blue",
     textDecorationLine: "underline",
     cursor: "pointer",
+  },
+  timeAgo: {
+    fontSize: 12,
+    color: "dodgerblue",
+    fontWeight: "bold",
   },
 });
 
