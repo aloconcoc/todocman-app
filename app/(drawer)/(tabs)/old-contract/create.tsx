@@ -381,7 +381,7 @@ export default function UploadOldContract() {
       formData.append("images", selectedPdf);
       formData.append("content", "Hợp đồng tải lên từ file pdf");
     }
-    // handleCreateOldContract.mutate(formData);
+    handleCreateOldContract.mutate(formData);
   };
 
   // Render image list item
