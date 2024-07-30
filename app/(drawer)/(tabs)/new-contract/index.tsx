@@ -48,7 +48,7 @@ const NewContract = () => {
   const [statusModal, setStatusModal] = useState(false);
   const [statusContract, setStatusContract] = useState<any>({
     id: 1,
-    title: "🗂️ Quản lí hợp đồng",
+    title: "Quản lí hợp đồng",
     status: "MANAGER_CONTRACT",
   });
   const permissionUser: STATUS = useMemo(() => {
@@ -176,7 +176,7 @@ const NewContract = () => {
 
   const { data, isLoading, isError, refetch, error } = useQuery(
     ["new-contract", userInfo?.id, statusContract?.status],
-    () => getNewContract(page, size, statusContract?.status as string),
+    () => getNewContract(page, size, statusContract?.status),
     {
       onSuccess: (response) => {
         setTotalPage(response?.object?.totalPages);
@@ -262,7 +262,6 @@ const NewContract = () => {
     formData.append("createdBy", selectedContract?.createdBy);
     formData.append("description", "Từ chối duyệt hợp đồng");
     try {
-      console.log("formdatar", formData);
       closeModal();
 
       // const response = await sendMail(formData);
@@ -327,9 +326,13 @@ const NewContract = () => {
   const handleAction = (action: string) => {
     console.log(`${action}`, selectedContract);
     if (action == "Xem") {
+      const viewContractRole = {
+        ...selectedContract,
+        role: permissionUser,
+      };
       router.push({
         pathname: "/new-contract/view-contract",
-        params: { contract: JSON.stringify(selectedContract) },
+        params: { contract: JSON.stringify(viewContractRole) },
       });
     } else if (action == "Từ chối") {
       console.log("ký hợp đồng");
@@ -387,6 +390,7 @@ const NewContract = () => {
             color: item.status === "SUCCESS" ? "green" : "red",
             flex: 0.3,
             textAlign: "center",
+            fontWeight: "bold",
           },
         ]}
       >
@@ -420,9 +424,28 @@ const NewContract = () => {
             <View style={styles.modalOverlay} />
           </TouchableWithoutFeedback>
           <View style={styles.modalContent1}>
+            <TouchableOpacity onPress={() => handleAction("Xem")}>
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  disabled={!item?.canSign && userInfo?.email != item.createdBy}
+                  style={[styles.menuOptionText, { color: "forestgreen" }]}
+                >
+                  {userInfo?.role == "ADMIN"
+                    ? `📝 Xem hợp đồng`
+                    : `✍️ Ký hợp đồng`}
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <View style={styles.seperator} />
             {userInfo?.role == "ADMIN" && (
               <>
-                <TouchableOpacity onPress={() => handleAction("Xem")}>
+                {/* <TouchableOpacity onPress={() => handleAction("Xem")}>
                   <View
                     style={{
                       display: "flex",
@@ -439,8 +462,9 @@ const NewContract = () => {
                       ✍️ Ký hợp đồng
                     </Text>
                   </View>
-                </TouchableOpacity>
-                <View style={styles.seperator} />
+                </TouchableOpacity> */}
+
+                <View style={[styles.seperator, { borderBottomWidth: 2 }]} />
                 <TouchableOpacity onPress={() => handleAction("Từ chối")}>
                   <View
                     style={{
@@ -451,12 +475,14 @@ const NewContract = () => {
                   >
                     <Text
                       disabled={!item?.canSign}
-                      style={[styles.menuOptionText, { color: "red" }]}
+                      style={[styles.menuOptionText, { color: "darkorange" }]}
                     >
-                      🚨 Từ chối ký
+                      🚧 Từ chối ký
                     </Text>
                   </View>
                 </TouchableOpacity>
+                <View style={styles.seperator} />
+
                 <TouchableOpacity onPress={() => handleAction("Xóa")}>
                   <View
                     style={{
@@ -469,7 +495,7 @@ const NewContract = () => {
                       disabled={!item.canDelete}
                       style={[styles.menuOptionText, { color: "red" }]}
                     >
-                      ❌ Xoá
+                      🚨 Xoá
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -540,10 +566,7 @@ const NewContract = () => {
                       }}
                     >
                       <FontAwesome5 name="signature" size={24} color="black" />
-                      <Text
-                        disabled={!item?.canSendForMng}
-                        style={[styles.menuOptionText]}
-                      >
+                      <Text disabled={false} style={[styles.menuOptionText]}>
                         ❌ Xóa
                       </Text>
                     </View>
@@ -613,7 +636,7 @@ const NewContract = () => {
           </View>
         </Modal>
       )}
-      {/* {deleteModal && selectedContract === item && (
+      {deleteModal && selectedContract === item && (
         <Modal
           animationType="fade"
           transparent={true}
@@ -623,12 +646,12 @@ const NewContract = () => {
             <View style={styles.modalOverlay} />
           </TouchableWithoutFeedback>
           <View style={styles.modalContent}>
-            <TouchableOpacity onPress={() => handleDeleteContract}>
+            <TouchableOpacity>
               <Text>Xoá hợp đồng</Text>
             </TouchableOpacity>
           </View>
         </Modal>
-      )} */}
+      )}
     </View>
   );
 
@@ -653,7 +676,9 @@ const NewContract = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.header}>
-        <Text style={[styles.headerCell, { flex: 0.2 }]}>STT</Text>
+        <Text style={[styles.headerCell, { flex: 0.2, fontSize: 13.8 }]}>
+          STT
+        </Text>
         <Text style={[styles.headerCell, { flex: 0.4 }]}>Tên hợp đồng</Text>
         <Text style={[styles.headerCell, { flex: 0.3, textAlign: "left" }]}>
           Trạng thái
@@ -714,6 +739,7 @@ const NewContract = () => {
             <View style={{ paddingHorizontal: 2 }}>
               {menuContract[permissionUser]?.map((item: any) => (
                 <TouchableOpacity
+                  key={item.id}
                   onPress={() => {
                     setStatusContract(item);
                     closeStatus();
@@ -753,15 +779,14 @@ const NewContract = () => {
 };
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-    maxHeight: "98%",
+    maxHeight: "99%",
     paddingVertical: 5,
     backgroundColor: "#fff",
   },
   header: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderTopWidth: 1,
+    // borderTopWidth: 1,
     borderBottomColor: "#000",
     justifyContent: "space-between",
     alignItems: "center",
@@ -849,7 +874,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 2,
     marginVertical: 10,
-    fontSize: 21,
+    fontSize: 20,
     fontWeight: "bold",
   },
 
