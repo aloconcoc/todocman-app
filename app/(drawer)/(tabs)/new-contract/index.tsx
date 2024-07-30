@@ -46,6 +46,7 @@ const NewContract = () => {
   const [userInfo, setUserInfo] = useState<any>(null);
   const [deleteModal, setDeleteModal] = useState(false);
   const [statusModal, setStatusModal] = useState(false);
+  const [deleteloading, setDeleteloading] = useState(false);
   const [statusContract, setStatusContract] = useState<any>({
     id: 1,
     title: "Quản lí hợp đồng",
@@ -231,7 +232,6 @@ const NewContract = () => {
 
   const closeModal = () => {
     setPopUp(false);
-    setDeleteModal(false);
     setSelectedContract(null);
     setStatusModal(false);
   };
@@ -244,6 +244,18 @@ const NewContract = () => {
     setStatusModal(false);
     setPopUp(false);
     setDeleteModal(false);
+  };
+  const openDeleteModal = (contract: any) => {
+    setSelectedContract(contract);
+    setPopUp(false);
+    setDeleteModal(true);
+  };
+  const closeDeleteModal = () => {
+    setDeleteModal(false);
+    setStatusModal(false);
+    setPopUp(false);
+    setDeleteModal(false);
+    setSelectedContract(null);
   };
 
   const handlePageChange = (page: any) => {
@@ -298,33 +310,27 @@ const NewContract = () => {
     }
   };
 
-  // const deleteNewContract = useMutation(deleteContract, {
-  //   onSuccess: () => {
-  //     ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
-  //     closeModal();
-  //     setTimeout(() => refetch(), 500);
-  //   },
-  //   onError: (error: AxiosError<{ message: string }>) => {
-  //     ToastAndroid.show(
-  //       "Xảy ra lỗi trong quá trình xoá hợp đồng!",
-  //       ToastAndroid.SHORT
-  //     );
-  //   },
-  // });
-
-  // const handleDeleteContract = async () => {
-  //   try {
-  //     if (selectedContract?.id) {
-  //       deleteNewContract.mutate(selectedContract?.id);
-  //     }
-  //   } catch (error) {
-  //     ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
-  //     console.log(error);
-  //   }
-  // };
+  const handleDeleteContract = async () => {
+    try {
+      setDeleteloading(true);
+      if (selectedContract?.id) {
+        const res = await deleteContract(selectedContract?.id);
+        if (res.code == "00") {
+          closeDeleteModal();
+          ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
+          setTimeout(() => refetch(), 100);
+        } else ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
+      console.log(error);
+    } finally {
+      setDeleteloading(false);
+    }
+  };
 
   const handleAction = (action: string) => {
-    console.log(`${action}`, selectedContract);
+    // console.log(`${action}`, selectedContract);
     if (action == "Xem") {
       const viewContractRole = {
         ...selectedContract,
@@ -349,7 +355,7 @@ const NewContract = () => {
     } else if (action == "Từ chối duyệt") {
       // handleOfAdReject();
     } else if (action == "Xóa") {
-      setDeleteModal(true);
+      console.log("Xóa");
     } else if (action == "Duyệt hợp đồng") {
       // handleOfAdAccept();
     } else if (action == "Gửi cho khách hàng") {
@@ -371,6 +377,8 @@ const NewContract = () => {
         params: { contract: JSON.stringify(selectedContractWithStatus) },
       });
     }
+    console.log("ko");
+
     closeModal();
   };
 
@@ -475,15 +483,15 @@ const NewContract = () => {
                   >
                     <Text
                       disabled={!item?.canSign}
-                      style={[styles.menuOptionText, { color: "darkorange" }]}
+                      style={[styles.menuOptionText, { color: "royalblue" }]}
                     >
-                      🚧 Từ chối ký
+                      ↩️ Từ chối ký
                     </Text>
                   </View>
                 </TouchableOpacity>
                 <View style={styles.seperator} />
 
-                <TouchableOpacity onPress={() => handleAction("Xóa")}>
+                <TouchableOpacity onPress={() => openDeleteModal(item)}>
                   <View
                     style={{
                       display: "flex",
@@ -515,7 +523,7 @@ const NewContract = () => {
                       <Entypo name="check" size={24} color="black" />
                       <Text
                         disabled={!item.canApprove}
-                        style={[styles.menuOptionText]}
+                        style={[styles.menuOptionText, { color: "green" }]}
                       >
                         ✅ Duyệt hợp đồng
                       </Text>
@@ -533,9 +541,9 @@ const NewContract = () => {
                       <FontAwesome name="close" size={24} color="black" />
                       <Text
                         disabled={!item.canApprove}
-                        style={[styles.menuOptionText]}
+                        style={[styles.menuOptionText, { color: "royalblue" }]}
                       >
-                        🛑 Từ chối duyệt
+                        ↩️ Từ chối duyệt
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -551,13 +559,13 @@ const NewContract = () => {
                       <FontAwesome5 name="signature" size={24} color="black" />
                       <Text
                         disabled={!item?.canSendForMng}
-                        style={[styles.menuOptionText]}
+                        style={[styles.menuOptionText, { color: "goldenrod" }]}
                       >
                         ✍️ Trình ký
                       </Text>
                     </View>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleAction("Xóa")}>
+                  <TouchableOpacity onPress={() => openDeleteModal(item)}>
                     <View
                       style={{
                         display: "flex",
@@ -566,8 +574,11 @@ const NewContract = () => {
                       }}
                     >
                       <FontAwesome5 name="signature" size={24} color="black" />
-                      <Text disabled={false} style={[styles.menuOptionText]}>
-                        ❌ Xóa
+                      <Text
+                        disabled={false}
+                        style={[styles.menuOptionText, { color: "red" }]}
+                      >
+                        🚨 Xóa
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -587,7 +598,10 @@ const NewContract = () => {
                       <FontAwesome5 name="signature" size={24} color="black" />
                       <Text
                         disabled={!item?.canSend}
-                        style={[styles.menuOptionText]}
+                        style={[
+                          styles.menuOptionText,
+                          { color: "mediumturquoise" },
+                        ]}
                       >
                         📤 Trình duyệt
                       </Text>
@@ -609,12 +623,14 @@ const NewContract = () => {
                         size={28}
                         color="black"
                       />
-                      <Text style={[styles.menuOptionText]}>
+                      <Text
+                        style={[styles.menuOptionText, { color: "orchid" }]}
+                      >
                         📧 Gửi cho khách
                       </Text>
                     </View>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleAction("Xóa")}>
+                  <TouchableOpacity onPress={() => openDeleteModal(item)}>
                     <View
                       style={{
                         display: "flex",
@@ -625,9 +641,9 @@ const NewContract = () => {
                       <MaterialIcons name="delete" size={24} color="black" />
                       <Text
                         disabled={!item?.canDelete}
-                        style={[styles.menuOptionText]}
+                        style={[styles.menuOptionText, { color: "red" }]}
                       >
-                        ❌ Xóa
+                        🚨 Xóa
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -636,18 +652,65 @@ const NewContract = () => {
           </View>
         </Modal>
       )}
-      {deleteModal && selectedContract === item && (
+      {deleteModal && selectedContract && (
         <Modal
           animationType="fade"
           transparent={true}
           onRequestClose={closeModal}
         >
-          <TouchableWithoutFeedback onPress={closeModal}>
+          <TouchableWithoutFeedback onPress={closeDeleteModal}>
             <View style={styles.modalOverlay} />
           </TouchableWithoutFeedback>
           <View style={styles.modalContent}>
-            <TouchableOpacity>
-              <Text>Xoá hợp đồng</Text>
+            <TouchableOpacity onPress={closeDeleteModal}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  marginBottom: 10,
+                  alignSelf: "flex-end",
+                }}
+              >
+                ✘
+              </Text>
+            </TouchableOpacity>
+            <Text
+              style={{
+                textAlign: "center",
+                fontSize: 20,
+                marginBottom: 20,
+              }}
+            >
+              Xác nhận xoá hợp đồng{" "}
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  fontSize: 25,
+                  fontStyle: "italic",
+                }}
+              >
+                {selectedContract?.name}
+              </Text>
+            </Text>
+            <TouchableOpacity
+              style={{
+                backgroundColor: "crimson",
+                padding: 10,
+                borderRadius: 20,
+                width: 80,
+                alignSelf: "flex-end",
+              }}
+              onPress={handleDeleteContract}
+              disabled={deleteloading}
+            >
+              {deleteloading ? (
+                <ActivityIndicator size="small" color="white" />
+              ) : (
+                <Text style={{ color: "white", textAlign: "center" }}>
+                  <FontAwesome5 name="trash" size={14} />
+                  <Text> </Text>
+                  Xoá
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
         </Modal>
@@ -764,7 +827,7 @@ const NewContract = () => {
           </View>
         </Modal>
       )}
-      {data && data?.content?.length != 0 && (
+      {data && data?.object.content?.length != 0 ? (
         <Pagination
           totalPages={totalPage}
           currentPage={page + 1}
@@ -773,6 +836,19 @@ const NewContract = () => {
           setPage={setPage}
           onPageChange={handlePageChange}
         />
+      ) : (
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
+          <Text
+            style={{
+              fontSize: 18,
+              color: "gray",
+              opacity: 0.5,
+              fontWeight: "bold",
+            }}
+          >
+            Không có hợp đồng
+          </Text>
+        </View>
       )}
     </View>
   );
@@ -835,11 +911,14 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    width: 300,
+    position: "absolute",
+    bottom: "38%",
+    left: "10%",
+    width: "80%",
     padding: 20,
-    backgroundColor: "#fff",
+    paddingTop: 0,
+    backgroundColor: "white",
     borderRadius: 10,
-    alignItems: "center",
   },
   modalTitle: {
     fontSize: 18,
@@ -863,7 +942,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     margin: "auto",
     width: "80%",
-    // height: "45%",
     backgroundColor: "white",
     paddingLeft: 40,
     borderRadius: 10,
