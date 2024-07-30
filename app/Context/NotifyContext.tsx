@@ -94,7 +94,7 @@ const NotifyProvider: React.FC<Props> = ({ children }) => {
   const getNotify = async (page: number) => {
     try {
       const notificationData = await getNotification(page);
-      console.log("Noti:", notificationData);
+      // console.log("Noti:", notificationData);
 
       const total = await getNumberUnreadNotify();
       setTotalNotRead(total);
