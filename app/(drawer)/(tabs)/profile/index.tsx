@@ -66,15 +66,10 @@ const Profile = () => {
     logoutQuery.mutate();
   };
 
-  if (isLoading) {
+  if (isLoading || !data) {
     return (
       <View
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
           alignItems: "center",
           justifyContent: "center",
           flex: 1,
@@ -83,8 +78,8 @@ const Profile = () => {
         <LottieView
           autoPlay
           style={{
-            width: "100%",
-            height: "100%",
+            width: "80%",
+            height: "80%",
             backgroundColor: "white",
           }}
           source={require("@/assets/load.json")}
@@ -110,10 +105,14 @@ const Profile = () => {
       text: "Sửa mật khẩu",
       action: navigateToFreeSpace,
     },
-    { icon: "info-outline", text: "Thông tin", action: navigateToDateSaver },
     {
-      icon: "support-agent",
-      text: "Tư vấn & giúp đỡ",
+      icon: "info-outline",
+      text: "Điều khoản sử dụng",
+      action: navigateToDateSaver,
+    },
+    {
+      icon: "security",
+      text: "Chính sách riêng tư",
       action: navigateToDateSaver,
     },
   ];
@@ -142,24 +141,6 @@ const Profile = () => {
       </Text>
     </TouchableOpacity>
   );
-
-  if (!data) {
-    return (
-      <SafeAreaView
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-      >
-        <LottieView
-          autoPlay
-          style={{
-            width: "100%",
-            height: "100%",
-            backgroundColor: "white",
-          }}
-          source={require("@/assets/load.json")}
-        />
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView
@@ -420,7 +401,7 @@ const Profile = () => {
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Ionicons name="settings" size={24} color="black" />
             <Text style={{ fontSize: 20, marginLeft: 5, fontWeight: "bold" }}>
-              Tiện ích
+              Cài đặt
             </Text>
           </View>
 
