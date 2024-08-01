@@ -62,6 +62,7 @@ export default function UploadOldContract() {
   const [loadingOcr, setLoadingOcr] = useState(false);
   const [contractType, setContractType] = useState("");
   const [openMenu, setOpenMenu] = useState(false);
+  const [nameValidationMessage, setnameValidationMessage] = useState("");
 
   const {
     data: typeContract,
@@ -168,8 +169,6 @@ export default function UploadOldContract() {
       return;
     }
 
-    console.log("cmm:", result.assets);
-
     if (!result.canceled) {
       // console.log("reslib: " + result.assets);
 
@@ -269,6 +268,20 @@ export default function UploadOldContract() {
       ...prevState,
       showPicker: picker,
     }));
+  };
+  const validateName = (name: any) => {
+    const regex = /^(?!\\s)(?!.*\\s{2})[A-Za-zÀ-ỹà-ỹ\\s]{8,30}(?<!\\s)$/;
+    return regex.test(name);
+  };
+
+  const handleNameCheck = (value: string) => {
+    if (value.trim() === "") {
+      setnameValidationMessage("Trường 'tên' không được để trống");
+    } else if (validateName(value)) {
+      setnameValidationMessage("Trường 'tên' hợp lệ");
+    } else {
+      setnameValidationMessage("Trường 'tên' không hợp lệ");
+    }
   };
 
   const handleCreateOldContract = useMutation(createOldContract, {
@@ -420,15 +433,10 @@ export default function UploadOldContract() {
       // {/* </ScaleDecorator> */}
     );
   };
-  if (isLoading) {
+  if (isLoading || loadingImages) {
     return (
       <View
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
           alignItems: "center",
           justifyContent: "center",
           flex: 1,
@@ -437,8 +445,8 @@ export default function UploadOldContract() {
         <LottieView
           autoPlay
           style={{
-            width: "100%",
-            height: "100%",
+            width: "80%",
+            height: "80%",
             backgroundColor: "white",
           }}
           source={require("@/assets/load.json")}
@@ -460,7 +468,10 @@ export default function UploadOldContract() {
         }}
       >
         <TextInput
-          onChangeText={(text) => setContractName(text)}
+          onChangeText={(text) => {
+            setContractName(text);
+            handleNameCheck(text);
+          }}
           placeholder="Tên hợp đồng"
           editable={!handleCreateOldContract.isLoading && !loadingOcr}
           style={{
@@ -478,6 +489,20 @@ export default function UploadOldContract() {
           <Button title="Lưu" onPress={handleSubmit} />
         )}
       </View>
+      {nameValidationMessage && (
+        <Text
+          style={{
+            marginTop: -20,
+            marginLeft: 15,
+            opacity: 0.5,
+            color:
+              nameValidationMessage === "Trường 'tên' hợp lệ" ? "white" : "red",
+          }}
+        >
+          {nameValidationMessage}
+        </Text>
+      )}
+
       <View>
         <View
           style={{
@@ -714,31 +739,6 @@ export default function UploadOldContract() {
         renderItem={renderItem}
         keyExtractor={(item) => item}
       />
-
-      {loadingImages && (
-        <View
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            alignItems: "center",
-            justifyContent: "center",
-            flex: 1,
-          }}
-        >
-          <LottieView
-            autoPlay
-            style={{
-              width: "100%",
-              height: "100%",
-              backgroundColor: "white",
-            }}
-            source={require("@/assets/load.json")}
-          />
-        </View>
-      )}
 
       {uploading && (
         <View
