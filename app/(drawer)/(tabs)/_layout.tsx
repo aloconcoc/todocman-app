@@ -117,6 +117,20 @@ export default function TabLayout() {
           tabBarButton: () => null,
         }}
       />
+      <Tabs.Screen
+        name="employee"
+        options={{
+          title: "Nhân viên",
+          tabBarButton: () => null,
+        }}
+      />
+      <Tabs.Screen
+        name="salary"
+        options={{
+          title: "Bảng lương",
+          tabBarButton: () => null,
+        }}
+      />
     </Tabs>
   );
 }
