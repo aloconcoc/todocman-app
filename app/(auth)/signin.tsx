@@ -18,6 +18,7 @@ import {
   SimpleLineIcons,
   Ionicons,
   MaterialCommunityIcons,
+  Feather,
 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
@@ -34,6 +35,22 @@ const LoginScreen = () => {
   const [secureEntery, setSecureEntery] = useState(true);
   const { setUserContext }: any = useContext(AppContext);
   const [expoPushToken, setExpoPushToken] = useState("");
+  const [emailValidationMessage, setEmailValidationMessage] = useState("");
+
+  const validateEmail = (email: any) => {
+    const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    return regex.test(email);
+  };
+
+  const handleEmailChange = (value: string) => {
+    if (value.trim() === "") {
+      setEmailValidationMessage("Trường 'email' để trống");
+    } else if (validateEmail(value)) {
+      setEmailValidationMessage("Email hợp lệ");
+    } else {
+      setEmailValidationMessage("Email không hợp lệ");
+    }
+  };
 
   function handleRegistrationError(errorMessage: string) {
     alert(errorMessage);
@@ -89,8 +106,6 @@ const LoginScreen = () => {
   }
 
   useEffect(() => {
-    console.log("take token");
-
     registerForPushNotificationsAsync()
       .then((token) => setExpoPushToken(token ?? ""))
       .catch((error: any) => setExpoPushToken(`${error}`));
@@ -118,7 +133,6 @@ const LoginScreen = () => {
           tokenDevice: expoPushToken,
         };
         setUserInfo(JSON.stringify(userInfoWithToken));
-        // console.log("response", response.user);
 
         setUserContext(response?.user.id);
         ToastAndroid.show("Đăng nhập thành công!", ToastAndroid.SHORT);
@@ -181,7 +195,10 @@ const LoginScreen = () => {
                   aria-disabled={mutation.isLoading}
                   placeholder="Email"
                   onBlur={onBlur}
-                  onChangeText={onChange}
+                  onChangeText={(text) => {
+                    onChange(text);
+                    handleEmailChange(text);
+                  }}
                   value={value}
                   style={styles.textInput}
                   placeholderTextColor="teal"
@@ -191,21 +208,27 @@ const LoginScreen = () => {
             )}
             name="email"
           />
-          {errors.email && (
-            <Text style={{ color: "red" }}>
-              Trường 'email' không được để trống
+          {emailValidationMessage && (
+            <Text
+              style={{
+                opacity: 0.5,
+                color:
+                  emailValidationMessage === "Email hợp lệ" ? "white" : "red",
+                marginLeft: 40,
+                marginTop: -15,
+              }}
+            >
+              {emailValidationMessage}
             </Text>
           )}
 
           <Controller
             control={control}
-            rules={{
-              maxLength: 100,
-            }}
+            rules={{ maxLength: 100 }}
             render={({ field: { onChange, onBlur, value } }) => (
               <View style={styles.inputContainer}>
                 <MaterialCommunityIcons
-                  name={"shield-lock-outline"}
+                  name="shield-lock-outline"
                   size={24}
                   color="teal"
                 />
@@ -220,11 +243,13 @@ const LoginScreen = () => {
                   secureTextEntry={secureEntery}
                 />
                 <TouchableOpacity
-                  onPress={() => {
-                    setSecureEntery((prev: any) => !prev);
-                  }}
+                  onPress={() => setSecureEntery((prev) => !prev)}
                 >
-                  <SimpleLineIcons name={"eye"} size={20} color="teal" />
+                  <Feather
+                    name={secureEntery ? "eye" : "eye-off"}
+                    size={20}
+                    color="teal"
+                  />
                 </TouchableOpacity>
               </View>
             )}
