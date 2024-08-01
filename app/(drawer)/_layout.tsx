@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, ToastAndroid } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { Drawer } from "expo-router/drawer";
 import {
   DrawerContentScrollView,
@@ -11,6 +11,7 @@ import {
   Ionicons,
   FontAwesome,
   FontAwesome5,
+  FontAwesome6,
 } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -111,10 +112,30 @@ const CustomDrawerContent = (props: any) => {
           router.push("/(drawer)/(tabs)/search");
         }}
       />
-
       <DrawerItem
         icon={() => (
           <FontAwesome5
+            name="user-tie"
+            size={24}
+            color={pathname == "/employee" ? "#fff" : "#000"}
+          />
+        )}
+        label={" Nhân viên"}
+        labelStyle={[
+          styles.navItemLabel,
+          { color: pathname == "/employee" ? "#fff" : "#000" },
+        ]}
+        style={{
+          backgroundColor: pathname == "/employee" ? "teal" : "#fff",
+        }}
+        onPress={() => {
+          router.push("/(drawer)/(tabs)/employee");
+        }}
+      />
+
+      <DrawerItem
+        icon={() => (
+          <FontAwesome6
             name="file-signature"
             size={24}
             color={pathname == "/new-contract" ? "#fff" : "#000"}
@@ -150,6 +171,26 @@ const CustomDrawerContent = (props: any) => {
         }}
         onPress={() => {
           router.push("/(drawer)/(tabs)/old-contract");
+        }}
+      />
+      <DrawerItem
+        icon={() => (
+          <FontAwesome5
+            name="coins"
+            size={23}
+            color={pathname == "/salary" ? "#fff" : "#000"}
+          />
+        )}
+        label={" Bảng lương"}
+        labelStyle={[
+          styles.navItemLabel,
+          { color: pathname == "/salary" ? "#fff" : "#000" },
+        ]}
+        style={{
+          backgroundColor: pathname == "/salary" ? "teal" : "#fff",
+        }}
+        onPress={() => {
+          router.push("/(drawer)/(tabs)/salary");
         }}
       />
       <DrawerItem
