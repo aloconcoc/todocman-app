@@ -262,54 +262,6 @@ const NewContract = () => {
     setPage(page - 1);
   };
 
-  const handleOfAdReject = async () => {
-    const formData = new FormData();
-    formData.append("to", selectedContract?.createdBy);
-    if (selectedContract?.approvedBy != null)
-      formData.append("cc", selectedContract?.approvedBy);
-    formData.append("subject", "Từ chối duyệt hợp đồng");
-    formData.append("htmlContent", "Từ chối duyệt hợp đồng");
-    formData.append("contractId ", selectedContract?.id);
-    formData.append("status", "APPROVE_FAIL");
-    formData.append("createdBy", selectedContract?.createdBy);
-    formData.append("description", "Từ chối duyệt hợp đồng");
-    try {
-      closeModal();
-
-      // const response = await sendMail(formData);
-    } catch (error) {
-      ToastAndroid.show(
-        "Xảy ra lỗi trong quá trình gửi mail!",
-        ToastAndroid.SHORT
-      );
-    }
-  };
-
-  const handleOfAdAccept = async () => {
-    console.log("selectedContractdm", selectedContract);
-
-    const formData = new FormData();
-    formData.append("to", selectedContract?.createdBy);
-
-    formData.append("subject", "Xác nhận duyệt hợp đồng");
-    formData.append("htmlContent", "Xác nhận duyệt hợp đồng");
-    formData.append("contractId ", selectedContract?.id);
-    formData.append("status", "APPROVED");
-    formData.append("createdBy", selectedContract?.createdBy);
-    formData.append("description", "Xác nhận duyệt hợp đồng");
-    try {
-      console.log("formdatara", formData);
-
-      const response = await sendMail(formData);
-      closeModal();
-    } catch (error) {
-      ToastAndroid.show(
-        "Xảy ra lỗi trong quá trình gửi mail!",
-        ToastAndroid.SHORT
-      );
-    }
-  };
-
   const handleDeleteContract = async () => {
     try {
       setDeleteloading(true);
@@ -330,7 +282,6 @@ const NewContract = () => {
   };
 
   const handleAction = (action: string) => {
-    // console.log(`${action}`, selectedContract);
     if (action == "Xem") {
       const viewContractRole = {
         ...selectedContract,
@@ -340,8 +291,16 @@ const NewContract = () => {
         pathname: "/new-contract/view-contract",
         params: { contract: JSON.stringify(viewContractRole) },
       });
-    } else if (action == "Từ chối") {
-      console.log("ký hợp đồng");
+    } else if (action == "Từ chối ký") {
+      const selectedContractWithStatus = {
+        ...selectedContract,
+        status: 6,
+      };
+      router.push({
+        pathname: "/new-contract/send-mail",
+        params: { contract: JSON.stringify(selectedContractWithStatus) },
+      });
+      console.log("sta6");
     } else if (action == "Trình ký") {
       const selectedContractWithStatus = {
         ...selectedContract,
@@ -351,13 +310,27 @@ const NewContract = () => {
         pathname: "/new-contract/send-mail",
         params: { contract: JSON.stringify(selectedContractWithStatus) },
       });
-      console.log("trình ký");
+      console.log("sta4");
     } else if (action == "Từ chối duyệt") {
-      // handleOfAdReject();
-    } else if (action == "Xóa") {
-      console.log("Xóa");
+      const selectedContractWithStatus = {
+        ...selectedContract,
+        status: 3,
+      };
+      router.push({
+        pathname: "/new-contract/send-mail",
+        params: { contract: JSON.stringify(selectedContractWithStatus) },
+      });
+      console.log("sta3");
     } else if (action == "Duyệt hợp đồng") {
-      // handleOfAdAccept();
+      const selectedContractWithStatus = {
+        ...selectedContract,
+        status: 2,
+      };
+      router.push({
+        pathname: "/new-contract/send-mail",
+        params: { contract: JSON.stringify(selectedContractWithStatus) },
+      });
+      console.log("sta2");
     } else if (action == "Gửi cho khách hàng") {
       const selectedContractWithStatus = {
         ...selectedContract,
@@ -367,6 +340,7 @@ const NewContract = () => {
         pathname: "/new-contract/send-mail",
         params: { contract: JSON.stringify(selectedContractWithStatus) },
       });
+      console.log("sta7");
     } else if (action === "Trình duyệt") {
       const selectedContractWithStatus = {
         ...selectedContract,
@@ -376,8 +350,8 @@ const NewContract = () => {
         pathname: "/new-contract/send-mail",
         params: { contract: JSON.stringify(selectedContractWithStatus) },
       });
+      console.log("sta1");
     }
-    console.log("ko");
 
     closeModal();
   };
@@ -440,20 +414,15 @@ const NewContract = () => {
                   alignItems: "center",
                 }}
               >
-                <Text
-                  disabled={!item?.canSign && userInfo?.email != item.createdBy}
-                  style={[styles.menuOptionText, { color: "forestgreen" }]}
-                >
-                  {userInfo?.role == "ADMIN"
-                    ? `📝 Xem hợp đồng`
-                    : `✍️ Ký hợp đồng`}
+                <Text style={[styles.menuOptionText, { color: "forestgreen" }]}>
+                  📝 Xem hợp đồng
                 </Text>
               </View>
             </TouchableOpacity>
             <View style={styles.seperator} />
             {userInfo?.role == "ADMIN" && (
               <>
-                {/* <TouchableOpacity onPress={() => handleAction("Xem")}>
+                <TouchableOpacity onPress={() => handleAction("Xem")}>
                   <View
                     style={{
                       display: "flex",
@@ -463,17 +432,19 @@ const NewContract = () => {
                   >
                     <Text
                       disabled={
-                        !item?.canSign && userInfo?.email != item.createdBy
+                        (!item?.canSign && userInfo?.email != item.createdBy) ||
+                        item?.status == "SUCCESS" ||
+                        item?.statusCurrent == "SUCCESS"
                       }
                       style={[styles.menuOptionText, { color: "forestgreen" }]}
                     >
                       ✍️ Ký hợp đồng
                     </Text>
                   </View>
-                </TouchableOpacity> */}
+                </TouchableOpacity>
 
                 <View style={[styles.seperator, { borderBottomWidth: 2 }]} />
-                <TouchableOpacity onPress={() => handleAction("Từ chối")}>
+                <TouchableOpacity onPress={() => handleAction("Từ chối ký")}>
                   <View
                     style={{
                       display: "flex",
@@ -482,7 +453,11 @@ const NewContract = () => {
                     }}
                   >
                     <Text
-                      disabled={!item?.canSign}
+                      disabled={
+                        (!item?.canSign && userInfo?.email == item.createdBy) ||
+                        item?.status == "SUCCESS" ||
+                        item?.statusCurrent == "SUCCESS"
+                      }
                       style={[styles.menuOptionText, { color: "royalblue" }]}
                     >
                       ↩️ Từ chối ký
@@ -512,7 +487,9 @@ const NewContract = () => {
             {userInfo?.role == "OFFICE_ADMIN" &&
               userInfo?.permissions.includes("OFFICE_ADMIN") && (
                 <>
-                  <TouchableOpacity onPress={handleOfAdAccept}>
+                  <TouchableOpacity
+                    onPress={() => handleAction("Duyệt hợp đồng")}
+                  >
                     <View
                       style={{
                         display: "flex",
@@ -530,7 +507,9 @@ const NewContract = () => {
                     </View>
                   </TouchableOpacity>
                   <View style={styles.seperator} />
-                  <TouchableOpacity onPress={handleOfAdReject}>
+                  <TouchableOpacity
+                    onPress={() => handleAction("Từ chối duyệt")}
+                  >
                     <View
                       style={{
                         display: "flex",
@@ -855,7 +834,7 @@ const NewContract = () => {
 };
 const styles = StyleSheet.create({
   container: {
-    maxHeight: "99%",
+    maxHeight: "99.9%",
     paddingVertical: 5,
     backgroundColor: "#fff",
   },
