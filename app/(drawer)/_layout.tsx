@@ -73,7 +73,11 @@ const CustomDrawerContent = (props: any) => {
         </TouchableOpacity>
         <View style={styles.userDetailsWrapper}>
           <Text style={styles.userName}>{data?.object?.name}</Text>
-          <Text style={styles.userEmail}>{data?.object?.email}</Text>
+          <Text style={styles.userEmail}>
+            {data?.object?.email.length > 14
+              ? `${data?.object?.email.substring(0, 14)}...`
+              : data?.object?.email}
+          </Text>
         </View>
       </View>
       <DrawerItem
