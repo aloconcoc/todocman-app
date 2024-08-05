@@ -36,13 +36,13 @@ import { statusRequest } from "@/components/utils/statusRequest";
 
 const SendMail = () => {
   const { contract } = useLocalSearchParams();
-  console.log("selectedContractWithStatus", contract);
 
   const contractData = JSON.parse(contract as string);
   console.log("contractData", contractData);
 
-  const [value1, setValue1] = useState<any>();
-  const [value2, setValue2] = useState<any>();
+  const [selectedTo, setSelectedTo] = useState<any[]>([]);
+  const [selectedCc, setSelectedCc] = useState<any[]>([]);
+  const contractFile = useRef<any>();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -64,11 +64,77 @@ const SendMail = () => {
     () => getNewContractById(contractData?.id),
     {
       onSuccess: async (response) => {
-        // if (type == '1') {
-        //   setSelectedTo([{ label: response.object.partyA.email, value: response.object.partyA.email }])
-        // } else if (type == '2') {
-        //   setSelectedTo([{ label: response.object.partyB.email, value: response.object.partyB.email }])
-        // }
+        if (contractData?.status == 2 || contractData?.status == 3) {
+          response.object.createdBy != null &&
+            setSelectedTo([
+              {
+                label: response.object.createdBy,
+                value: response.object.createdBy,
+              },
+            ]);
+        } else if (contractData?.status == 4) {
+          response.object.createdBy != null &&
+            setSelectedCc([
+              {
+                label: response.object.createdBy,
+                value: response.object.createdBy,
+              },
+            ]);
+        } else if (contractData?.status == 6) {
+          response.object.createdBy != null &&
+            setSelectedTo([
+              {
+                label: response.object.createdBy,
+                value: response.object.createdBy,
+              },
+            ]);
+          response.object.approvedBy != null &&
+            setSelectedCc([
+              {
+                label: response.object.approvedBy,
+                value: response.object.approvedBy,
+              },
+            ]);
+        } else if (contractData?.status == 7) {
+          const mailCC = [];
+          response.object.createdBy != null &&
+            mailCC.push({
+              label: response.object.createdBy,
+              value: response.object.createdBy,
+            });
+          response.object.approvedBy != null &&
+            mailCC.push({
+              label: response.object.approvedBy,
+              value: response.object.approvedBy,
+            });
+          setSelectedCc(mailCC);
+          response.object.partyB != null &&
+            setSelectedTo([
+              {
+                label: response.object.partyB.email,
+                value: response.object.partyB.email,
+              },
+            ]);
+        } else if (contractData?.status == 9) {
+          response.object.createdBy != null &&
+            setSelectedTo([
+              {
+                label: response.object.createdBy,
+                value: response.object.createdBy,
+              },
+            ]);
+          response.object.approvedBy != null &&
+            setSelectedCc([
+              {
+                label: response.object.approvedBy,
+                value: response.object.approvedBy,
+              },
+            ]);
+        }
+        const fileUrl = response.object.file;
+        const fileData = await fetch(fileUrl);
+        const blob = await fileData.blob();
+        contractFile.current = blob;
       },
     }
   );
@@ -99,7 +165,7 @@ const SendMail = () => {
   }, [contractData?.status, dataAO, dataAdmin, dataSale]);
 
   const handleSubmit = async () => {
-    if (value1?.length === 0) {
+    if (selectedTo?.length === 0) {
       ToastAndroid.show(
         'Trường "Đến" không được để trống!',
         ToastAndroid.SHORT
@@ -121,11 +187,11 @@ const SendMail = () => {
       return;
     }
     const formData = new FormData();
-    value1.forEach((email: any) => {
+    selectedTo.forEach((email: any) => {
       formData.append("to", email);
     });
-    if (value2?.length > 0) {
-      value2.forEach((email: any) => {
+    if (selectedCc?.length > 0) {
+      selectedCc.forEach((email: any) => {
         formData.append("cc", email);
       });
     }
@@ -167,14 +233,14 @@ const SendMail = () => {
       <View style={styles.container1}>
         <Text style={styles.label}>Đến</Text>
         <MultiSelect
-          value1={value1}
-          setValue1={setValue1}
+          value1={selectedTo}
+          setValue1={setSelectedTo}
           optionTo={optionTo}
         />
         <Text style={styles.label}>CC</Text>
         <MultiSelect2
-          value2={value2}
-          setValue2={setValue2}
+          value2={selectedCc}
+          setValue2={setSelectedCc}
           optionCC={optionCC}
         />
         <Text style={styles.label}>Tiêu đề</Text>
