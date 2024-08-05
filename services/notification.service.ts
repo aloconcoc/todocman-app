@@ -4,6 +4,10 @@ export const getNotification = async (page: number) => {
   const response = await axiosInstance.get(`notification?page=${page}&size=10`);
   return response?.data;
 };
+export const getUnreadNotification = async () => {
+  const response = await axiosInstance.get(`notification/unread`);
+  return response?.data;
+};
 export const getNumberUnreadNotify = async () => {
   const response = await axiosInstance.get(`notification/unread`);
   return response.data;
