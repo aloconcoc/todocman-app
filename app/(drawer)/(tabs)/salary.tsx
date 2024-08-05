@@ -32,10 +32,14 @@ const Salary = () => {
   const [query, setQuery] = useState<string>("");
   const inputRef = useRef<TextInput>(null);
   const [searched, setSearched] = useState<boolean>(false);
-  const [month, setMonth] = useState(0);
-  const [year, setYear] = useState(0);
-
   const { userInfoC }: any = useContext(AppContext);
+
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+  const [month, setMonth] = useState(currentMonth);
+  const [year, setYear] = useState(currentYear);
+  const months = Array.from({ length: currentMonth }, (_, i) => i + 1);
+  const years = Array.from({ length: 21 }, (_, i) => currentYear - i);
 
   const handlePageChange = (page: any) => {
     setPage(page - 1);
@@ -126,7 +130,11 @@ const Salary = () => {
 
   return (
     <View style={styles.container}>
-      <View style={{ flexDirection: "row" }}>
+      <View
+        style={{
+          flexDirection: "row",
+        }}
+      >
         <View style={styles.searchContainer}>
           <Ionicons
             name="search"
@@ -139,7 +147,7 @@ const Salary = () => {
             style={styles.input}
             placeholder="Nhập từ khóa tìm kiếm"
             value={query}
-            onChangeText={(text) => setQuery(text)}
+            onChangeText={(text) => setQuery(text.trim())}
           />
           {query.length > 0 && (
             <TouchableOpacity onPress={clearSearch}>
@@ -177,28 +185,41 @@ const Salary = () => {
       <View
         style={{
           flexDirection: "row",
+          justifyContent: "space-evenly",
         }}
       >
         <Picker
-          style={{ width: "36%" }}
+          style={{ height: 50, width: 150 }}
           selectedValue={month}
           onValueChange={(itemValue) => setMonth(itemValue)}
         >
-          <Picker.Item label="Chọn tháng" value={8} enabled={false} />
-          <Picker.Item label="8" value={8} />
-          <Picker.Item label="1" value={1} />
-          <Picker.Item label="2" value={2} />
+          <Picker.Item
+            label="Chọn tháng"
+            value=""
+            enabled={false}
+            style={{ color: "gray" }}
+          />
+
+          <Picker.Item label="Tất cả" value={100} />
+          {months.map((m) => (
+            <Picker.Item key={m} label={`Tháng ${m}`} value={m} />
+          ))}
         </Picker>
 
         <Picker
-          style={{ width: "36%" }}
-          selectedValue={month}
-          onValueChange={(itemValue) => setMonth(itemValue)}
+          style={{ height: 10, width: 150 }}
+          selectedValue={year}
+          onValueChange={(itemValue) => setYear(itemValue)}
         >
-          <Picker.Item label="Chọn năm" value={0} enabled={false} />
-          <Picker.Item label="2024" value={2024} />
-          <Picker.Item label="2023" value={2023} />
-          <Picker.Item label="2022" value={2022} />
+          <Picker.Item
+            label="Chọn năm"
+            value=""
+            enabled={false}
+            style={{ color: "gray" }}
+          />
+          {years.map((y) => (
+            <Picker.Item key={y} label={`${y}`} value={y} />
+          ))}
         </Picker>
       </View>
       <View style={styles.header}>
@@ -248,12 +269,14 @@ const Salary = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
+    paddingBottom: 5,
     backgroundColor: "#fff",
-    maxHeight: "99%",
+    maxHeight: "99.9%",
   },
   header: {
     flexDirection: "row",
     borderBottomWidth: 1,
+    borderTopWidth: 1,
     alignItems: "center",
     borderBottomColor: "#000",
   },
@@ -340,7 +363,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 8,
-    marginBottom: 12,
     width: "80%",
   },
   searchIcon: {
