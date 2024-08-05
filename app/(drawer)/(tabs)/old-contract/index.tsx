@@ -420,10 +420,10 @@ const ManageOldContract = () => {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
     padding: 10,
     backgroundColor: "#fff",
-    maxHeight: "99%",
+    maxHeight: "99.9%",
+    paddingBottom: 5,
   },
   header: {
     flexDirection: "row",
