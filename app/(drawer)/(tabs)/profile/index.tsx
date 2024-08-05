@@ -190,7 +190,7 @@ const Profile = () => {
               data?.object?.avatar
                 ? { uri: data?.object?.avatar }
                 : {
-                    uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/User-info.svg/1024px-User-info.svg.png",
+                    uri: "https://via.placeholder.com/150",
                   }
             }
           />
@@ -216,7 +216,7 @@ const Profile = () => {
                   fontWeight: "bold",
                 }}
               >
-                {data?.object.name}
+                {data?.object?.name || "name"}
               </Text>
             </View>
             <View
@@ -234,7 +234,7 @@ const Profile = () => {
                   fontSize: 16,
                 }}
               >
-                {data?.object.email}
+                {data?.object?.email}
               </Text>
             </View>
 
@@ -252,7 +252,7 @@ const Profile = () => {
                   marginLeft: 4,
                 }}
               >
-                {data?.object.phone}
+                {data?.object?.phone}
               </Text>
             </View>
           </View>
@@ -282,7 +282,7 @@ const Profile = () => {
                   color: "black",
                 }}
               >
-                {data?.object.department}
+                {data?.object?.department}
               </Text>
             </View>
 
@@ -305,7 +305,7 @@ const Profile = () => {
                   color: "black",
                 }}
               >
-                {data?.object.position}
+                {data?.object?.position}
               </Text>
             </View>
 
@@ -328,7 +328,7 @@ const Profile = () => {
                   color: "black",
                 }}
               >
-                {data?.object.gender ? "Nam" : "Nữ"}
+                {data?.object?.gender ? "Nam" : "Nữ"}
               </Text>
             </View>
           </View>
