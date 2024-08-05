@@ -56,8 +56,6 @@ export default function UploadOldContract() {
   const [ispdf, setIspdf] = useState(false);
   const [isimg, setIsimg] = useState(false);
   const [selectedPdf, setSelectedPdf] = useState<any>(null);
-  const [extractedText, setExtractedText] = useState<any>();
-  const [ocr, setOcr] = useState<any>();
   const queryClient = useQueryClient();
   const [loadingOcr, setLoadingOcr] = useState(false);
   const [contractType, setContractType] = useState("");
@@ -154,16 +152,18 @@ export default function UploadOldContract() {
   const selectImageFromLibrary = async () => {
     setLoadingImages(true);
 
-    // let result = await ImagePicker.launchImageLibraryAsync({
-    //   mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    //   allowsMultipleSelection: true,
-    //   quality: 1,
-    // });
-    const result = await DocumentPicker.getDocumentAsync({
-      copyToCacheDirectory: true,
-      type: "image/*",
-      multiple: true,
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      exif: true,
+      quality: 0.5,
+      allowsMultipleSelection: true,
     });
+    // const result = await DocumentPicker.getDocumentAsync({
+    //   copyToCacheDirectory: true,
+    //   type: "image/*",
+    //   multiple: true,
+    // });
     if (result.canceled === true) {
       setLoadingImages(false);
       return;
@@ -261,7 +261,6 @@ export default function UploadOldContract() {
       ...prevState,
       [field]: formatDate(currentDate),
     }));
-    console.log("date: ", typeof currentDate);
   };
   const showDatepicker = (picker: any) => {
     setDatePickerState((prevState) => ({
@@ -270,18 +269,22 @@ export default function UploadOldContract() {
     }));
   };
   const validateName = (name: any) => {
-    const regex = /^(?!\\s)(?!.*\\s{2})[A-Za-zÀ-ỹà-ỹ\\s]{8,30}(?<!\\s)$/;
-    return regex.test(name);
+    const regex = /^(?!\s)(?!.*\s{2})[A-Za-zÀ-ỹà-ỹ\s]{8,30}(?<!\s)$/i;
+
+    return regex.test(name.trim());
   };
 
   const handleNameCheck = (value: string) => {
     if (value.trim() === "") {
       setnameValidationMessage("Trường 'tên' không được để trống");
     } else if (validateName(value)) {
-      setnameValidationMessage("Trường 'tên' hợp lệ");
+      setnameValidationMessage("Tên hợp lệ");
     } else {
-      setnameValidationMessage("Trường 'tên' không hợp lệ");
+      setnameValidationMessage("Tên không hợp lệ");
     }
+  };
+  const isFormValid = () => {
+    return nameValidationMessage === "Tên hợp lệ";
   };
 
   const handleCreateOldContract = useMutation(createOldContract, {
@@ -307,17 +310,7 @@ export default function UploadOldContract() {
 
   const handleSubmit = async () => {
     const { birthDate, registrationDate, enrollmentDate } = datePickerState;
-    if (!contractName.trim()) {
-      ToastAndroid.showWithGravityAndOffset(
-        "Tên hợp đồng không được để trống",
-        ToastAndroid.LONG,
-        ToastAndroid.BOTTOM,
-        -48,
-        1050
-      );
-      return;
-    }
-    // Kiểm tra ngày
+
     const startDate = new Date(birthDate);
     const endDate = new Date(registrationDate);
     const signDate = new Date(enrollmentDate);
@@ -382,9 +375,7 @@ export default function UploadOldContract() {
           },
         });
         const result = await response.json();
-        console.log("result", typeof result);
 
-        setOcr(result);
         formData.append("content", result || "Lỗi scan text");
       } catch (error) {
         console.error("loi he thong", error);
@@ -486,7 +477,22 @@ export default function UploadOldContract() {
         {handleCreateOldContract.isLoading || loadingOcr ? (
           <ActivityIndicator size="large" color="lightseagreen" />
         ) : (
-          <Button title="Lưu" onPress={handleSubmit} />
+          <TouchableOpacity
+            style={{
+              paddingHorizontal: 10,
+              paddingVertical: 8,
+              backgroundColor: isFormValid() ? "dodgerblue" : "gray",
+              borderRadius: 5,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={handleSubmit}
+            disabled={
+              handleCreateOldContract.isLoading || loadingOcr || !isFormValid()
+            }
+          >
+            <Text style={{ color: "white" }}>LƯU</Text>
+          </TouchableOpacity>
         )}
       </View>
       {nameValidationMessage && (
@@ -495,8 +501,7 @@ export default function UploadOldContract() {
             marginTop: -20,
             marginLeft: 15,
             opacity: 0.5,
-            color:
-              nameValidationMessage === "Trường 'tên' hợp lệ" ? "white" : "red",
+            color: nameValidationMessage === "Tên hợp lệ" ? "white" : "red",
           }}
         >
           {nameValidationMessage}
