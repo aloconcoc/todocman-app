@@ -6,7 +6,6 @@ import DropDownPicker from "react-native-dropdown-picker";
 
 export default function MultiSelect({ value2, setValue2, optionCC }: any) {
   const [open, setOpen] = useState(false);
-  // const [value, setValue] = useState(["tu416164@gmail.com"]);
   const [items, setItems] = useState(optionCC);
   const removeItem = (item: string) => {
     setValue2(value2.filter((i: any) => i !== item));
