@@ -62,7 +62,7 @@ const EditProfile = () => {
 
   const validateField = (value: string, type: FieldType) => {
     const regex = regexPatterns[type];
-    return regex.test(value);
+    return regex.test(value.trim());
   };
 
   const handleCheck = (
@@ -71,6 +71,8 @@ const EditProfile = () => {
     setMessage: any,
     fieldName: any
   ) => {
+    console.log("ok: ", value, type, setMessage, fieldName);
+
     if (value.trim() === "") {
       setMessage(`Trường '${fieldName}' không được để trống`);
     } else if (validateField(value, type)) {
@@ -78,6 +80,16 @@ const EditProfile = () => {
     } else {
       setMessage(`${fieldName} không hợp lệ`);
     }
+  };
+  const isFormValid = () => {
+    return (
+      nameValidationMessage === "Tên hợp lệ" &&
+      phoneValidationMessage === "Số điện thoại hợp lệ" &&
+      addressValidationMessage === "Địa chỉ hợp lệ" &&
+      idCardValidationMessage === "CMND/CCCD hợp lệ" &&
+      departmentValidationMessage === "Phòng ban hợp lệ" &&
+      positionValidationMessage === "Vị trí hợp lệ"
+    );
   };
 
   type ProfileType = {
@@ -494,7 +506,7 @@ const EditProfile = () => {
                 style={{
                   opacity: 0.5,
                   color:
-                    positionValidationMessage === "Vị trí không hợp lệ"
+                    positionValidationMessage === "Vị trí hợp lệ"
                       ? "white"
                       : "red",
                 }}
@@ -550,7 +562,7 @@ const EditProfile = () => {
               }}
               render={({ field: { onChange, onBlur, value } }) => (
                 <>
-                  <Text>CCCD/CMT</Text>
+                  <Text>CMND/CCCD</Text>
                   <TouchableOpacity
                     style={{
                       height: 44,
@@ -574,7 +586,7 @@ const EditProfile = () => {
                           text,
                           "idCard",
                           setidCardValidationMessage,
-                          "Số CMND"
+                          "CMND/CCCD"
                         );
                       }}
                     />
@@ -588,7 +600,7 @@ const EditProfile = () => {
                 style={{
                   opacity: 0.5,
                   color:
-                    idCardValidationMessage === "Số CMND hợp lệ"
+                    idCardValidationMessage === "CMND/CCCD hợp lệ"
                       ? "white"
                       : "red",
                 }}
@@ -632,7 +644,7 @@ const EditProfile = () => {
                     onChangeText={(text) => {
                       onChange(text);
                       handleCheck(
-                        value,
+                        text,
                         "phone",
                         setphoneValidationMessage,
                         "Số điện thoại"
@@ -693,7 +705,7 @@ const EditProfile = () => {
                     onChangeText={(text) => {
                       onChange(text);
                       handleCheck(
-                        value,
+                        text,
                         "address",
                         setaddressValidationMessage,
                         "Địa chỉ"
@@ -790,14 +802,14 @@ const EditProfile = () => {
 
         <TouchableOpacity
           style={{
-            backgroundColor: "green",
+            backgroundColor: !isFormValid() ? "gray" : "green",
             height: 44,
             borderRadius: 6,
             alignItems: "center",
             justifyContent: "center",
           }}
           onPress={() => onSubmit(control._formValues)}
-          disabled={mutation.isLoading}
+          disabled={mutation.isLoading || !isFormValid()}
         >
           {mutation.isLoading ? (
             <ActivityIndicator size="large" color="lightseagreen" />
