@@ -1,7 +1,7 @@
-import { useNotification } from "@/app/Context/NotifyContext";
+import { NotificationData, useNotification } from "@/app/Context/NotifyContext";
 import { Entypo, MaterialIcons, Octicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,9 +9,13 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
+  ToastAndroid,
 } from "react-native";
 import moment from "moment";
 import "moment/locale/vi";
+import { useQuery } from "react-query";
+import { getUnreadNotification } from "@/services/notification.service";
+import { AxiosError } from "axios";
 
 moment.locale("vi");
 
@@ -28,6 +32,23 @@ const NotifyScreen = () => {
     page,
     totalPages,
   } = useNotification();
+  const [activeButton, setActiveButton] = useState("all");
+
+  const { data, isLoading, isError, error } = useQuery(
+    ["notify"],
+    () => getUnreadNotification(),
+    {
+      onSuccess: (response) => {
+        console.log("okla: " + response);
+      },
+      onError: (error: AxiosError<{ message: string }>) => {
+        ToastAndroid.show(
+          error.response?.data?.message || "Lỗi hệ thống",
+          ToastAndroid.SHORT
+        );
+      },
+    }
+  );
 
   const handleReadNotify = (id: any, markRead: boolean) => {
     if (!markRead) {
@@ -43,73 +64,78 @@ const NotifyScreen = () => {
   };
 
   const handleDeleteNotify = (id: any) => {
+    setNotifications((prevNotifications: any) =>
+      prevNotifications.filter((n: any) => n.id !== id)
+    );
+
     isDeleteNotify(id);
+  };
+
+  const handleButtonClick = (type: "all" | "unread") => {
+    setActiveButton(type);
   };
 
   const renderFriend = ({ item }: any) => {
     const timeAgo = moment(item.createdDate).fromNow();
     return (
-      <TouchableOpacity
-        onPress={() => handleReadNotify(item.id, item.markRead)}
-      >
-        <View style={styles.card}>
-          <Image
-            source={{ uri: "https://i.ibb.co/ZXkVtJD/logo-noti.png" }}
-            style={styles.image}
-          />
-          <View style={styles.info}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              {!item.markRead ? (
-                <>
-                  <Text style={styles.name}>{item.title} </Text>
-                  <Octicons name="dot-fill" size={24} color="green" />
-                </>
-              ) : (
-                <Text
-                  style={{
-                    fontSize: 18,
-                    opacity: 0.5,
-                  }}
-                >
-                  {item.title}{" "}
-                </Text>
-              )}
+      <>
+        <TouchableOpacity
+          onPress={() => handleReadNotify(item.id, item.markRead)}
+        >
+          <View style={[styles.card, !item.markRead && styles.unreadCard]}>
+            <Image
+              source={{ uri: "https://i.ibb.co/ZXkVtJD/logo-noti.png" }}
+              style={styles.image}
+            />
+            <View style={styles.info}>
+              <View>
+                {!item.markRead ? (
+                  <>
+                    <Text style={styles.name}>
+                      {item.title.length > 50
+                        ? item.title.substring(0, 50) + "..."
+                        : item.title}
+                    </Text>
+                    <Text style={styles.details}>
+                      {item.message.length > 70
+                        ? item.message.substring(0, 70) + "..."
+                        : item.message}
+                    </Text>
+
+                    <Text style={styles.timeAgo}>{timeAgo}</Text>
+                  </>
+                ) : (
+                  <>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        opacity: 0.5,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {item.title}
+                    </Text>
+                    <Text style={[styles.details, { color: "#888" }]}>
+                      {item.message}
+                    </Text>
+                    <Text style={[styles.timeAgo, { color: "#888" }]}>
+                      {timeAgo}
+                    </Text>
+                  </>
+                )}
+              </View>
             </View>
-            <Text style={styles.details}>{item.message}</Text>
-            <Text style={styles.timeAgo}>{timeAgo}</Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handleDeleteNotify(item.id)}
+            >
+              <MaterialIcons name="delete" size={24} color="red" />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => handleDeleteNotify(item.id)}
-          >
-            <MaterialIcons name="delete" size={24} color="red" />
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </>
     );
   };
-
-  if (loading) {
-    return (
-      <View
-        style={{
-          alignItems: "center",
-          justifyContent: "center",
-          flex: 1,
-        }}
-      >
-        <LottieView
-          autoPlay
-          style={{
-            width: "80%",
-            height: "80%",
-            backgroundColor: "white",
-          }}
-          source={require("@/assets/load.json")}
-        />
-      </View>
-    );
-  }
 
   if (notifications.length === 0) {
     return (
@@ -122,21 +148,61 @@ const NotifyScreen = () => {
   }
 
   return (
-    <FlatList
-      data={notifications}
-      renderItem={renderFriend}
-      keyExtractor={(item) => item.id}
-      contentContainerStyle={styles.container}
-      ListFooterComponent={() =>
-        page.current + 1 !== totalPages.current && (
-          <View style={styles.footer}>
-            <TouchableOpacity onPress={viewMoreNotify}>
-              <Text style={styles.viewMoreText}>Xem thêm</Text>
-            </TouchableOpacity>
-          </View>
-        )
-      }
-    />
+    <>
+      <View style={{ flexDirection: "row", backgroundColor: "white" }}>
+        <TouchableOpacity
+          style={[
+            styles.button1,
+            activeButton === "all" && styles.activeButton,
+          ]}
+          onPress={() => handleButtonClick("all")}
+        >
+          <Text
+            style={[
+              styles.buttonText1,
+              activeButton === "all" && styles.activeButtonText,
+            ]}
+          >
+            Tất cả
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.button1,
+            activeButton === "unread" && styles.activeButton,
+            { marginLeft: 10 },
+          ]}
+          onPress={() => {
+            handleButtonClick("unread");
+          }}
+        >
+          <Text
+            style={[
+              styles.buttonText1,
+              activeButton === "unread" && styles.activeButtonText,
+            ]}
+          >
+            Chưa đọc
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <FlatList
+        data={notifications}
+        renderItem={renderFriend}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.container}
+        ListFooterComponent={() =>
+          page.current + 1 !== totalPages.current && (
+            <View style={styles.footer}>
+              <TouchableOpacity onPress={viewMoreNotify}>
+                <Text style={styles.viewMoreText}>Xem thêm</Text>
+              </TouchableOpacity>
+            </View>
+          )
+        }
+      />
+    </>
   );
 };
 
@@ -144,6 +210,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 10,
     paddingTop: 20,
+    backgroundColor: "#fff",
   },
   card: {
     flexDirection: "row",
@@ -155,20 +222,24 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   image: {
-    width: 30,
-    height: 30,
+    width: 50,
+    height: 50,
+    marginTop: 10,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: "gainsboro",
   },
   info: {
     marginLeft: 10,
     flex: 1,
   },
   name: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "bold",
   },
   details: {
     fontSize: 14,
-    color: "#888",
+    color: "black",
     marginVertical: 5,
   },
   ratingContainer: {
@@ -187,7 +258,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     paddingVertical: 5,
-    paddingHorizontal: 20,
+    paddingLeft: 8,
     borderRadius: 5,
     alignItems: "center",
     marginTop: 10,
@@ -217,6 +288,27 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "dodgerblue",
     fontWeight: "bold",
+  },
+  button1: {
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: "transparent",
+    marginLeft: 10,
+  },
+  activeButton: {
+    backgroundColor: "#EBF8FF",
+  },
+  buttonText1: {
+    color: "#000",
+    fontWeight: "600",
+  },
+  activeButtonText: {
+    color: "#2563EB",
+  },
+  unreadCard: {
+    backgroundColor: "#EBF8FF",
   },
 });
 
