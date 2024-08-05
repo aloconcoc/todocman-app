@@ -14,13 +14,7 @@ import {
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import Colors from "@/constants/Colors";
-import {
-  SimpleLineIcons,
-  Ionicons,
-  MaterialCommunityIcons,
-  Feather,
-} from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { setToken, setUser, setUserInfo } from "@/config/tokenUser";
 import { useForm, Controller } from "react-hook-form";
@@ -37,9 +31,9 @@ const LoginScreen = () => {
   const [expoPushToken, setExpoPushToken] = useState("");
   const [emailValidationMessage, setEmailValidationMessage] = useState("");
 
-  const validateEmail = (email: any) => {
+  const validateEmail = (email: string) => {
     const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    return regex.test(email);
+    return regex.test(email.trim());
   };
 
   const handleEmailChange = (value: string) => {
@@ -163,9 +157,7 @@ const LoginScreen = () => {
 
   return (
     <ImageBackground
-      source={{
-        uri: "https://i.pinimg.com/564x/b0/1e/01/b01e01aba4f9c02cc86d7eed6b6c4ca2.jpg",
-      }}
+      source={require("@/assets/images/loginbg.jpg")}
       resizeMode="cover"
       style={{
         flex: 1,
@@ -288,7 +280,6 @@ export default LoginScreen;
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
     justifyContent: "center",
     backgroundColor: "white",
     paddingBottom: 20,
@@ -298,17 +289,10 @@ const styles = StyleSheet.create({
     shadowRadius: 150,
     elevation: 100,
   },
-  backButtonWrapper: {
-    height: 40,
-    width: 40,
-    backgroundColor: Colors.login_color.gray,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+
   textContainer: {
     paddingVertical: 20,
-    paddingHorizontal: 15,
+    paddingHorizontal: 25,
     borderBottomEndRadius: 50,
     borderBottomStartRadius: 50,
     alignItems: "center",
@@ -318,8 +302,8 @@ const styles = StyleSheet.create({
   },
   headingText: {
     fontSize: 22,
-    color: "teal",
-    fontWeight: "bold",
+    color: "white",
+    fontWeight: "semibold",
   },
   formContainer: {
     marginTop: 50,
