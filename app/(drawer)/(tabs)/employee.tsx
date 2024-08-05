@@ -106,7 +106,7 @@ const ManageEmployee = () => {
           style={styles.input}
           placeholder="Nhập từ khóa tìm kiếm"
           value={query}
-          onChangeText={(text) => setQuery(text)}
+          onChangeText={(text) => setQuery(text.trim())}
           onSubmitEditing={handChangeInputSearch}
         />
         {query.length > 0 && (
@@ -170,8 +170,9 @@ const ManageEmployee = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
+    paddingBottom: 5,
     backgroundColor: "#fff",
-    maxHeight: "99%",
+    maxHeight: "99.9%",
   },
   header: {
     flexDirection: "row",
