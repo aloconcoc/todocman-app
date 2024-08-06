@@ -28,10 +28,9 @@ const Salary = () => {
   const [totalPage, setTotalPage] = useState(1);
   const prevPageRef = useRef(page);
   const prevSizeRef = useRef(size);
-  const [searchData, setSearchData] = useState("");
+  const [fakeQuery, setFakeQuery] = useState<string>("");
   const [query, setQuery] = useState<string>("");
   const inputRef = useRef<TextInput>(null);
-  const [searched, setSearched] = useState<boolean>(false);
   const { userInfoC }: any = useContext(AppContext);
 
   const currentMonth = new Date().getMonth() + 1;
@@ -85,18 +84,21 @@ const Salary = () => {
   }, [page, refetch, size]);
 
   const handChangeInputSearch = () => {
-    if (query.trim() === "") {
-      setSearched(false);
+    if (
+      fakeQuery.trim() === "" &&
+      month == currentMonth &&
+      year == currentYear
+    ) {
       return;
     }
   };
 
   const clearSearch = () => {
+    setFakeQuery("");
     setQuery("");
-    setSearched(false);
   };
 
-  if (isLoading || isFetching) {
+  if (isLoading) {
     return (
       <View style={styles.loader}>
         <LottieView
@@ -146,8 +148,8 @@ const Salary = () => {
             ref={inputRef}
             style={styles.input}
             placeholder="Nhập từ khóa tìm kiếm"
-            value={query}
-            onChangeText={(text) => setQuery(text.trim())}
+            value={fakeQuery}
+            onChangeText={(text) => setFakeQuery(text.trim())}
           />
           {query.length > 0 && (
             <TouchableOpacity onPress={clearSearch}>
@@ -165,7 +167,7 @@ const Salary = () => {
             backgroundColor: "dodgerblue",
             width: 50,
             height: 40,
-            marginLeft: 10,
+            marginLeft: 15,
             borderRadius: 10,
           }}
           onPress={handChangeInputSearch}
