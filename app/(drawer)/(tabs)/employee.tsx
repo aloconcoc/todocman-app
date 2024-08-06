@@ -8,6 +8,8 @@ import {
   ToastAndroid,
   TextInput,
   TouchableOpacity,
+  Modal,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { useQuery } from "react-query";
 import LottieView from "lottie-react-native";
@@ -26,11 +28,20 @@ const ManageEmployee = () => {
   const prevPageRef = useRef(page);
   const prevSizeRef = useRef(size);
   const [query, setQuery] = useState<string>("");
+  const [fakeQuery, setFakeQuery] = useState<string>("");
   const inputRef = useRef<TextInput>(null);
   const [searched, setSearched] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
 
   const handlePageChange = (page: any) => {
     setPage(page - 1);
+  };
+  const handleEmployeePress = (employee: any) => {
+    setSelectedEmployee(employee);
+    console.log(employee);
+
+    setModalVisible(true);
   };
 
   const { data, isLoading, refetch, isFetching } = useQuery(
@@ -57,17 +68,23 @@ const ManageEmployee = () => {
   }, [page, refetch, size]);
 
   const handChangeInputSearch = () => {
-    if (query.trim() === "") {
+    if (fakeQuery.trim() === "") {
       setSearched(false);
       return;
     }
+    setQuery(fakeQuery);
   };
   const clearSearch = () => {
+    setFakeQuery("");
     setQuery("");
     setSearched(false);
   };
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedEmployee(null);
+  };
 
-  if (isLoading || isFetching) {
+  if (isLoading) {
     return (
       <View style={styles.loader}>
         <LottieView
@@ -82,43 +99,79 @@ const ManageEmployee = () => {
       </View>
     );
   }
+  const formatDate = (dateString: any) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
 
   const renderItem = ({ item, index }: any) => (
-    <View style={styles.row}>
-      <Text style={[styles.cell, { flex: 0.1 }]}>{(index + 1).toString()}</Text>
-      <Text style={[styles.cell, { flex: 0.3 }]}>{item?.name}</Text>
-      <Text style={[styles.cell, { flex: 0.4 }]}>{item?.email}</Text>
-      <Text style={[styles.cell, { flex: 0.3 }]}>{item?.phone}</Text>
-    </View>
+    <TouchableOpacity onPress={() => handleEmployeePress(item)}>
+      <View style={styles.row}>
+        <Text style={[styles.cell, { flex: 0.1 }]}>
+          {(index + 1).toString()}
+        </Text>
+        <Text style={[styles.cell, { flex: 0.3 }]}>{item?.name}</Text>
+        <Text style={[styles.cell, { flex: 0.4 }]}>{item?.email}</Text>
+        <Text style={[styles.cell, { flex: 0.3 }]}>{item?.phone}</Text>
+      </View>
+    </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <Ionicons
-          name="search"
-          size={20}
-          color="gray"
-          style={styles.searchIcon}
-        />
-        <TextInput
-          ref={inputRef}
-          style={styles.input}
-          placeholder="Nhập từ khóa tìm kiếm"
-          value={query}
-          onChangeText={(text) => setQuery(text.trim())}
-          onSubmitEditing={handChangeInputSearch}
-        />
-        {query.length > 0 && (
-          <TouchableOpacity onPress={clearSearch}>
-            <AntDesign
-              name="closecircle"
-              size={20}
-              color="gray"
-              style={styles.clearIcon}
-            />
-          </TouchableOpacity>
-        )}
+      <View style={{ flexDirection: "row" }}>
+        <View style={styles.searchContainer}>
+          <Ionicons
+            name="search"
+            size={20}
+            color="gray"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            ref={inputRef}
+            style={styles.input}
+            placeholder="Nhập từ khóa tìm kiếm"
+            value={fakeQuery}
+            onChangeText={(text) => setFakeQuery(text.trim())}
+            onSubmitEditing={handChangeInputSearch}
+          />
+
+          {fakeQuery.length > 0 && (
+            <TouchableOpacity onPress={clearSearch}>
+              <AntDesign
+                name="closecircle"
+                size={20}
+                color="gray"
+                style={styles.clearIcon}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+        <TouchableOpacity
+          style={{
+            backgroundColor: "dodgerblue",
+            width: 50,
+            height: 40,
+            marginLeft: 15,
+            borderRadius: 10,
+          }}
+          onPress={handChangeInputSearch}
+        >
+          <AntDesign
+            name="search1"
+            size={20}
+            color="white"
+            style={{
+              position: "absolute",
+              right: "30%",
+              top: "25%",
+            }}
+          />
+        </TouchableOpacity>
       </View>
       <View style={styles.header}>
         <Text style={[styles.headerCell, { flex: 0.1, fontSize: 12 }]}>
@@ -162,6 +215,68 @@ const ManageEmployee = () => {
             Không có nhân viên
           </Text>
         </View>
+      )}
+      {selectedEmployee && (
+        <Modal
+          visible={modalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={closeModal}
+        >
+          <TouchableWithoutFeedback onPress={closeModal}>
+            <View style={styles.modalOverlay} />
+          </TouchableWithoutFeedback>
+
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Thông tin nhân viên</Text>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>Tên: </Text>
+              <Text style={styles.value}>{selectedEmployee.name}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>Email: </Text>
+              <Text style={[styles.value]}>{selectedEmployee.email}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>Chức vụ: </Text>
+              <Text style={styles.value}>{selectedEmployee.position}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>Phòng ban: </Text>
+              <Text style={styles.value}>{selectedEmployee.department}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>CMND/CCCD: </Text>
+              <Text style={styles.value}>
+                {selectedEmployee.identificationNumber}
+              </Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>Địa chỉ: </Text>
+              <Text style={styles.value}>{selectedEmployee.address}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>Giới tính: </Text>
+              <Text style={styles.value}>{selectedEmployee.gender}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>Ngày sinh: </Text>
+              <Text style={styles.value}>
+                {formatDate(selectedEmployee.dob)}
+              </Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>Số điện thoại: </Text>
+              <Text style={styles.value}>{selectedEmployee.phone}</Text>
+            </View>
+            <View style={[styles.detailRow, { borderBottomWidth: 0 }]}>
+              <Text style={[styles.bold, styles.label]}>Quyền: </Text>
+              <Text style={styles.value}>
+                {selectedEmployee.permission?.slice(1, -1)}
+              </Text>
+            </View>
+          </View>
+        </Modal>
       )}
     </View>
   );
@@ -213,48 +328,39 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flex: 1,
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    position: "absolute",
-    bottom: "38%",
-    left: "10%",
-    width: "80%",
-    padding: 20,
-    paddingTop: 0,
-    backgroundColor: "white",
-    borderRadius: 10,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  closeButton: {
-    marginTop: 20,
-    marginBottom: 5,
-    color: "#03ecfc",
-    width: 50,
-    borderRadius: 50,
-    textAlign: "center",
-    alignContent: "center",
-    alignItems: "center",
-    alignSelf: "center",
-  },
-  pdf: {
-    width: width * 0.99,
-    height: height * 0.92,
-  },
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
+  modalContent: {
+    width: "100%",
+    padding: 16,
+    backgroundColor: "white",
+    borderRadius: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  closeButton: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: "#007bff",
+    borderRadius: 4,
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -263,6 +369,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 8,
     marginBottom: 12,
+    width: "80%",
   },
   searchIcon: {
     marginRight: 8,
@@ -273,6 +380,24 @@ const styles = StyleSheet.create({
   },
   clearIcon: {
     marginLeft: 8,
+  },
+  detailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  label: {
+    flex: 4,
+    fontWeight: "bold",
+  },
+  value: {
+    flex: 5,
+  },
+  bold: {
+    fontWeight: "bold",
   },
 });
 
