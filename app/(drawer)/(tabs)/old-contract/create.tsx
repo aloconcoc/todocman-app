@@ -35,6 +35,7 @@ import axios, { AxiosError } from "axios";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { getContractType } from "@/services/contract-type.service";
 import { Picker } from "@react-native-picker/picker";
+import { OCR_URL } from "@/constants";
 
 const imgDir = FileSystem.documentDirectory + "images/";
 
@@ -353,6 +354,7 @@ export default function UploadOldContract() {
       ToastAndroid.show("Chọn loại hợp đồng!", ToastAndroid.SHORT);
       return;
     }
+    console.log("dm:", birthDate);
 
     const formData = new FormData();
     formData.append("contractName", contractName.trim());
@@ -366,7 +368,7 @@ export default function UploadOldContract() {
       });
       try {
         setLoadingOcr(true);
-        const response = await fetch("http://192.168.1.161:2002/ocr", {
+        const response = await fetch(OCR_URL, {
           // const response = await fetch("https://ocr-service-kxpc.onrender.com", {
           method: "POST",
           body: formData,
@@ -379,6 +381,8 @@ export default function UploadOldContract() {
         formData.append("content", result || "Lỗi scan text");
       } catch (error) {
         console.error("loi he thong", error);
+        setLoadingOcr(false);
+      } finally {
         setLoadingOcr(false);
       }
     } else if (selectedPdf) {
