@@ -49,6 +49,8 @@ const ManageEmployee = () => {
     () => getListEmployee({ size: size, page: page, name: query }),
     {
       onSuccess: (result) => {
+        console.log(result.object.content);
+
         setTotalPage(result?.object?.totalPages);
       },
       onError: (error: AxiosError<{ message: string }>) => {
