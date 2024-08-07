@@ -272,7 +272,7 @@ const ManageEmployee = () => {
             <View style={[styles.detailRow, { borderBottomWidth: 0 }]}>
               <Text style={[styles.bold, styles.label]}>Quyền: </Text>
               <Text style={styles.value}>
-                {selectedEmployee.permission?.slice(1, -1)}
+                {selectedEmployee.permissions?.slice(1, -1)}
               </Text>
             </View>
           </View>
