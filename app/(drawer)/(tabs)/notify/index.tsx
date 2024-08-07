@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import moment from "moment";
 import "moment/locale/vi";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { getUnreadNotification } from "@/services/notification.service";
 import { AxiosError } from "axios";
 
@@ -33,22 +33,23 @@ const NotifyScreen = () => {
     totalPages,
   } = useNotification();
   const [activeButton, setActiveButton] = useState("all");
+  const queryClient = useQueryClient();
 
-  const { data, isLoading, isError, error } = useQuery(
-    ["notify"],
-    () => getUnreadNotification(),
-    {
-      onSuccess: (response) => {
-        console.log("okla: " + response);
-      },
-      onError: (error: AxiosError<{ message: string }>) => {
-        ToastAndroid.show(
-          error.response?.data?.message || "Lỗi hệ thống",
-          ToastAndroid.SHORT
-        );
-      },
-    }
-  );
+  // const { data, isLoading, isError, error } = useQuery(
+  //   ["notify"],
+  //   () => getUnreadNotification(),
+  //   {
+  //     onSuccess: (response) => {
+  //       console.log("okla: " + response);
+  //     },
+  //     onError: (error: AxiosError<{ message: string }>) => {
+  //       ToastAndroid.show(
+  //         error.response?.data?.message || "Lỗi hệ thống",
+  //         ToastAndroid.SHORT
+  //       );
+  //     },
+  //   }
+  // );
 
   const handleReadNotify = (id: any, markRead: boolean) => {
     if (!markRead) {
