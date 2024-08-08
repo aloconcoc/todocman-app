@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -24,6 +24,8 @@ import {
 import { AxiosError } from "axios";
 import { getContractType } from "@/services/contract-type.service";
 import { router } from "expo-router";
+import LoadingPopup from "@/components/contract/loadingOldContract";
+import { AppContext } from "@/app/Context/Context";
 
 const { width, height } = Dimensions.get("window");
 
@@ -39,6 +41,8 @@ const ManageOldContract = () => {
   const prevSizeRef = useRef(size);
   const [deleteModal, setDeleteModal] = useState(false);
   const [deleteloading, setDeleteloading] = useState(false);
+  const { loadingPopupVisible, setLoadingPopupVisible, oldName }: any =
+    useContext(AppContext);
 
   const { isLoading, refetch } = useQuery(
     ["old-contract-list", page, size],
@@ -130,9 +134,9 @@ const ManageOldContract = () => {
         setDeleteloading(true);
         const res = await deleteOldContract(selectedContract?.id);
         if (res) {
-          closeDeleteModal();
           ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
           setTimeout(() => refetch(), 100);
+          closeDeleteModal();
         } else ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
       }
     } catch (error) {
@@ -414,6 +418,11 @@ const ManageOldContract = () => {
           </View>
         </Modal>
       )}
+      <LoadingPopup
+        visible={loadingPopupVisible}
+        setVisible={setLoadingPopupVisible}
+        oldName={oldName}
+      />
     </View>
   );
 };
