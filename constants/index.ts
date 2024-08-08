@@ -1,4 +1,4 @@
-// export const BASE_URL = "http://192.168.110.254:8080/";
+// export const BASE_URL = "http://192.168.1.133:8080/";
 export const BASE_URL = "http://api.tdocman.id.vn/api/";
 export const OCR_URL = "http://192.168.110.254:2002/ocr";
 
