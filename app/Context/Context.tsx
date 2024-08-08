@@ -11,6 +11,8 @@ export const AppProvider = ({ children }: any) => {
   const [loading, setLoading] = useState(true);
   const [userContext, setUserContext] = useState("");
   const [userInfoC, setUserInfoC] = useState("");
+  const [loadingPopupVisible, setLoadingPopupVisible] = useState(false);
+  const [oldName, setOldName] = useState("");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -48,7 +50,18 @@ export const AppProvider = ({ children }: any) => {
 
   return (
     <AppContext.Provider
-      value={{ userContext, setUserContext, userInfoC, setUserInfoC } as any}
+      value={
+        {
+          userContext,
+          setUserContext,
+          userInfoC,
+          setUserInfoC,
+          loadingPopupVisible,
+          setLoadingPopupVisible,
+          oldName,
+          setOldName,
+        } as any
+      }
     >
       {children}
     </AppContext.Provider>
