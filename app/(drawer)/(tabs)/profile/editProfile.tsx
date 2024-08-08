@@ -71,8 +71,6 @@ const EditProfile = () => {
     setMessage: any,
     fieldName: any
   ) => {
-    console.log("ok: ", value, type, setMessage, fieldName);
-
     if (value.trim() === "") {
       setMessage(`Trường '${fieldName}' không được để trống`);
     } else if (validateField(value, type)) {
@@ -144,6 +142,13 @@ const EditProfile = () => {
           setAvatar(
             response.object?.avatar == null ? avatar : response.object?.avatar
           );
+          const gender =
+            response?.object?.gender === true
+              ? "male"
+              : response?.object?.gender === false
+              ? "female"
+              : "";
+          setGender(gender);
         }
       },
       onError: (error: AxiosError<{ message: string }>) => {
@@ -174,6 +179,8 @@ const EditProfile = () => {
 
   const mutation = useMutation(
     async (data: any) => {
+      console.log("u", userContext, data);
+
       if (userContext) await updateProfile(userContext, data);
     },
     {
@@ -206,9 +213,9 @@ const EditProfile = () => {
         const day = String(date.getDate()).padStart(2, "0");
         data.dob = `${day}/${month}/${year}`;
       }
-      if (gender == "nu") {
-        data.gender = false;
-      } else data.gender = true;
+      data = {
+        gender: gender === "male" ? true : gender === "female" ? false : null,
+      };
 
       const formData = new FormData();
       for (const key in data) {
@@ -787,29 +794,42 @@ const EditProfile = () => {
             marginBottom: 6,
           }}
         >
-          <View>
-            <Picker
-              selectedValue={gender}
-              onValueChange={(itemValue) => setGender(itemValue)}
-              enabled={!mutation.isLoading}
-            >
-              <Picker.Item label="Chọn giới tính" value="" />
-              <Picker.Item label="Nam" value={"nam"} />
-              <Picker.Item label="Nữ" value={"nu"} />
-            </Picker>
-          </View>
+          <Controller
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { onChange, value } }) => {
+              return (
+                <View>
+                  <Picker
+                    selectedValue={gender}
+                    onValueChange={(itemValue) => {
+                      console.log("itemValue: " + itemValue);
+
+                      setGender(itemValue);
+                      onChange(itemValue);
+                    }}
+                  >
+                    <Picker.Item label="Chọn giới tính" value="" />
+                    <Picker.Item label="Nam" value="male" />
+                    <Picker.Item label="Nữ" value="female" />
+                  </Picker>
+                </View>
+              );
+            }}
+            name="gender"
+          />
         </View>
 
         <TouchableOpacity
           style={{
-            backgroundColor: !isFormValid() ? "gray" : "green",
+            backgroundColor: "green",
             height: 44,
             borderRadius: 6,
             alignItems: "center",
             justifyContent: "center",
           }}
           onPress={() => onSubmit(control._formValues)}
-          disabled={mutation.isLoading || !isFormValid()}
+          disabled={mutation.isLoading}
         >
           {mutation.isLoading ? (
             <ActivityIndicator size="large" color="lightseagreen" />
