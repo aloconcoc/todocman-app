@@ -49,8 +49,6 @@ const ManageEmployee = () => {
     () => getListEmployee({ size: size, page: page, name: query }),
     {
       onSuccess: (result) => {
-        console.log(result.object.content);
-
         setTotalPage(result?.object?.totalPages);
       },
       onError: (error: AxiosError<{ message: string }>) => {
@@ -259,7 +257,7 @@ const ManageEmployee = () => {
             </View>
             <View style={styles.detailRow}>
               <Text style={[styles.bold, styles.label]}>Giới tính: </Text>
-              <Text style={styles.value}>{selectedEmployee.gender}</Text>
+              <Text style={styles.value}>Nam</Text>
             </View>
             <View style={styles.detailRow}>
               <Text style={[styles.bold, styles.label]}>Ngày sinh: </Text>
