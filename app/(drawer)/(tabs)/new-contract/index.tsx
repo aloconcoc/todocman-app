@@ -415,7 +415,7 @@ const NewContract = () => {
                 }}
               >
                 <Text style={[styles.menuOptionText, { color: "forestgreen" }]}>
-                  📝 Xem hợp đồng
+                  🔎 Xem hợp đồng
                 </Text>
               </View>
             </TouchableOpacity>
@@ -443,7 +443,7 @@ const NewContract = () => {
                   </View>
                 </TouchableOpacity>
 
-                <View style={[styles.seperator, { borderBottomWidth: 2 }]} />
+                <View style={[styles.seperator]} />
                 <TouchableOpacity onPress={() => handleAction("Từ chối ký")}>
                   <View
                     style={{
