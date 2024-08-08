@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   Button,
   Image,
@@ -19,6 +19,7 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
+// import * as ImageManipulator from "expo-image-manipulator";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import LottieView from "lottie-react-native";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
@@ -36,6 +37,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { getContractType } from "@/services/contract-type.service";
 import { Picker } from "@react-native-picker/picker";
 import { OCR_URL } from "@/constants";
+import { AppContext } from "@/app/Context/Context";
 
 const imgDir = FileSystem.documentDirectory + "images/";
 
@@ -62,6 +64,8 @@ export default function UploadOldContract() {
   const [contractType, setContractType] = useState("");
   const [openMenu, setOpenMenu] = useState(false);
   const [nameValidationMessage, setnameValidationMessage] = useState("");
+  const { setOldName, setLoadingPopupVisible }: any = useContext(AppContext);
+  const nameInputRef = useRef<any>(null);
 
   const {
     data: typeContract,
@@ -82,19 +86,16 @@ export default function UploadOldContract() {
     enrollmentDate: new Date().toLocaleDateString(),
   });
 
-  // Function to open the modal and display the selected image
   const openModal = (uri: string) => {
     setSelectedImage(uri);
     setModalVisible(true);
   };
 
-  // Function to close the modal
   const closeModal = () => {
     setSelectedImage(null);
     setModalVisible(false);
   };
 
-  // Load images on startup
   useEffect(() => {
     loadImages();
     console.log("Loading images");
@@ -153,25 +154,25 @@ export default function UploadOldContract() {
   const selectImageFromLibrary = async () => {
     setLoadingImages(true);
 
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      exif: true,
-      quality: 0.5,
-      allowsMultipleSelection: true,
-    });
-    // const result = await DocumentPicker.getDocumentAsync({
-    //   copyToCacheDirectory: true,
-    //   type: "image/*",
-    //   multiple: true,
+    // let result = await ImagePicker.launchImageLibraryAsync({
+    //   mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    //   allowsEditing: false,
+    //   exif: true,
+    //   quality: 0.5,
+    //   allowsMultipleSelection: true,
     // });
+    const result = await DocumentPicker.getDocumentAsync({
+      copyToCacheDirectory: true,
+      type: "image/*",
+      multiple: true,
+    });
     if (result.canceled === true) {
       setLoadingImages(false);
       return;
     }
 
     if (!result.canceled) {
-      // console.log("reslib: " + result.assets);
+      console.log("reslib: " + JSON.stringify(result.assets));
 
       const selectedImages = result.assets;
       const tempImages: string[] = [];
@@ -192,7 +193,6 @@ export default function UploadOldContract() {
 
       setImages([...images, ...tempImages]);
       setIsimg(true);
-      // console.log("tmp files: ", tmp);
 
       setAllImages([...allImages, ...tmp]);
     }
@@ -207,7 +207,6 @@ export default function UploadOldContract() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 0.5,
-      // base64: true,
     };
 
     const result = await ImagePicker.launchCameraAsync(options);
@@ -293,30 +292,55 @@ export default function UploadOldContract() {
       if (res.code === "00" && res.object) {
         ToastAndroid.show("Tạo hợp đồng thành công!", ToastAndroid.SHORT);
         await queryClient.refetchQueries("old-contract-list");
-        router.navigate("old-contract");
       } else {
-        ToastAndroid.show("Tạo hợp đồng thất bại!", ToastAndroid.SHORT);
-        return;
+        ToastAndroid.show(
+          "Xảy ra lỗi trong quá trình tải hợp đồng!",
+          ToastAndroid.SHORT
+        );
       }
     },
     onError: (error: AxiosError<{ message: string }>) => {
       console.log("Lỗi api: ", error.response?.data.message);
-
       ToastAndroid.show(
-        error.response?.data?.message || "Lỗi hệ thống",
+        error.response?.data?.message ||
+          "Xảy ra lỗi trong quá trình tạo hợp đồng",
         ToastAndroid.SHORT
       );
     },
   });
 
-  const handleSubmit = async () => {
-    const { birthDate, registrationDate, enrollmentDate } = datePickerState;
+  const performOCRAndUpload = async (formData: any) => {
+    try {
+      setLoadingOcr(true);
 
+      const response = await fetch("http://ocr.tdocman.id.vn/ocr", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      const result = await response.json();
+      formData.append("content", result || "Lỗi scan text");
+    } catch (error) {
+      console.error("Lỗi OCR", error);
+    } finally {
+      setLoadingOcr(false);
+      handleCreateOldContract.mutate(formData);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!isFormValid()) {
+      nameInputRef.current.focus();
+      return;
+    }
+    const { birthDate, registrationDate, enrollmentDate } = datePickerState;
     const startDate = new Date(birthDate);
     const endDate = new Date(registrationDate);
     const signDate = new Date(enrollmentDate);
 
-    // Kiểm tra ngày kết thúc không trước ngày bắt đầu
     if (endDate < startDate) {
       ToastAndroid.show(
         "Ngày kết thúc không thể trước ngày bắt đầu",
@@ -324,8 +348,6 @@ export default function UploadOldContract() {
       );
       return;
     }
-
-    // Kiểm tra ngày ký không bé hơn ngày bắt đầu
     if (signDate < startDate) {
       ToastAndroid.show(
         "Ngày ký không thể trước ngày bắt đầu",
@@ -333,8 +355,6 @@ export default function UploadOldContract() {
       );
       return;
     }
-
-    // Kiểm tra ngày ký không sau ngày kết thúc
     if (signDate > endDate) {
       ToastAndroid.show(
         "Ngày ký không thể sau ngày kết thúc",
@@ -343,18 +363,19 @@ export default function UploadOldContract() {
       return;
     }
 
-    if (
-      images.length === 0 &&
-      (selectedPdf === null || selectedPdf === undefined)
-    ) {
-      ToastAndroid.show("Hãy chọn ảnh hoặc file pdf!", ToastAndroid.SHORT);
-      return;
-    }
     if (contractType === "") {
       ToastAndroid.show("Chọn loại hợp đồng!", ToastAndroid.SHORT);
       return;
     }
-    console.log("dm:", birthDate);
+    if (images.length === 0 && !selectedPdf) {
+      ToastAndroid.show("Hãy chọn ảnh hoặc file pdf!", ToastAndroid.SHORT);
+      return;
+    }
+    setLoadingPopupVisible(true);
+    setOldName(contractName);
+    setTimeout(() => {
+      router.navigate("old-contract");
+    }, 1000);
 
     const formData = new FormData();
     formData.append("contractName", contractName.trim());
@@ -362,34 +383,24 @@ export default function UploadOldContract() {
     formData.append("contractStartDate", formatDate(birthDate));
     formData.append("contractEndDate", formatDate(registrationDate));
     formData.append("contractSignDate", formatDate(enrollmentDate));
-    if (allImages.length > 0) {
-      allImages.forEach((image: any) => {
-        formData.append("images", image);
-      });
-      try {
-        setLoadingOcr(true);
-        const response = await fetch(OCR_URL, {
-          // const response = await fetch("https://ocr-service-kxpc.onrender.com", {
-          method: "POST",
-          body: formData,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        const result = await response.json();
 
-        formData.append("content", result || "Lỗi scan text");
-      } catch (error) {
-        console.error("loi he thong", error);
-        setLoadingOcr(false);
-      } finally {
-        setLoadingOcr(false);
+    try {
+      if (allImages.length > 0) {
+        allImages.forEach((image: any) => {
+          formData.append("images", image);
+        });
+        await performOCRAndUpload(formData);
+      } else if (selectedPdf) {
+        formData.append("images", selectedPdf);
+        formData.append("content", "Hợp đồng tải lên từ file pdf");
+        await performOCRAndUpload(formData);
       }
-    } else if (selectedPdf) {
-      formData.append("images", selectedPdf);
-      formData.append("content", "Hợp đồng tải lên từ file pdf");
+    } catch (error) {
+      console.error("Lỗi hệ thống", error);
+      ToastAndroid.show("Lỗi trong quá trình xử lý!", ToastAndroid.SHORT);
+    } finally {
+      setLoadingPopupVisible(false);
     }
-    handleCreateOldContract.mutate(formData);
   };
 
   // Render image list item
@@ -463,6 +474,7 @@ export default function UploadOldContract() {
         }}
       >
         <TextInput
+          ref={nameInputRef}
           onChangeText={(text) => {
             setContractName(text);
             handleNameCheck(text);
@@ -485,15 +497,13 @@ export default function UploadOldContract() {
             style={{
               paddingHorizontal: 10,
               paddingVertical: 8,
-              backgroundColor: isFormValid() ? "dodgerblue" : "gray",
+              backgroundColor: "dodgerblue",
               borderRadius: 5,
               justifyContent: "center",
               alignItems: "center",
             }}
             onPress={handleSubmit}
-            disabled={
-              handleCreateOldContract.isLoading || loadingOcr || !isFormValid()
-            }
+            disabled={handleCreateOldContract.isLoading || loadingOcr}
           >
             <Text style={{ color: "white" }}>LƯU</Text>
           </TouchableOpacity>
