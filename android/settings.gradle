@@ -1,4 +1,4 @@
-rootProject.name = 'sepApp'
+rootProject.name = 'Tdocman'
 
 dependencyResolutionManagement {
   versionCatalogs {

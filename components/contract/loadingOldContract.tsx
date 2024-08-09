@@ -25,7 +25,7 @@ const LoadingPopup = ({ visible, setVisible, oldName }: any) => {
           }
           return prevProgress + 3;
         });
-      }, 2000);
+      }, 1000);
     }
 
     return () => {

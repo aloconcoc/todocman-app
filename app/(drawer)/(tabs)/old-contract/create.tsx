@@ -19,7 +19,8 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
-// import * as ImageManipulator from "expo-image-manipulator";
+import * as ImageManipulator from "expo-image-manipulator";
+import { Image as CompressorImage } from "react-native-compressor";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import LottieView from "lottie-react-native";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
@@ -154,19 +155,13 @@ export default function UploadOldContract() {
   const selectImageFromLibrary = async () => {
     setLoadingImages(true);
 
-    // let result = await ImagePicker.launchImageLibraryAsync({
-    //   mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    //   allowsEditing: false,
-    //   exif: true,
-    //   quality: 0.5,
-    //   allowsMultipleSelection: true,
-    // });
     const result = await DocumentPicker.getDocumentAsync({
       copyToCacheDirectory: true,
       type: "image/*",
       multiple: true,
     });
-    if (result.canceled === true) {
+
+    if (result.canceled) {
       setLoadingImages(false);
       return;
     }
@@ -182,20 +177,33 @@ export default function UploadOldContract() {
           Platform.OS === "android"
             ? selectedImages[i].uri
             : selectedImages[i].uri.replace("file://", "");
-        const fileName = trimmedURI.split("/").pop();
-        tempImages.push(selectedImages[i].uri);
-        tmp.push({
-          uri: trimmedURI,
-          type: mime.getType(trimmedURI),
-          name: fileName,
-        });
+
+        try {
+          const compressedImage = await CompressorImage.compress(trimmedURI, {
+            compressionMethod: "auto",
+            maxWidth: 900,
+            maxHeight: 1600,
+            quality: 0.5,
+          });
+
+          const fileName = compressedImage.split("/").pop();
+          tempImages.push(compressedImage);
+          tmp.push({
+            uri: compressedImage,
+            type: mime.getType(compressedImage),
+            name: fileName,
+          });
+        } catch (error) {
+          console.error("Error compressing image:", error);
+        }
       }
 
       setImages([...images, ...tempImages]);
       setIsimg(true);
-
       setAllImages([...allImages, ...tmp]);
+      console.log("tmp images: ", tempImages);
     }
+
     setLoadingImages(false);
   };
 

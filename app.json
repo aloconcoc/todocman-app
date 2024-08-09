@@ -56,7 +56,8 @@
         {
           "launchMode": "most-recent"
         }
-      ]
+      ],
+      "react-native-compressor"
     ],
     "experiments": {
       "typedRoutes": true
