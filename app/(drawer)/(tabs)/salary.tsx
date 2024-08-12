@@ -8,6 +8,8 @@ import {
   ToastAndroid,
   TextInput,
   TouchableOpacity,
+  Modal,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { useQuery } from "react-query";
 import LottieView from "lottie-react-native";
@@ -39,6 +41,8 @@ const Salary = () => {
   const [year, setYear] = useState(currentYear);
   const months = Array.from({ length: currentMonth }, (_, i) => i + 1);
   const years = Array.from({ length: 21 }, (_, i) => currentYear - i);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
 
   const handlePageChange = (page: any) => {
     setPage(page - 1);
@@ -48,19 +52,21 @@ const Salary = () => {
     ["employee-list"],
     () => {
       if (userInfoC?.role == ADMIN) {
+        console.log("admin", month, year);
+
         return getSalaryAll({
           page: page,
           size: size,
-          month: 8,
-          year: 2024,
+          month: month,
+          year: year,
           type: "SALE",
         });
       }
       return getSalaryByMail({
         page: page,
         size: size,
-        month: 8,
-        year: 2024,
+        month: month,
+        year: year,
       });
     },
     {
@@ -84,21 +90,25 @@ const Salary = () => {
   }, [page, refetch, size]);
 
   const handChangeInputSearch = () => {
-    if (
-      fakeQuery.trim() === "" &&
-      month == currentMonth &&
-      year == currentYear
-    ) {
-      return;
-    }
+    refetch();
   };
 
   const clearSearch = () => {
     setFakeQuery("");
     setQuery("");
   };
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedEmployee(null);
+  };
+  const handleEmployeePress = (employee: any) => {
+    setSelectedEmployee(employee);
+    console.log(employee);
 
-  if (isLoading) {
+    setModalVisible(true);
+  };
+
+  if (isLoading || isFetching) {
     return (
       <View style={styles.loader}>
         <LottieView
@@ -115,19 +125,20 @@ const Salary = () => {
   }
 
   const renderItem = ({ item, index }: any) => (
-    <View style={styles.row}>
-      <Text style={[styles.cell, { flex: 0.1 }]}>{(index + 1).toString()}</Text>
-      <Text style={[styles.cell, { flex: 0.3 }]}>{item?.email}</Text>
-      <Text style={[styles.cell, { flex: 0.4 }]}>
-        {item?.baseSalary?.toLocaleString() || "0"}
-      </Text>
-      <Text style={[styles.cell, { flex: 0.3 }]}>
-        {item?.totalValueContract?.toLocaleString() || "0"}
-      </Text>
-      <Text style={[styles.cell, { flex: 0.3 }]}>
-        {item?.totalSalary?.toLocaleString() || "0"}
-      </Text>
-    </View>
+    <TouchableOpacity onPress={() => handleEmployeePress(item)}>
+      <View style={styles.row}>
+        <Text style={[styles.cell, { flex: 0.1 }]}>
+          {(index + 1).toString()}
+        </Text>
+        <Text style={[styles.cell, { flex: 0.3 }]}>{item?.user.name}</Text>
+        <Text style={[styles.cell, { flex: 0.4, textAlign: "left" }]}>
+          {item?.email}
+        </Text>
+        <Text style={[styles.cell, { flex: 0.3 }]}>
+          {item?.baseSalary?.toLocaleString() || "0"}
+        </Text>
+      </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -225,15 +236,10 @@ const Salary = () => {
         </Picker>
       </View>
       <View style={styles.header}>
-        <Text style={[styles.headerCell, { flex: 0.1 }]}>Stt</Text>
-        <Text style={[styles.headerCell, { flex: 0.3 }]}>Email</Text>
-        <Text style={[styles.headerCell, { flex: 0.4 }]}>
-          Lương cơ bản(VND)
-        </Text>
-        <Text style={[styles.headerCell, { flex: 0.3 }]}>
-          Tổng doanh số(VND)
-        </Text>
-        <Text style={[styles.headerCell, { flex: 0.3 }]}>Tiền lương(VND)</Text>
+        <Text style={[styles.headerCell, { flex: 0.1 }]}>STT</Text>
+        <Text style={[styles.headerCell, { flex: 0.3 }]}>Tên nhân viên</Text>
+        <Text style={[styles.headerCell, { flex: 0.4 }]}>Email</Text>
+        <Text style={[styles.headerCell, { flex: 0.3 }]}>Lương cứng</Text>
       </View>
       <FlatList
         data={data?.object?.content}
@@ -264,6 +270,76 @@ const Salary = () => {
           </Text>
         </View>
       )}
+      {selectedEmployee && (
+        <Modal
+          visible={modalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={closeModal}
+        >
+          <TouchableWithoutFeedback onPress={closeModal}>
+            <View style={styles.modalOverlay} />
+          </TouchableWithoutFeedback>
+
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Thông tin phiếu lương</Text>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>Tên: </Text>
+              <Text style={styles.value}>{selectedEmployee?.user.name}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>Email: </Text>
+              <Text style={[styles.value]}>{selectedEmployee.email}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>Tổng doanh số </Text>
+              <Text style={styles.value}>
+                {selectedEmployee?.totalValueContract}
+              </Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>Lương cứng </Text>
+              <Text style={styles.value}>{selectedEmployee?.baseSalary}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>% Doanh số </Text>
+              <Text style={styles.value}>
+                {selectedEmployee?.commissionPercentage}
+              </Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>% Triển khai KH </Text>
+              <Text style={styles.value}>
+                {selectedEmployee?.clientDeploymentPercentage}
+              </Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>
+                Thưởng đạt ngưỡng{" "}
+              </Text>
+              <Text style={styles.value}>
+                {selectedEmployee?.bonusReachesThreshold}
+              </Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>Trợ cấp ăn </Text>
+              <Text style={styles.value}>
+                {selectedEmployee?.foodAllowance}
+              </Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.bold, styles.label]}>Phụ cấp </Text>
+              <Text style={styles.value}>
+                {selectedEmployee?.transportationOrPhoneAllowance}
+              </Text>
+            </View>
+            <View style={[styles.detailRow, { borderBottomWidth: 0 }]}>
+              <Text style={[styles.bold, styles.label]}>Tiền lương </Text>
+              <Text style={styles.value}>{selectedEmployee?.totalSalary}</Text>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 };
@@ -286,7 +362,7 @@ const styles = StyleSheet.create({
     flex: 0.2,
     fontWeight: "bold",
     padding: 2,
-    fontSize: 12,
+    fontSize: 12.9,
     textAlign: "center",
   },
 
@@ -316,48 +392,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flex: 1,
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    position: "absolute",
-    bottom: "38%",
-    left: "10%",
-    width: "80%",
-    padding: 20,
-    paddingTop: 0,
-    backgroundColor: "white",
-    borderRadius: 10,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  closeButton: {
-    marginTop: 20,
-    marginBottom: 5,
-    color: "#03ecfc",
-    width: 50,
-    borderRadius: 50,
-    textAlign: "center",
-    alignContent: "center",
-    alignItems: "center",
-    alignSelf: "center",
-  },
-  pdf: {
-    width: width * 0.99,
-    height: height * 0.92,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
+
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -376,6 +411,58 @@ const styles = StyleSheet.create({
   },
   clearIcon: {
     marginLeft: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    width: "100%",
+    padding: 16,
+    backgroundColor: "white",
+    borderRadius: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  closeButton: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: "#007bff",
+    borderRadius: 4,
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  detailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  label: {
+    flex: 4,
+    fontWeight: "bold",
+  },
+  value: {
+    flex: 5,
+    paddingVertical: 8,
+    paddingLeft: 5,
+    borderRadius: 10,
+    backgroundColor: "#f0f0f0",
+  },
+  bold: {
+    fontWeight: "bold",
   },
 });
 
