@@ -10,6 +10,7 @@ import {
   FontAwesome5,
   FontAwesome6,
   Ionicons,
+  MaterialCommunityIcons,
   Octicons,
 } from "@expo/vector-icons";
 import NotifyProvider, { useNotification } from "@/app/Context/NotifyContext";
@@ -128,6 +129,23 @@ export default function TabLayout() {
         name="salary"
         options={{
           title: "Bảng lương",
+          // headerRight: () => {
+          //   return (
+          //     <TouchableOpacity>
+          //       <MaterialCommunityIcons
+          //         name="microsoft-excel"
+          //         size={28}
+          //         color="white"
+          //         style={{
+          //           marginRight: 15,
+          //           backgroundColor: "green",
+          //           padding: 5,
+          //           borderRadius: 10,
+          //         }}
+          //       />
+          //     </TouchableOpacity>
+          //   );
+          // },
           tabBarButton: () => null,
         }}
       />
