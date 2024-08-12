@@ -16,6 +16,7 @@ import "moment/locale/vi";
 import { useQuery, useQueryClient } from "react-query";
 import { getUnreadNotification } from "@/services/notification.service";
 import { AxiosError } from "axios";
+import { router } from "expo-router";
 
 moment.locale("vi");
 
@@ -51,16 +52,23 @@ const NotifyScreen = () => {
   //   }
   // );
 
-  const handleReadNotify = (id: any, markRead: boolean) => {
-    if (!markRead) {
+  const handleReadNotify = (noti: any) => {
+    if (noti?.typeNotification == "CONTRACT") {
+      router.navigate("/(drawer)/new-contract");
+    } else if (noti?.typeNotification == "APPENDICES CONTRACT") {
+      router.navigate(
+        `/(drawer)/new-contract/appendices-contract/${noti?.id}"`
+      );
+    }
+    if (!noti?.markRead) {
       setTotalNotRead((totalNotRead: any) => totalNotRead - 1);
       setNotifications(
         notifications?.map((n) => {
-          if (n.id == id) return { ...n, markRead: true };
+          if (n.id == noti.id) return { ...n, markRead: true };
           else return n;
         })
       );
-      isReadNotify(id);
+      isReadNotify(noti.id);
     }
   };
 
@@ -77,12 +85,12 @@ const NotifyScreen = () => {
   };
 
   const renderFriend = ({ item }: any) => {
+    console.log("item", item);
+
     const timeAgo = moment(item.createdDate).fromNow();
     return (
       <>
-        <TouchableOpacity
-          onPress={() => handleReadNotify(item.id, item.markRead)}
-        >
+        <TouchableOpacity onPress={() => handleReadNotify(item)}>
           <View style={[styles.card, !item.markRead && styles.unreadCard]}>
             <Image
               source={{ uri: "https://i.ibb.co/ZXkVtJD/logo-noti.png" }}
