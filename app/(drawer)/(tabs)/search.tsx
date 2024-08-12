@@ -7,23 +7,33 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  Modal,
+  Dimensions,
 } from "react-native";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { getSearchContract } from "@/services/contract.service";
 import ItemNewContract from "@/components/search/ItemNewContract";
 import ItemOldContract from "@/components/search/ItemOldContract";
 import Pagination from "@/components/utils/pagination";
+import { getContractType } from "@/services/contract-type.service";
+import { Picker } from "@react-native-picker/picker";
+import Pdf from "react-native-pdf";
+
+const { width, height } = Dimensions.get("window");
 
 const SearchScreen = () => {
   const [query, setQuery] = useState<string>("");
   const [searched, setSearched] = useState<boolean>(false);
   const [contractType, setContractType] = useState<string>("contract");
+  const [typeContr, setTypeContr] = useState<string>("");
   const [totalPage, setTotalPage] = useState(1);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [data, setData] = useState<any>();
   const inputRef = useRef<TextInput>(null);
+  const [selectedContract, setSelectedContract] = useState<any>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const searchQuery = useMutation(getSearchContract, {
     onSuccess: (result) => {
@@ -31,6 +41,13 @@ const SearchScreen = () => {
       setTotalPage(result?.object?.totalPages);
     },
   });
+  const { data: typeData } = useQuery(
+    "type-contract",
+    () => getContractType({ page: 0, size: 100, title: "" }),
+    {
+      onError: (err) => console.log(err),
+    }
+  );
 
   useEffect(() => {
     if (contractType && searched) {
@@ -67,6 +84,15 @@ const SearchScreen = () => {
       inputRef.current.focus();
     }
   }, [query]);
+  const openModal = (contract: any) => {
+    setSelectedContract(contract);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedContract(null);
+  };
 
   return (
     <View style={styles.container}>
@@ -117,6 +143,37 @@ const SearchScreen = () => {
           <Text style={styles.buttonText}>Hợp đồng cũ</Text>
         </TouchableOpacity>
       </View>
+      <View
+        style={{
+          width: 200,
+          height: 40,
+          borderWidth: 1,
+          justifyContent: "center",
+          marginHorizontal: "auto",
+          borderRadius: 5,
+        }}
+      >
+        <Picker
+          selectedValue={typeContr}
+          onValueChange={(itemValue) => setTypeContr(itemValue as string)}
+          enabled={true}
+        >
+          <Picker.Item
+            style={{ color: typeContr === "all" ? "green" : "black" }}
+            label="Tất cả"
+            value="all"
+            key="all"
+          />
+          {typeData?.content.map((d: any) => (
+            <Picker.Item
+              label={d.title}
+              value={d.id}
+              key={d.id}
+              style={{ color: typeContr === d.id ? "green" : "black" }}
+            />
+          ))}
+        </Picker>
+      </View>
 
       {searchQuery.isLoading ? (
         <ActivityIndicator size="large" color="lightseagreen" />
@@ -135,9 +192,17 @@ const SearchScreen = () => {
               keyExtractor={(item) => item.id}
               renderItem={({ item }) =>
                 contractType === "contract" ? (
-                  <ItemNewContract data={item} />
+                  <ItemNewContract
+                    data={item}
+                    setSelectedContract={setSelectedContract}
+                    setModalVisible={setModalVisible}
+                  />
                 ) : (
-                  <ItemOldContract data={item} />
+                  <ItemOldContract
+                    data={item}
+                    setSelectedContract={setSelectedContract}
+                    setModalVisible={setModalVisible}
+                  />
                 )
               }
               ListFooterComponent={() => (
@@ -153,6 +218,37 @@ const SearchScreen = () => {
             />
           </>
         )
+      )}
+      {selectedContract && (
+        <Modal
+          transparent={true}
+          animationType="fade"
+          visible={modalVisible}
+          onRequestClose={closeModal}
+        >
+          <View style={styles.modalContainer}>
+            <View>
+              <TouchableOpacity onPress={closeModal}>
+                <AntDesign
+                  style={styles.closeButton}
+                  name="closecircle"
+                  size={28}
+                  color="black"
+                />
+              </TouchableOpacity>
+
+              <Pdf
+                trustAllCerts={false}
+                source={{
+                  uri: selectedContract?.file,
+                  cache: true,
+                }}
+                style={styles.pdf}
+              />
+            </View>
+            <View style={{ height: 20 }}></View>
+          </View>
+        </Modal>
       )}
     </View>
   );
@@ -225,6 +321,27 @@ const styles = StyleSheet.create({
   },
   queryText: {
     fontWeight: "bold",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  closeButton: {
+    marginTop: 20,
+    marginBottom: 5,
+    color: "#03ecfc",
+    width: 50,
+    borderRadius: 50,
+    textAlign: "center",
+    alignContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+  },
+  pdf: {
+    width: width * 0.99,
+    height: height * 0.92,
   },
 });
 
