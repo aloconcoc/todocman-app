@@ -66,7 +66,7 @@ const ManageOldContract = () => {
     isError,
   } = useQuery(
     "type-contract",
-    () => getContractType({ page: 0, size: 100 }),
+    () => getContractType({ page: 0, size: 100, title: "" }),
     {}
   );
   const handlePageChange = (page: any) => {
@@ -135,7 +135,7 @@ const ManageOldContract = () => {
         const res = await deleteOldContract(selectedContract?.id);
         if (res) {
           ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
-          setTimeout(() => refetch(), 100);
+          refetch();
           closeDeleteModal();
         } else ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
       }
@@ -148,7 +148,9 @@ const ManageOldContract = () => {
   };
   const renderItem = ({ item, index }: any) => (
     <View style={styles.row}>
-      <Text style={[styles.cell, { flex: 0.1 }]}>{(index + 1).toString()}</Text>
+      <Text style={[styles.cell, { flex: 0.1, textAlign: "center" }]}>
+        {(index + 1).toString()}
+      </Text>
       <Text style={[styles.cell, { flex: 0.4 }]}>{item?.contractName}</Text>
       <Text style={[styles.cell, { flex: 0.3 }]}>
         {
@@ -444,7 +446,7 @@ const styles = StyleSheet.create({
     flex: 0.2,
     fontWeight: "bold",
     padding: 5,
-    textAlign: "center",
+    textAlign: "left",
   },
 
   textGap: {
@@ -460,7 +462,7 @@ const styles = StyleSheet.create({
   cell: {
     flex: 0.2,
     padding: 8,
-    textAlign: "center",
+    textAlign: "left",
   },
   linkText: {
     color: "teal",
