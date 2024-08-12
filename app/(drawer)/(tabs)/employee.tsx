@@ -266,7 +266,7 @@ const ManageEmployee = () => {
         keyExtractor={(item) => item.id.toString()}
       />
 
-      {data && data?.object?.content?.length != 0 ? (
+      {data?.object?.content ? (
         <Pagination
           totalPages={totalPage}
           currentPage={page + 1}
