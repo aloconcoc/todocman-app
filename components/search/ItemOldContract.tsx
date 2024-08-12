@@ -9,11 +9,21 @@ const formatDate = (dateString: any) => {
   return `${day}/${month}/${year}`;
 };
 
-const ItemOldContract = ({ data }: any) => {
+const ItemOldContract = ({
+  data,
+  setModalVisible,
+  setSelectedContract,
+}: any) => {
   return (
     <View style={styles.container} key={data.id}>
       <View style={styles.card}>
-        <TouchableOpacity style={styles.touchable}>
+        <TouchableOpacity
+          style={styles.touchable}
+          onPress={() => {
+            setSelectedContract(data);
+            setModalVisible(true);
+          }}
+        >
           <Text style={styles.title}>{data.contractName}</Text>
         </TouchableOpacity>
         <View style={styles.textContainer}>

@@ -1,11 +1,22 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
-const ItemNewContract = ({ data }: any) => {
+const ItemNewContract = ({
+  data,
+  setModalVisible,
+  setSelectedContract,
+}: any) => {
   return (
     <View style={styles.container} key={data.id}>
       <View style={styles.card}>
-        <TouchableOpacity style={styles.touchable}>
+        <TouchableOpacity
+          style={styles.touchable}
+          onPress={() => {
+            console.log("dau: ", data.file);
+            setSelectedContract(data);
+            setModalVisible(true);
+          }}
+        >
           <Text style={styles.title}>
             {data.name} | {data.number}
           </Text>
