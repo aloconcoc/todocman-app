@@ -12,7 +12,13 @@ import {
 import React, { useContext, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import {
+  Feather,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+  SimpleLineIcons,
+} from "@expo/vector-icons";
 import { router } from "expo-router";
 import { ScrollView } from "react-native-gesture-handler";
 import { getProfile, logout } from "@/services/user.service";
@@ -357,6 +363,7 @@ const Profile = () => {
                   color: "white",
                 }}
               >
+                <Feather name="edit" size={15} color="white" />
                 Chỉnh sửa
               </Text>
             </TouchableOpacity>
@@ -383,6 +390,11 @@ const Profile = () => {
                     color: "white",
                   }}
                 >
+                  <MaterialCommunityIcons
+                    name="logout-variant"
+                    size={16}
+                    color="white"
+                  />
                   Đăng xuất
                 </Text>
               )}

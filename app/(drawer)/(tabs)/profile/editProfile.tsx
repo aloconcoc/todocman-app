@@ -803,8 +803,6 @@ const EditProfile = () => {
                   <Picker
                     selectedValue={gender}
                     onValueChange={(itemValue) => {
-                      console.log("itemValue: " + itemValue);
-
                       setGender(itemValue);
                       onChange(itemValue);
                     }}
