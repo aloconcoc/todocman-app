@@ -18,8 +18,23 @@ import Pagination from "@/components/utils/pagination";
 import { AxiosError } from "axios";
 import { getListEmployee } from "@/services/employee.service";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { getListDepartment } from "@/services/department.service";
+import { Picker } from "@react-native-picker/picker";
 
-const { width, height } = Dimensions.get("window");
+export interface DataEmployee {
+  id?: string;
+  name?: string;
+  email?: string;
+  password?: string;
+  phone?: string;
+  position?: string;
+  status?: string;
+  identificationNumber?: string;
+  department?: string;
+  permissions?: string;
+  address?: string;
+  dob?: string;
+}
 
 const ManageEmployee = () => {
   const [page, setPage] = useState(0);
@@ -33,6 +48,8 @@ const ManageEmployee = () => {
   const [searched, setSearched] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+  const [status, setStatus] = useState("ACTIVE");
+  const [department, setDepartment] = useState("");
 
   const handlePageChange = (page: any) => {
     setPage(page - 1);
@@ -45,8 +62,15 @@ const ManageEmployee = () => {
   };
 
   const { data, isLoading, refetch, isFetching } = useQuery(
-    ["employee-list", query],
-    () => getListEmployee({ size: size, page: page, name: query }),
+    ["employee-list", query, status, department],
+    () =>
+      getListEmployee({
+        size: size,
+        page: page,
+        name: query,
+        status,
+        department,
+      }),
     {
       onSuccess: (result) => {
         setTotalPage(result?.object?.totalPages);
@@ -59,6 +83,10 @@ const ManageEmployee = () => {
       },
     }
   );
+  const { data: dataDepartment } = useQuery("list-department", () =>
+    getListDepartment(0, 50)
+  );
+
   useEffect(() => {
     if (prevPageRef.current !== page || prevSizeRef.current !== size) {
       prevPageRef.current = page;
@@ -173,6 +201,51 @@ const ManageEmployee = () => {
           />
         </TouchableOpacity>
       </View>
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: -15,
+        }}
+      >
+        <Picker
+          selectedValue={"ACTIVE"}
+          style={{ height: 50, flex: 1 }}
+          onValueChange={(itemValue) => setStatus(itemValue)}
+        >
+          <Picker.Item
+            color={status === "ACTIVE" ? "green" : "black"}
+            label="Đang hoạt động"
+            value="ACTIVE"
+          />
+          <Picker.Item
+            color={status === "INACTIVE" ? "green" : "black"}
+            label="Không hoạt động"
+            value="INACTIVE"
+          />
+        </Picker>
+
+        <Picker
+          selectedValue={department === "all" ? "" : department}
+          style={{ height: 50, flex: 1, marginLeft: 10 }}
+          onValueChange={(itemValue) =>
+            setDepartment(itemValue === "all" ? "" : itemValue)
+          }
+        >
+          <Picker.Item
+            label="Tất cả"
+            value="all"
+            color={department === "" ? "green" : "black"}
+          />
+          {dataDepartment?.object?.content?.map((item: any) => (
+            <Picker.Item
+              key={item.id}
+              label={item.title}
+              value={item.id}
+              color={department === item.id ? "green" : "black"}
+            />
+          ))}
+        </Picker>
+      </View>
       <View style={styles.header}>
         <Text style={[styles.headerCell, { flex: 0.1, fontSize: 12 }]}>
           STT
@@ -243,7 +316,15 @@ const ManageEmployee = () => {
             </View>
             <View style={styles.detailRow}>
               <Text style={[styles.bold, styles.label]}>Phòng ban: </Text>
-              <Text style={styles.value}>{selectedEmployee.department}</Text>
+              <Text style={styles.value}>
+                {dataDepartment?.object?.content.find(
+                  (data: any) => data.id == selectedEmployee.department
+                ) != undefined
+                  ? dataDepartment?.object?.content.find(
+                      (data: any) => data.id == selectedEmployee.department
+                    ).title
+                  : ""}
+              </Text>
             </View>
             <View style={styles.detailRow}>
               <Text style={[styles.bold, styles.label]}>CMND/CCCD: </Text>
@@ -386,8 +467,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
   },
   label: {
     flex: 4,
@@ -395,6 +474,10 @@ const styles = StyleSheet.create({
   },
   value: {
     flex: 5,
+    paddingVertical: 8,
+    paddingLeft: 5,
+    borderRadius: 10,
+    backgroundColor: "#f0f0f0",
   },
   bold: {
     fontWeight: "bold",
