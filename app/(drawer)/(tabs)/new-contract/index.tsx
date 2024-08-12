@@ -358,12 +358,14 @@ const NewContract = () => {
 
   const renderItem = ({ item, index }: any) => (
     <View style={styles.row}>
-      <Text style={[styles.cell, { flex: 0.2 }]}>{(index + 1).toString()}</Text>
+      <Text style={[styles.cell, { flex: 0.2, textAlign: "center" }]}>
+        {(index + 1).toString()}
+      </Text>
       <Text style={[styles.cell, { flex: 0.4, padding: 2 }]}>
+        {item.name}
         {item?.status != "SUCCESS" && item?.urgent && (
           <Entypo name="warning" size={20} color="red" />
         )}
-        {item.name}
       </Text>
       <Text
         style={[
@@ -436,7 +438,7 @@ const NewContract = () => {
                         item?.status == "SUCCESS" ||
                         item?.statusCurrent == "SUCCESS"
                       }
-                      style={[styles.menuOptionText, { color: "forestgreen" }]}
+                      style={[styles.menuOptionText, { color: "#fcb103" }]}
                     >
                       ✍️ Ký hợp đồng
                     </Text>
@@ -718,7 +720,12 @@ const NewContract = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.header}>
-        <Text style={[styles.headerCell, { flex: 0.2, fontSize: 13.8 }]}>
+        <Text
+          style={[
+            styles.headerCell,
+            { flex: 0.2, fontSize: 13.8, textAlign: "center" },
+          ]}
+        >
           STT
         </Text>
         <Text style={[styles.headerCell, { flex: 0.4 }]}>Tên hợp đồng</Text>
@@ -850,7 +857,7 @@ const styles = StyleSheet.create({
     flex: 0.2,
     fontWeight: "bold",
     padding: 5,
-    textAlign: "center",
+    textAlign: "left",
   },
   textGap: {
     marginVertical: 2,
@@ -865,7 +872,7 @@ const styles = StyleSheet.create({
   cell: {
     flex: 0.2,
     padding: 8,
-    textAlign: "center",
+    textAlign: "left",
     alignItems: "center",
   },
 
