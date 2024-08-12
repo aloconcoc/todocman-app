@@ -72,7 +72,13 @@ export default function UploadOldContract() {
     data: typeContract,
     isLoading,
     isError,
-  } = useQuery("type-contract", () => getContractType({ page: 0, size: 100 }));
+  } = useQuery(
+    "type-contract",
+    () => getContractType({ page: 0, size: 100, title: "" }),
+    {
+      onError: (err) => console.log(err),
+    }
+  );
 
   const [datePickerState, setDatePickerState] = useState({
     birthDate: new Date(),

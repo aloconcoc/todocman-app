@@ -17,6 +17,12 @@ export default function _layout() {
           ),
         }}
       />
+      <Stack.Screen
+        name="create"
+        options={{
+          title: "Tạo hợp đồng",
+        }}
+      />
     </Stack>
   );
 }
