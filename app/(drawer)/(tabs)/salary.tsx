@@ -22,8 +22,6 @@ import { getSalaryAll, getSalaryByMail } from "@/services/salary.service";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 
-const { width, height } = Dimensions.get("window");
-
 const Salary = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
@@ -52,8 +50,6 @@ const Salary = () => {
     ["employee-list"],
     () => {
       if (userInfoC?.role == ADMIN) {
-        console.log("admin", month, year);
-
         return getSalaryAll({
           page: page,
           size: size,
@@ -71,6 +67,8 @@ const Salary = () => {
     },
     {
       onSuccess: (result) => {
+        console.log(result);
+
         setTotalPage(result?.object?.totalPages);
       },
       onError: (error: AxiosError<{ message: string }>) => {
@@ -247,7 +245,7 @@ const Salary = () => {
         keyExtractor={(item) => item.id.toString()}
       />
 
-      {data && data?.object?.content?.length != 0 ? (
+      {data?.object?.content ? (
         <Pagination
           totalPages={totalPage}
           currentPage={page + 1}
