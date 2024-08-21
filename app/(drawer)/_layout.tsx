@@ -47,6 +47,8 @@ const CustomDrawerContent = (props: any) => {
 
       if (!c) {
         router.navigate("(auth/signin)");
+        setUserInfo(c);
+        setUserInfoC(c);
       }
       console.log("ccc", c);
 

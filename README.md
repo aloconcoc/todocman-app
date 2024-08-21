@@ -2,11 +2,11 @@ git clone https://github.com/phantu820/sepApp.git
 
 cd sepApp
 
-npm start
+Configure project with EAS to run project in development build
 
-->Install Expo Go App in Google Play/App Store
+-> eas build -p android --profile development
 
-->Scan QR code to run the project
+-> Download file apk from expo dashboard
 
 ------------------------------------------------
 HOW TO CREATE A REACT NATIVE PROJECT WITH EXPO

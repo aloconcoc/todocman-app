@@ -23,12 +23,17 @@ import { router } from "expo-router";
 import { ScrollView } from "react-native-gesture-handler";
 import { getProfile, logout } from "@/services/user.service";
 import { clearAll, removeToken, removeUser } from "@/config/tokenUser";
+import { getProfile, logout } from "@/services/user.service";
+import { clearAll, removeToken, removeUser } from "@/config/tokenUser";
 import LottieView from "lottie-react-native";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { AppContext } from "@/app/Context/Context";
 import { AxiosError } from "axios";
 
 const Profile = () => {
+  const { userContext, setUserContext, userInfoC, setUserInfoC }: any =
+    useContext(AppContext);
   const { userContext, setUserContext, userInfoC, setUserInfoC }: any =
     useContext(AppContext);
   const queryClient = useQueryClient();
