@@ -26,6 +26,7 @@ import LottieView from "lottie-react-native";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import mime from "mime";
 import { AxiosError } from "axios";
+import regexPatterns from "@/constants/regex.json";
 
 const EditProfile = () => {
   const client = useQueryClient();
@@ -35,7 +36,7 @@ const EditProfile = () => {
   const { userContext }: any = useContext(AppContext);
   const [ocr, setOcr] = useState<any>();
   const [gender, setGender] = useState<string>("");
-  const [nameValidationMessage, setnameValidationMessage] = useState("");
+  const [nameValidationMessage, setNameValidationMessage] = useState("");
   const [phoneValidationMessage, setphoneValidationMessage] = useState("");
   const [addressValidationMessage, setaddressValidationMessage] = useState("");
   const [idCardValidationMessage, setidCardValidationMessage] = useState("");
@@ -43,51 +44,34 @@ const EditProfile = () => {
     useState("");
   const [positionValidationMessage, setpositionValidationMessage] =
     useState("");
-  type FieldType =
-    | "name"
-    | "phone"
-    | "address"
-    | "idCard"
-    | "department"
-    | "position";
 
-  const regexPatterns = {
-    name: /^(?!\s)(?!.*\s{2})[A-Za-zÀ-ỹà-ỹ\s]{8,30}(?<!\s)$/,
-    phone: /^(03|05|07|08|09)\d{8}$/,
-    address: /^(?!\s)(?!.*\s{2})[A-Za-zÀ-ỹà-ỹ0-9.,\s-_]{2,100}(?<!\s)$/,
-    idCard: /^\d{12}$/,
-    department: /^(?!\s)(?!.*\s{2})[A-Za-zÀ-ỹà-ỹ0-9.,\s-_]{2,100}(?<!\s)$/,
-    position: /^(?!\s)(?!.*\s{2})[A-Za-zÀ-ỹà-ỹ0-9.,\s-_]{2,100}(?<!\s)$/,
+  const validateName = (email: string) => {
+    const regex = new RegExp(regexPatterns.REGEX_NAME);
+    return regex.test(email.trim());
   };
 
-  const validateField = (value: string, type: FieldType) => {
-    const regex = regexPatterns[type];
-    return regex.test(value.trim());
-  };
-
-  const handleCheck = (
-    value: any,
-    type: any,
-    setMessage: any,
-    fieldName: any
-  ) => {
+  const handleNameChange = (value: string) => {
     if (value.trim() === "") {
-      setMessage(`Trường '${fieldName}' không được để trống`);
-    } else if (validateField(value, type)) {
-      setMessage(`${fieldName} hợp lệ`);
+      setNameValidationMessage("Trường 'Tên' để trống");
+    } else if (validateName(value)) {
+      setNameValidationMessage("Tên hợp lệ");
     } else {
-      setMessage(`${fieldName} không hợp lệ`);
+      setNameValidationMessage("Tên không hợp lệ");
     }
   };
-  const isFormValid = () => {
-    return (
-      nameValidationMessage === "Tên hợp lệ" &&
-      phoneValidationMessage === "Số điện thoại hợp lệ" &&
-      addressValidationMessage === "Địa chỉ hợp lệ" &&
-      idCardValidationMessage === "CMND/CCCD hợp lệ" &&
-      departmentValidationMessage === "Phòng ban hợp lệ" &&
-      positionValidationMessage === "Vị trí hợp lệ"
-    );
+  const validateAddress = (email: string) => {
+    const regex = new RegExp(regexPatterns.REGEX_ADDRESS);
+    return regex.test(email.trim());
+  };
+
+  const handleAddressChange = (value: string) => {
+    if (value.trim() === "") {
+      setNameValidationMessage("Trường 'Địa chỉ' để trống");
+    } else if (validateAddress(value)) {
+      setNameValidationMessage("Địa chỉ hợp lệ");
+    } else {
+      setNameValidationMessage("Địa chỉ không hợp lệ");
+    }
   };
 
   type ProfileType = {
@@ -153,7 +137,7 @@ const EditProfile = () => {
       },
       onError: (error: AxiosError<{ message: string }>) => {
         ToastAndroid.show(
-          error.response?.data?.message || "Lỗi hệ thống",
+          "Không tìm thấy thông tin người dùng",
           ToastAndroid.SHORT
         );
       },
@@ -377,12 +361,7 @@ const EditProfile = () => {
                       onBlur={onBlur}
                       onChangeText={(text) => {
                         onChange(text);
-                        handleCheck(
-                          text,
-                          "name",
-                          setnameValidationMessage,
-                          "Tên"
-                        );
+                        handleNameChange(text);
                       }}
                     />
                   </View>
@@ -399,126 +378,6 @@ const EditProfile = () => {
                 }}
               >
                 {nameValidationMessage}
-              </Text>
-            )}
-          </View>
-
-          <View
-            style={{
-              flexDirection: "column",
-              marginBottom: 6,
-            }}
-          >
-            <Controller
-              control={control}
-              rules={{
-                required: true,
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <>
-                  <Text>Phòng ban</Text>
-                  <View
-                    style={{
-                      height: 44,
-                      width: "100%",
-                      borderColor: "gray",
-                      borderWidth: 1,
-                      borderRadius: 4,
-                      marginVertical: 6,
-                      justifyContent: "center",
-                      paddingLeft: 8,
-                    }}
-                  >
-                    <TextInput
-                      value={value}
-                      editable={!mutation.isLoading}
-                      onBlur={onBlur}
-                      onChangeText={(text) => {
-                        onChange(text);
-                        handleCheck(
-                          text,
-                          "department",
-                          setdepartmentValidationMessage,
-                          "Phòng ban"
-                        );
-                      }}
-                    />
-                  </View>
-                </>
-              )}
-              name="department"
-            />
-            {departmentValidationMessage && (
-              <Text
-                style={{
-                  opacity: 0.5,
-                  color:
-                    departmentValidationMessage === "Phòng ban hợp lệ"
-                      ? "white"
-                      : "red",
-                }}
-              >
-                {departmentValidationMessage}
-              </Text>
-            )}
-          </View>
-
-          <View
-            style={{
-              flexDirection: "column",
-              marginBottom: 6,
-            }}
-          >
-            <Controller
-              control={control}
-              rules={{
-                required: true,
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <>
-                  <Text>Vị trí</Text>
-                  <View
-                    style={{
-                      height: 44,
-                      width: "100%",
-                      borderColor: "gray",
-                      borderWidth: 1,
-                      borderRadius: 4,
-                      marginVertical: 6,
-                      justifyContent: "center",
-                      paddingLeft: 8,
-                    }}
-                  >
-                    <TextInput
-                      value={value}
-                      editable={!mutation.isLoading}
-                      onBlur={onBlur}
-                      onChangeText={(text) => {
-                        onChange(text);
-                        handleCheck(
-                          text,
-                          "position",
-                          setpositionValidationMessage,
-                          "Vị trí"
-                        );
-                      }}
-                    />
-                  </View>
-                </>
-              )}
-              name="position"
-            />
-            {positionValidationMessage && (
-              <Text
-                style={{
-                  opacity: 0.5,
-                  color:
-                    positionValidationMessage === "Vị trí hợp lệ"
-                      ? "white"
-                      : "red",
-                }}
-              >
-                {positionValidationMessage}
               </Text>
             )}
           </View>
@@ -585,16 +444,10 @@ const EditProfile = () => {
                     <TextInput
                       value={value}
                       keyboardType="phone-pad"
-                      editable={!mutation.isLoading}
+                      editable={false}
                       onBlur={onBlur}
                       onChangeText={(text) => {
                         onChange(text);
-                        handleCheck(
-                          text,
-                          "idCard",
-                          setidCardValidationMessage,
-                          "CMND/CCCD"
-                        );
                       }}
                     />
                   </TouchableOpacity>
@@ -646,16 +499,10 @@ const EditProfile = () => {
                 >
                   <TextInput
                     value={value}
-                    editable={!mutation.isLoading}
+                    editable={false}
                     onBlur={onBlur}
                     onChangeText={(text) => {
                       onChange(text);
-                      handleCheck(
-                        text,
-                        "phone",
-                        setphoneValidationMessage,
-                        "Số điện thoại"
-                      );
                     }}
                     keyboardType="phone-pad"
                   />
@@ -711,12 +558,7 @@ const EditProfile = () => {
                     onBlur={onBlur}
                     onChangeText={(text) => {
                       onChange(text);
-                      handleCheck(
-                        text,
-                        "address",
-                        setaddressValidationMessage,
-                        "Địa chỉ"
-                      );
+                      handleAddressChange(text);
                     }}
                   />
                 </View>

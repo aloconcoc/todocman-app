@@ -1,4 +1,14 @@
 import axiosInstance, { axiosInstanceFormData } from "@/config/axiosConfig";
+import { BASE_URL } from "@/constants";
+import axios from "axios";
+
+type SignRequest = {
+  contractId: string;
+  signImage: string;
+  comment: string;
+  createdBy: string;
+  customer: boolean;
+};
 
 export const getOldContract = async (page: number, size: number) => {
   try {
@@ -35,11 +45,9 @@ export const getNewContract = async (
   return response.data;
 };
 
-export const signContract = async (data: any) => {
-  // console.log("data1", data);
-
-  const response = await axiosInstance.post(
-    `contract/public/sign-contract`,
+export const signContract = async (data: SignRequest) => {
+  const response = await axios.post(
+    `${BASE_URL}contract/public/sign-contract`,
     data
   );
   return response.data;
@@ -63,12 +71,12 @@ export const sendMail = async (formData: any) => {
   return response.data;
 };
 
-export const getNewContractByIdNotToken = async (id: any) => {
-  const response = await axiosInstance.get(
-    `contract/public/sign-contract/${id}`
-  );
-  return response.data;
-};
+// export const getNewContractByIdNotToken = async (id: any) => {
+//   const response = await axiosInstance.get(
+//     `contract/public/sign-contract/${id}`
+//   );
+//   return response.data;
+// };
 
 export const deleteContract = async (id: string) => {
   const response = await axiosInstance.delete(`contract/${id}`);
@@ -81,5 +89,22 @@ export const getNewContractById = async (id: any) => {
 
 export const getSearchContract = async ({ fieldSearch, data }: any) => {
   const response = await axiosInstance.post(`${fieldSearch}/search`, data);
+  return response.data;
+};
+export const getAppendicesContactAll = async (
+  id: string,
+  page: number,
+  size: number,
+  status: string
+) => {
+  const response = await axiosInstance.get(
+    `api/contract-appendices/${page}/${size}?contractId=${id}&status=${status}`
+  );
+  return response.data;
+};
+export const getNewContractByIdNotToken = async (id: any) => {
+  const response = await axios.get(
+    `${BASE_URL}contract/public/sign-contract/${id}`
+  );
   return response.data;
 };

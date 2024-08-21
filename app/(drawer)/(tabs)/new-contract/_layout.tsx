@@ -20,7 +20,19 @@ export default function _layout() {
         name="send-mail"
         options={{
           title: "Gửi mail",
-          headerShown: false,
+          // headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="appendix"
+        options={{
+          title: "Phụ lục hợp đồng",
+        }}
+      />
+      <Stack.Screen
+        name="details/[id]"
+        options={{
+          title: "Chi tiết hợp đồng",
         }}
       />
     </Stack>

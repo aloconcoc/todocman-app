@@ -1,19 +1,54 @@
 import { sendMailPublic, signContract } from "@/services/contract.service";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { router } from "expo-router";
 import LottieView from "lottie-react-native";
-import { ForwardedRef, RefObject, useRef, useState } from "react";
-import { Button, StyleSheet, Text, ToastAndroid, View } from "react-native";
+import { ForwardedRef, RefObject, useContext, useRef, useState } from "react";
+import {
+  Button,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  ToastAndroid,
+  View,
+} from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import SignatureScreen, {
   SignatureViewRef,
 } from "react-native-signature-canvas";
+import { AppContext } from "@/app/Context/Context";
+import { getProfile } from "@/services/user.service";
+import { AxiosError } from "axios";
+import {
+  getSMSCode,
+  verifySMSCode,
+} from "@/services/auth-sign-contract.service";
 
-const Sign = ({ signText, setSignText, comment, contractData }: any) => {
-  // console.log("cmt: ", comment);
+const Sign = ({
+  signText,
+  setSignText,
+  comment,
+  contractData,
+  setModalVisible,
+}: any) => {
+  const { userContext }: any = useContext(AppContext);
+  const { data: phoneData } = useQuery(["userDetail", userContext], () =>
+    getProfile(userContext)
+  );
 
   const ref = useRef<any>(null);
   const client = useQueryClient();
+  const [checkOTP, setCheckOTP] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const getSMSQuery = useMutation(getSMSCode);
+
+  const openOTP = () => {
+    setCheckOTP(true);
+  };
+  const closeOTP = () => {
+    setCheckOTP(false);
+  };
 
   const handleOK = (signature: string) => {
     console.log("OK");
@@ -39,17 +74,36 @@ const Sign = ({ signText, setSignText, comment, contractData }: any) => {
     console.log("handle Datas");
   };
 
+  const handleCheck = async () => {
+    try {
+      const response = await verifySMSCode({
+        phone: phoneData?.object?.phone,
+        code: otpCode,
+      });
+      if (response.code == "00") {
+        ToastAndroid.show(
+          "Xác thực người dùng thành công!",
+          ToastAndroid.SHORT
+        );
+        setCheckOTP(false);
+        await handleExport();
+      } else ToastAndroid.show("OTP không chính xác", ToastAndroid.SHORT);
+    } catch (e) {
+      ToastAndroid.show("Có lỗi xảy ra", ToastAndroid.SHORT);
+    }
+  };
+
   const style = `.m-signature-pad--footer {display: none; margin: 0px;}`;
 
   const signQuery = useMutation(signContract, {
     onSuccess: () => {
       ToastAndroid.show("Ký hợp đồng thành công!", ToastAndroid.SHORT);
 
-      client.invalidateQueries({ queryKey: ["contract"] });
+      client.invalidateQueries("new-contract");
       setSignText("");
       setTimeout(() => {
-        router.navigate("/new-contract");
-      });
+        setModalVisible(false);
+      }, 1000);
     },
     onError: (error: any) => {
       console.log(error);
@@ -86,7 +140,10 @@ const Sign = ({ signText, setSignText, comment, contractData }: any) => {
     formData.append("contractId ", contractData?.id);
     formData.append("status", "SIGN_A_OK");
     formData.append("createdBy", contractData?.createdBy);
+    formData.append("reasonId", "");
     formData.append("description", "Xác nhận ký hợp đồng");
+    console.log("form", formData);
+
     try {
       const response = await sendMailPublic(formData);
     } catch (error) {
@@ -96,28 +153,6 @@ const Sign = ({ signText, setSignText, comment, contractData }: any) => {
       );
     }
   };
-
-  if (signQuery.isLoading) {
-    return (
-      <View
-        style={{
-          alignItems: "center",
-          justifyContent: "center",
-          flex: 1,
-        }}
-      >
-        <LottieView
-          autoPlay
-          style={{
-            width: "80%",
-            height: "80%",
-            backgroundColor: "white",
-          }}
-          source={require("@/assets/load.json")}
-        />
-      </View>
-    );
-  }
 
   return (
     <>
@@ -132,8 +167,76 @@ const Sign = ({ signText, setSignText, comment, contractData }: any) => {
       />
       <View style={styles.row}>
         <Button title="Xóa" onPress={handleClear} />
-        <Button title="Xác nhận" onPress={handleExport} />
+        <Button
+          title="Xác nhận"
+          // onPress={() => {
+
+          //   openOTP();
+          //   getSMSQuery.mutate(phoneData?.object?.phone);
+          // }}
+          onPress={handleExport}
+        />
       </View>
+      {signQuery.isLoading && (
+        <View style={styles.loadingOverlay}>
+          <LottieView
+            source={require("@/assets/load.json")}
+            autoPlay
+            loop
+            style={styles.loadingAnimation}
+          />
+        </View>
+      )}
+
+      <Modal visible={checkOTP} transparent={true} animationType="fade">
+        <View style={styles.overlay}>
+          <View style={styles.modalContainer}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
+            >
+              <Text></Text>
+              <Pressable style={{}} onPress={closeOTP}>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    marginBottom: 10,
+                  }}
+                >
+                  ✘
+                </Text>
+              </Pressable>
+            </View>
+            <Text style={styles.modalText}>
+              Chúng tôi đã gửi mã xác thực về số điện thoại{" "}
+              <Text style={{ fontWeight: "bold" }}>
+                {phoneData?.object?.phone}
+              </Text>
+              . Hãy kiểm tra và xác thực người dùng.
+            </Text>
+            <View style={styles.otpContainer}>
+              <TextInput
+                style={styles.input}
+                keyboardType="numeric"
+                placeholder="Nhập mã xác thực"
+                value={otpCode}
+                onChangeText={(text) => setOtpCode(text)}
+              />
+              <Pressable
+                style={{ backgroundColor: "green", borderRadius: 15 }}
+                onPress={handleCheck}
+              >
+                <Text style={{ fontSize: 12, color: "white", padding: 12 }}>
+                  ✓ Xác thực
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 };
@@ -148,6 +251,66 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     marginBottom: 50,
+  },
+
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    paddingTop: 5,
+    width: "80%",
+    alignItems: "center",
+    position: "relative",
+  },
+  closeButton: {
+    borderRadius: 15,
+    marginBottom: 10,
+    alignSelf: "flex-end",
+    alignContent: "flex-end",
+    textAlign: "right",
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+  },
+  closeText: {
+    color: "black",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  modalText: {
+    marginBottom: 20,
+    // textAlign: "center",
+  },
+  otpContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+  },
+  input: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    flex: 1,
+    marginRight: 10,
+  },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingAnimation: {
+    width: 100,
+    height: 100,
   },
 });
 

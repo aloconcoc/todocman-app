@@ -34,8 +34,6 @@ const NotifyScreen = () => {
     totalPages,
   } = useNotification();
   const [activeButton, setActiveButton] = useState("all");
-  const queryClient = useQueryClient();
-
   // const { data, isLoading, isError, error } = useQuery(
   //   ["notify"],
   //   () => getUnreadNotification(),
@@ -54,11 +52,14 @@ const NotifyScreen = () => {
 
   const handleReadNotify = (noti: any) => {
     if (noti?.typeNotification == "CONTRACT") {
-      router.navigate("/(drawer)/new-contract");
+      console.log("noti", noti);
+
+      router.navigate("/(drawer)/new-contract/details/" + noti?.contractId);
     } else if (noti?.typeNotification == "APPENDICES CONTRACT") {
-      router.navigate(
-        `/(drawer)/new-contract/appendices-contract/${noti?.id}"`
-      );
+      router.navigate({
+        pathname: "/(drawer)/new-contract/appendix",
+        params: { appendixId: JSON.stringify(noti?.id) },
+      });
     }
     if (!noti?.markRead) {
       setTotalNotRead((totalNotRead: any) => totalNotRead - 1);
@@ -85,15 +86,14 @@ const NotifyScreen = () => {
   };
 
   const renderFriend = ({ item }: any) => {
-    console.log("item", item);
-
     const timeAgo = moment(item.createdDate).fromNow();
     return (
       <>
         <TouchableOpacity onPress={() => handleReadNotify(item)}>
           <View style={[styles.card, !item.markRead && styles.unreadCard]}>
             <Image
-              source={{ uri: "https://i.ibb.co/ZXkVtJD/logo-noti.png" }}
+              // source={{ uri: "https://i.ibb.co/ZXkVtJD/logo-noti.png" }}
+              source={require("@/assets/images/logo-noti.png")}
               style={styles.image}
             />
             <View style={styles.info}>
@@ -159,7 +159,7 @@ const NotifyScreen = () => {
   return (
     <>
       <View style={{ flexDirection: "row", backgroundColor: "white" }}>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={[
             styles.button1,
             activeButton === "all" && styles.activeButton,
@@ -194,7 +194,7 @@ const NotifyScreen = () => {
           >
             Chưa đọc
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       <FlatList
         data={notifications}
@@ -231,8 +231,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   image: {
-    width: 50,
-    height: 50,
+    width: 60,
+    height: 60,
     marginTop: 10,
     borderRadius: 50,
     borderWidth: 1,

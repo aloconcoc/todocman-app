@@ -42,6 +42,7 @@ type MyContextValue = {
   setNotifications: any;
   setTotalNotRead: any;
   loading: boolean;
+  realTime: any;
 };
 interface Props {
   children: React.ReactNode;
@@ -57,6 +58,7 @@ const NotifyContext = createContext<MyContextValue>({
   setNotifications: () => {},
   setTotalNotRead: () => {},
   loading: false,
+  realTime: null,
 });
 
 const NotifyProvider: React.FC<Props> = ({ children }) => {
@@ -67,6 +69,7 @@ const NotifyProvider: React.FC<Props> = ({ children }) => {
   const [totalNotRead, setTotalNotRead] = useState<number | 0>(0);
   const page = useRef<number>(0);
   const totalPages = useRef<number>(0);
+  const [realTime, setRealTime] = useState<any>();
 
   const readNotifyQuery = useMutation(readNotify);
   const getNotifyDataQuery = useMutation(getNotification, {
@@ -125,6 +128,8 @@ const NotifyProvider: React.FC<Props> = ({ children }) => {
               JSON.parse(message.body),
               ...prevNotifications,
             ]);
+            setRealTime(new Date());
+            console.log("da set");
           }
         }
       );
@@ -148,6 +153,7 @@ const NotifyProvider: React.FC<Props> = ({ children }) => {
       loading,
       page,
       totalPages,
+      realTime,
     }),
     [notifications, totalNotRead, loading, page, totalPages]
   );

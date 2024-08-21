@@ -53,6 +53,7 @@ type UserList = {
   label: string;
   value: string;
 };
+
 export const getUserByPermission = async (
   permission: string
 ): Promise<UserList[]> => {
@@ -63,6 +64,7 @@ export const getUserByPermission = async (
     label: d.email,
     value: d.email,
   }));
+
   return result as UserList[];
 };
 
@@ -70,6 +72,13 @@ export const sendMail = async (formData: any) => {
   const response = await axiosInstanceFormData.post(
     `contract/send-mail`,
     formData
+  );
+  return response.data;
+};
+export const changePassword = async (data: any) => {
+  const response = await axiosInstance.post(
+    "public/auth/change-password",
+    data
   );
   return response.data;
 };

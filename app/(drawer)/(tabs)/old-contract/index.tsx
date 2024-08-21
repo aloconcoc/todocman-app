@@ -53,10 +53,7 @@ const ManageOldContract = () => {
         setTotalPage(response?.object?.totalPages);
       },
       onError: (error: AxiosError<{ message: string }>) => {
-        ToastAndroid.show(
-          error.response?.data.message || "Lỗi hệ thống",
-          ToastAndroid.SHORT
-        );
+        ToastAndroid.show("Không tìm thấy hợp đồng nào", ToastAndroid.SHORT);
       },
     }
   );
@@ -152,14 +149,14 @@ const ManageOldContract = () => {
         {(index + 1).toString()}
       </Text>
       <Text style={[styles.cell, { flex: 0.4 }]}>{item?.contractName}</Text>
-      <Text style={[styles.cell, { flex: 0.3 }]}>
+      <Text style={[styles.cell, { flex: 0.3, paddingLeft: 0 }]}>
         {
           typeContract?.content?.find((t: any) => t.id == item?.contractTypeId)
             ?.title
         }
       </Text>
       <TouchableOpacity
-        style={styles.cell}
+        style={[styles.cell, { flex: 0.2 }]}
         onPress={() => openActionModal(item)}
       >
         <MaterialCommunityIcons
@@ -175,12 +172,14 @@ const ManageOldContract = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={[styles.headerCell, { flex: 0.1, fontSize: 13.8 }]}>
+        <Text style={[styles.headerCell, { flex: 0.6, fontSize: 13.8 }]}>
           STT
         </Text>
-        <Text style={[styles.headerCell, { flex: 0.4 }]}>Tên hợp đồng</Text>
-        <Text style={[styles.headerCell, { flex: 0.3 }]}>Loại hợp đồng</Text>
-        <Text style={[styles.headerCell, { flex: 0.2 }]}>Hành động</Text>
+        <Text style={[styles.headerCell, { flex: 2 }]}>Tên hợp đồng</Text>
+        <Text style={[styles.headerCell, { flex: 1.5 }]}>Loại hợp đồng</Text>
+        <Text style={[styles.headerCell, { flex: 1, textAlign: "center" }]}>
+          Hành động
+        </Text>
       </View>
       <FlatList
         data={data?.content}

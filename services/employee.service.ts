@@ -10,14 +10,18 @@ interface QueryDataGet {
   permissions?: string[];
   page?: number;
   size?: number;
-  status: string
-
+  status: string;
 }
 
-export const getListEmployee = async ({ size, page, name, status, department }: QueryDataGet) => {
+export const getListEmployee = async ({
+  size,
+  page,
+  name,
+  status,
+}: QueryDataGet) => {
   const response = await axiosInstance.get(
-    `user/search?page=${page}&size=${size}&name=${name}&status=${status}&department=${department}`
-  )
+    `user/search?page=${page}&size=${size}&name=${name}&status=${status}`
+  );
 
-  return response.data
-}
+  return response.data;
+};

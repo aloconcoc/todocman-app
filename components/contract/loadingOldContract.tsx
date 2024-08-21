@@ -54,7 +54,7 @@ const LoadingPopup = ({ visible, setVisible, oldName }: any) => {
           </Text>
           <ActivityIndicator size="small" color="dodgerblue" />
         </View>
-        <Text style={styles.progressText}>{progress}%</Text>
+        {/* <Text style={styles.progressText}>{progress}%</Text> */}
       </View>
     </View>
   );

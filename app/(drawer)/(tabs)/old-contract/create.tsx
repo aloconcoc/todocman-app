@@ -39,6 +39,7 @@ import { getContractType } from "@/services/contract-type.service";
 import { Picker } from "@react-native-picker/picker";
 import { OCR_URL } from "@/constants";
 import { AppContext } from "@/app/Context/Context";
+import regexPatterns from "@/constants/regex.json";
 
 const imgDir = FileSystem.documentDirectory + "images/";
 
@@ -283,7 +284,7 @@ export default function UploadOldContract() {
     }));
   };
   const validateName = (name: any) => {
-    const regex = /^(?!\s)(?!.*\s{2})[A-Za-zÀ-ỹà-ỹ\s]{8,30}(?<!\s)$/i;
+    const regex = new RegExp(regexPatterns.REGEX_TEXT);
 
     return regex.test(name.trim());
   };
@@ -327,7 +328,8 @@ export default function UploadOldContract() {
     try {
       setLoadingOcr(true);
 
-      const response = await fetch("http://ocr.tdocman.id.vn/ocr", {
+      // const response = await fetch("http://ocr.tdocman.id.vn/ocr", {
+      const response = await fetch(OCR_URL, {
         method: "POST",
         body: formData,
         headers: {
@@ -362,9 +364,9 @@ export default function UploadOldContract() {
       );
       return;
     }
-    if (signDate < startDate) {
+    if (signDate > startDate) {
       ToastAndroid.show(
-        "Ngày ký không thể trước ngày bắt đầu",
+        "Ngày ký không thể sau ngày bắt đầu",
         ToastAndroid.SHORT
       );
       return;
@@ -407,11 +409,11 @@ export default function UploadOldContract() {
       } else if (selectedPdf) {
         formData.append("images", selectedPdf);
         formData.append("content", "Hợp đồng tải lên từ file pdf");
-        await performOCRAndUpload(formData);
+        await handleCreateOldContract.mutate(formData);
       }
     } catch (error) {
-      console.error("Lỗi hệ thống", error);
-      ToastAndroid.show("Lỗi trong quá trình xử lý!", ToastAndroid.SHORT);
+      console.error("Lỗi old contract", error);
+      ToastAndroid.show("Không tải được hợp đồng!", ToastAndroid.SHORT);
     } finally {
       setLoadingPopupVisible(false);
     }
@@ -475,7 +477,7 @@ export default function UploadOldContract() {
     );
   }
   if (isError) {
-    return <Text>Lỗi hệ thống</Text>;
+    ToastAndroid.show("Không tìm thấy hợp đồng cũ", ToastAndroid.SHORT);
   }
 
   return (
