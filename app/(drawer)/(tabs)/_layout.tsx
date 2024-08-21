@@ -34,25 +34,11 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="home"
+        name="search"
         options={{
-          title: "Trang chủ",
+          title: "Tìm kiếm",
           tabBarIcon: ({ color }: any) => (
-            <Ionicons name="home" size={24} color={color} />
-          ),
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }: any) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? "light"].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
+            <Ionicons name="search-circle-sharp" size={32} color={color} />
           ),
         }}
       />
@@ -85,10 +71,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="search"
+        name="home"
         options={{
           tabBarButton: () => null,
-          title: "Tìm kiếm",
         }}
       />
       <Tabs.Screen

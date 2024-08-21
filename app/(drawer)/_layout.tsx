@@ -35,7 +35,7 @@ const CustomDrawerContent = (props: any) => {
       onSuccess: (response) => {},
       onError: (error: AxiosError<{ message: string }>) => {
         ToastAndroid.show(
-          error.response?.data?.message || "Lỗi hệ thống",
+          error.response?.data?.message || "Lỗi drawer",
           ToastAndroid.SHORT
         );
       },
@@ -48,6 +48,8 @@ const CustomDrawerContent = (props: any) => {
       if (!c) {
         router.navigate("(auth/signin)");
       }
+      console.log("ccc", c);
+
       setUserInfoC(c);
     };
     checkUser();
@@ -80,7 +82,7 @@ const CustomDrawerContent = (props: any) => {
           </Text>
         </View>
       </View>
-      <DrawerItem
+      {/* <DrawerItem
         icon={() => (
           <Ionicons
             name="home"
@@ -97,7 +99,7 @@ const CustomDrawerContent = (props: any) => {
         onPress={() => {
           router.push("/(drawer)/(tabs)/home");
         }}
-      />
+      /> */}
       <DrawerItem
         icon={({ color, size }) => (
           <FontAwesome

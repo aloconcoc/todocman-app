@@ -24,6 +24,7 @@ import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import { useMutation } from "react-query";
+import regexPatterns from "@/constants/regex.json";
 
 const LoginScreen = () => {
   const [secureEntery, setSecureEntery] = useState(true);
@@ -32,7 +33,7 @@ const LoginScreen = () => {
   const [emailValidationMessage, setEmailValidationMessage] = useState("");
 
   const validateEmail = (email: string) => {
-    const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    const regex = new RegExp(regexPatterns.REGEX_TEXT);
     return regex.test(email.trim());
   };
 
@@ -118,19 +119,20 @@ const LoginScreen = () => {
   const mutation = useMutation({
     mutationFn: login,
     onSuccess: async (response) => {
-      if (response) {
-        setToken(response?.access_token);
-        setUser(response?.user.id);
+      if (response?.code == "00") {
+        console.log("dm: ", JSON.stringify(response?.object?.user));
+        setToken(response?.object?.access_token);
+        setUser(response?.object?.user?.id);
 
         const userInfoWithToken = {
-          ...response?.user,
+          ...response?.object?.user,
           tokenDevice: expoPushToken,
         };
         setUserInfo(JSON.stringify(userInfoWithToken));
 
-        setUserContext(response?.user.id);
+        setUserContext(response?.object?.user.id);
         ToastAndroid.show("Đăng nhập thành công!", ToastAndroid.SHORT);
-        router.push("(drawer)/(tabs)/home");
+        router.push("(drawer)/(tabs)/search");
       } else {
         ToastAndroid.show(
           "Đăng nhập thất bại! Vui lòng kiểm tra thông tin đăng nhập của bạn",
@@ -139,10 +141,7 @@ const LoginScreen = () => {
       }
     },
     onError: (error) => {
-      ToastAndroid.show(
-        "Lỗi hệ thống! Vui lòng thử lại sau!",
-        ToastAndroid.SHORT
-      );
+      ToastAndroid.show("Đăng nhập thất bại!", ToastAndroid.SHORT);
       console.error(error);
     },
   });

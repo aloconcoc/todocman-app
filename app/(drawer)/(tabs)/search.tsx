@@ -26,7 +26,6 @@ const SearchScreen = () => {
   const [query, setQuery] = useState<string>("");
   const [searched, setSearched] = useState<boolean>(false);
   const [contractType, setContractType] = useState<string>("contract");
-  const [typeContr, setTypeContr] = useState<string>("");
   const [totalPage, setTotalPage] = useState(1);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
@@ -41,13 +40,6 @@ const SearchScreen = () => {
       setTotalPage(result?.object?.totalPages);
     },
   });
-  const { data: typeData } = useQuery(
-    "type-contract",
-    () => getContractType({ page: 0, size: 100, title: "" }),
-    {
-      onError: (err) => console.log(err),
-    }
-  );
 
   useEffect(() => {
     if (contractType && searched) {
@@ -79,11 +71,6 @@ const SearchScreen = () => {
     setPage(newPage - 1);
   };
 
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [query]);
   const openModal = (contract: any) => {
     setSelectedContract(contract);
     setModalVisible(true);
@@ -143,7 +130,7 @@ const SearchScreen = () => {
           <Text style={styles.buttonText}>Hợp đồng cũ</Text>
         </TouchableOpacity>
       </View>
-      <View
+      {/* <View
         style={{
           width: 200,
           height: 40,
@@ -173,7 +160,7 @@ const SearchScreen = () => {
             />
           ))}
         </Picker>
-      </View>
+      </View> */}
 
       {searchQuery.isLoading ? (
         <ActivityIndicator size="large" color="lightseagreen" />

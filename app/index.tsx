@@ -36,7 +36,7 @@ export default function HomeScreen() {
   }
 
   if (isLoggedIn) {
-    return <Redirect href="/(drawer)/(tabs)/home" />;
+    return <Redirect href="/(drawer)/(tabs)/search" />;
   } else {
     return <Redirect href={"/(auth)/signin"} />;
   }
