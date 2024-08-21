@@ -73,7 +73,7 @@ const Salary = () => {
       },
       onError: (error: AxiosError<{ message: string }>) => {
         ToastAndroid.show(
-          error.response?.data?.message || "Lỗi hệ thống",
+          error.response?.data?.message || "Không tìm thấy nhân viên",
           ToastAndroid.SHORT
         );
       },
