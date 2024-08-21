@@ -49,27 +49,24 @@ const ManageEmployee = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [status, setStatus] = useState("ACTIVE");
-  const [department, setDepartment] = useState("");
 
   const handlePageChange = (page: any) => {
     setPage(page - 1);
   };
   const handleEmployeePress = (employee: any) => {
     setSelectedEmployee(employee);
-    console.log(employee);
 
     setModalVisible(true);
   };
 
   const { data, isLoading, refetch, isFetching } = useQuery(
-    ["employee-list", query, status, department],
+    ["employee-list", query, status],
     () =>
       getListEmployee({
         size: size,
         page: page,
         name: query,
         status,
-        department,
       }),
     {
       onSuccess: (result) => {
@@ -82,9 +79,6 @@ const ManageEmployee = () => {
         );
       },
     }
-  );
-  const { data: dataDepartment } = useQuery("list-department", () =>
-    getListDepartment(0, 50)
   );
 
   useEffect(() => {
@@ -142,9 +136,17 @@ const ManageEmployee = () => {
         <Text style={[styles.cell, { flex: 0.1 }]}>
           {(index + 1).toString()}
         </Text>
-        <Text style={[styles.cell, { flex: 0.3 }]}>{item?.name}</Text>
+        <Text style={[styles.cell, { flex: 0.35 }]}>{item?.name}</Text>
         <Text style={[styles.cell, { flex: 0.4 }]}>{item?.email}</Text>
-        <Text style={[styles.cell, { flex: 0.3 }]}>{item?.phone}</Text>
+        <Text
+          style={[
+            styles.cell,
+            { flex: 0.3 },
+            item?.status === "ACTIVE" ? { color: "green" } : { color: "red" },
+          ]}
+        >
+          {item?.status === "ACTIVE" ? "Đang hoạt động" : "Không hoạt động"}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -223,42 +225,12 @@ const ManageEmployee = () => {
             value="INACTIVE"
           />
         </Picker>
-
-        <Picker
-          selectedValue={department === "all" ? "" : department}
-          style={{ height: 50, flex: 1, marginLeft: 10 }}
-          onValueChange={(itemValue) =>
-            setDepartment(itemValue === "all" ? "" : itemValue)
-          }
-        >
-          <Picker.Item
-            label="Tất cả"
-            value="all"
-            color={department === "" ? "green" : "black"}
-          />
-          {dataDepartment?.object?.content?.map((item: any) => (
-            <Picker.Item
-              key={item.id}
-              label={item.title}
-              value={item.id}
-              color={department === item.id ? "green" : "black"}
-            />
-          ))}
-        </Picker>
       </View>
       <View style={styles.header}>
-        <Text style={[styles.headerCell, { flex: 0.1, fontSize: 12 }]}>
-          STT
-        </Text>
-        <Text style={[styles.headerCell, { flex: 0.3, fontSize: 12 }]}>
-          Tên nhân viên
-        </Text>
-        <Text style={[styles.headerCell, { flex: 0.4, fontSize: 12 }]}>
-          Email
-        </Text>
-        <Text style={[styles.headerCell, { flex: 0.3, fontSize: 12 }]}>
-          Số điện thoại
-        </Text>
+        <Text style={[styles.headerCell, { flex: 0.1 }]}>STT</Text>
+        <Text style={[styles.headerCell, { flex: 0.35 }]}>Tên nhân viên</Text>
+        <Text style={[styles.headerCell, { flex: 0.4 }]}>Email</Text>
+        <Text style={[styles.headerCell, { flex: 0.3 }]}>Trạng thái</Text>
       </View>
       <FlatList
         data={data?.object?.content}
@@ -310,22 +282,7 @@ const ManageEmployee = () => {
               <Text style={[styles.bold, styles.label]}>Email: </Text>
               <Text style={[styles.value]}>{selectedEmployee.email}</Text>
             </View>
-            <View style={styles.detailRow}>
-              <Text style={[styles.bold, styles.label]}>Chức vụ: </Text>
-              <Text style={styles.value}>{selectedEmployee.position}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={[styles.bold, styles.label]}>Phòng ban: </Text>
-              <Text style={styles.value}>
-                {dataDepartment?.object?.content.find(
-                  (data: any) => data.id == selectedEmployee.department
-                ) != undefined
-                  ? dataDepartment?.object?.content.find(
-                      (data: any) => data.id == selectedEmployee.department
-                    ).title
-                  : ""}
-              </Text>
-            </View>
+
             <View style={styles.detailRow}>
               <Text style={[styles.bold, styles.label]}>CMND/CCCD: </Text>
               <Text style={styles.value}>
@@ -338,7 +295,9 @@ const ManageEmployee = () => {
             </View>
             <View style={styles.detailRow}>
               <Text style={[styles.bold, styles.label]}>Giới tính: </Text>
-              <Text style={styles.value}>Nam</Text>
+              <Text style={styles.value}>
+                {selectedEmployee.gender || "Nam"}
+              </Text>
             </View>
             <View style={styles.detailRow}>
               <Text style={[styles.bold, styles.label]}>Ngày sinh: </Text>
@@ -380,7 +339,8 @@ const styles = StyleSheet.create({
     flex: 0.2,
     fontWeight: "bold",
     padding: 5,
-    textAlign: "center",
+    textAlign: "left",
+    fontSize: 12,
   },
 
   textGap: {
@@ -397,7 +357,7 @@ const styles = StyleSheet.create({
     flex: 0.2,
     padding: 5,
     fontSize: 12,
-    textAlign: "center",
+    textAlign: "left",
   },
   linkText: {
     color: "teal",
