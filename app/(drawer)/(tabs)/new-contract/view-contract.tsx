@@ -153,6 +153,7 @@ const PDFExample = () => {
         </TouchableWithoutFeedback>
         <View style={styles.modalContent1}>
           <Sign
+            setModalVisible={setModalVisible}
             signText={signText}
             setSignText={setSignText}
             comment={value}
@@ -161,11 +162,12 @@ const PDFExample = () => {
         </View>
       </Modal>
 
-      <View
-        style={styles.signButton}
-        // onPress={openComment}
-      >
-        {/* <MenuView
+      {contractData?.role == "ADMIN" ? (
+        <View
+          style={styles.signButton}
+          // onPress={openComment}
+        >
+          {/* <MenuView
           isAnchoredToRight={true}
           onPressAction={({ nativeEvent }) => {
             if (nativeEvent.event === "sign") {
@@ -190,14 +192,14 @@ const PDFExample = () => {
           ]}
           shouldOpenOnLongPress={false}
         > */}
-        {contractData?.role == "ADMIN" ? (
+
           <TouchableOpacity onPress={openComment}>
             <Feather name="list" size={24} color="black" />
           </TouchableOpacity>
-        ) : null}
 
-        {/* </MenuView> */}
-      </View>
+          {/* </MenuView> */}
+        </View>
+      ) : null}
     </View>
   );
 };
