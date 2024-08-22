@@ -46,6 +46,11 @@ const LoginScreen = () => {
       setEmailValidationMessage("Email không hợp lệ");
     }
   };
+  const isFormValid = () => {
+    console.log(1, emailValidationMessage);
+
+    return emailValidationMessage === "Email hợp lệ";
+  };
 
   function handleRegistrationError(errorMessage: string) {
     alert(errorMessage);
@@ -146,6 +151,7 @@ const LoginScreen = () => {
     },
   });
   const onSubmit = (data: LoginRequest) => {
+    if (!isFormValid()) return;
     const dataWithDeviceToken = {
       email: data.email.trim(),
       password: data.password.trim(),

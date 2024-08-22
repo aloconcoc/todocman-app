@@ -16,6 +16,7 @@ import { ToastAndroid } from "react-native";
 import { AxiosError } from "axios";
 import { AppContext } from "@/app/Context/Context";
 import { router } from "expo-router";
+import regexPatterns from "@/constants/regex.json";
 
 const ChangePasswordScreen = () => {
   const { userInfoC }: any = useContext(AppContext);
@@ -93,8 +94,9 @@ const ChangePasswordScreen = () => {
         rules={{
           required: "Mật khẩu mới không được để trống",
           pattern: {
-            value: new RegExp("^\\d{6,30}$"),
-            message: "Mật khẩu không đúng định dạng",
+            value: new RegExp(regexPatterns.REGEX_PASSWORD),
+            message:
+              "Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt (8-16 ký tự)",
           },
         }}
         render={({ field: { onChange, value } }) => (
@@ -107,6 +109,7 @@ const ChangePasswordScreen = () => {
           />
         )}
       />
+
       {errors.newPassword && (
         <Text style={styles.error}>{errors.newPassword.message}</Text>
       )}
