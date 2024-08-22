@@ -219,22 +219,6 @@ const ContractAppendix = () => {
     }
   }, [page, refetch, size]);
 
-  if (isLoading) {
-    return (
-      <View style={styles.loader}>
-        <LottieView
-          autoPlay
-          style={{
-            width: "80%",
-            height: "80%",
-            backgroundColor: "white",
-          }}
-          source={require("@/assets/load.json")}
-        />
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
       <View
@@ -412,6 +396,23 @@ const ContractAppendix = () => {
           </View>
         ))}
       </ScrollView>
+      <Modal transparent={true} visible={isLoading} animationType="fade">
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <LottieView
+            autoPlay
+            loop
+            style={{ width: 150, height: 150 }}
+            source={require("@/assets/load.json")}
+          />
+        </View>
+      </Modal>
       {statusModal && (
         <Modal
           animationType="fade"

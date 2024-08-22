@@ -58,7 +58,7 @@ const NotifyScreen = () => {
     } else if (noti?.typeNotification == "APPENDICES CONTRACT") {
       router.navigate({
         pathname: "/(drawer)/new-contract/appendix",
-        params: { appendixId: JSON.stringify(noti?.id) },
+        params: { appendixId: JSON.stringify(noti?.contractId) },
       });
     }
     if (!noti?.markRead) {

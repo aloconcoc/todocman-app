@@ -33,7 +33,7 @@ const LoginScreen = () => {
   const [emailValidationMessage, setEmailValidationMessage] = useState("");
 
   const validateEmail = (email: string) => {
-    const regex = new RegExp(regexPatterns.REGEX_TEXT);
+    const regex = new RegExp(regexPatterns.REGEX_EMAIL, "i");
     return regex.test(email.trim());
   };
 
@@ -120,7 +120,7 @@ const LoginScreen = () => {
     mutationFn: login,
     onSuccess: async (response) => {
       if (response?.code == "00") {
-        console.log("dm: ", JSON.stringify(response?.object?.user));
+        console.log("user: ", JSON.stringify(response?.object?.user));
         setToken(response?.object?.access_token);
         setUser(response?.object?.user?.id);
 
@@ -142,7 +142,7 @@ const LoginScreen = () => {
     },
     onError: (error) => {
       ToastAndroid.show("Đăng nhập thất bại!", ToastAndroid.SHORT);
-      console.error(error);
+      console.error("Lỗi server");
     },
   });
   const onSubmit = (data: LoginRequest) => {

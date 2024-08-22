@@ -82,24 +82,7 @@ const CustomDrawerContent = (props: any) => {
           </Text>
         </View>
       </View>
-      {/* <DrawerItem
-        icon={() => (
-          <Ionicons
-            name="home"
-            size={24}
-            color={pathname == "/home" ? "#fff" : "#000"}
-          />
-        )}
-        label={"Trang chủ"}
-        labelStyle={[
-          styles.navItemLabel,
-          { color: pathname == "/home" ? "#fff" : "#000" },
-        ]}
-        style={{ backgroundColor: pathname == "/home" ? "teal" : "#fff" }}
-        onPress={() => {
-          router.push("/(drawer)/(tabs)/home");
-        }}
-      /> */}
+
       <DrawerItem
         icon={({ color, size }) => (
           <FontAwesome
@@ -118,26 +101,28 @@ const CustomDrawerContent = (props: any) => {
           router.push("/(drawer)/(tabs)/search");
         }}
       />
-      <DrawerItem
-        icon={() => (
-          <FontAwesome5
-            name="user-tie"
-            size={24}
-            color={pathname == "/employee" ? "#fff" : "#000"}
-          />
-        )}
-        label={" Nhân viên"}
-        labelStyle={[
-          styles.navItemLabel,
-          { color: pathname == "/employee" ? "#fff" : "#000" },
-        ]}
-        style={{
-          backgroundColor: pathname == "/employee" ? "teal" : "#fff",
-        }}
-        onPress={() => {
-          router.push("/(drawer)/(tabs)/employee");
-        }}
-      />
+      {!userInfoC?.permissions?.includes("SALE") && (
+        <DrawerItem
+          icon={() => (
+            <FontAwesome5
+              name="user-tie"
+              size={24}
+              color={pathname == "/employee" ? "#fff" : "#000"}
+            />
+          )}
+          label={" Nhân viên"}
+          labelStyle={[
+            styles.navItemLabel,
+            { color: pathname == "/employee" ? "#fff" : "#000" },
+          ]}
+          style={{
+            backgroundColor: pathname == "/employee" ? "teal" : "#fff",
+          }}
+          onPress={() => {
+            router.push("/(drawer)/(tabs)/employee");
+          }}
+        />
+      )}
 
       <DrawerItem
         icon={() => (
@@ -179,26 +164,28 @@ const CustomDrawerContent = (props: any) => {
           router.push("/(drawer)/(tabs)/old-contract");
         }}
       />
-      <DrawerItem
-        icon={() => (
-          <FontAwesome5
-            name="coins"
-            size={23}
-            color={pathname == "/salary" ? "#fff" : "#000"}
-          />
-        )}
-        label={" Bảng lương"}
-        labelStyle={[
-          styles.navItemLabel,
-          { color: pathname == "/salary" ? "#fff" : "#000" },
-        ]}
-        style={{
-          backgroundColor: pathname == "/salary" ? "teal" : "#fff",
-        }}
-        onPress={() => {
-          router.push("/(drawer)/(tabs)/salary");
-        }}
-      />
+      {!userInfoC?.permissions?.includes("OFFICE_ADMIN") && (
+        <DrawerItem
+          icon={() => (
+            <FontAwesome5
+              name="coins"
+              size={23}
+              color={pathname == "/salary" ? "#fff" : "#000"}
+            />
+          )}
+          label={" Bảng lương"}
+          labelStyle={[
+            styles.navItemLabel,
+            { color: pathname == "/salary" ? "#fff" : "#000" },
+          ]}
+          style={{
+            backgroundColor: pathname == "/salary" ? "teal" : "#fff",
+          }}
+          onPress={() => {
+            router.push("/(drawer)/(tabs)/salary");
+          }}
+        />
+      )}
       <DrawerItem
         icon={() => (
           <MaterialIcons

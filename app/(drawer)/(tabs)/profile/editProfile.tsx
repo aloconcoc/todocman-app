@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
   ActivityIndicator,
   Image,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -36,18 +37,20 @@ const EditProfile = () => {
   const { userContext }: any = useContext(AppContext);
   const [ocr, setOcr] = useState<any>();
   const [gender, setGender] = useState<string>("");
-  const [nameValidationMessage, setNameValidationMessage] = useState("");
+  const [nameValidationMessage, setNameValidationMessage] =
+    useState("Tên hợp lệ");
   const [phoneValidationMessage, setphoneValidationMessage] = useState("");
-  const [addressValidationMessage, setaddressValidationMessage] = useState("");
+  const [addressValidationMessage, setAddressValidationMessage] =
+    useState("Địa chỉ hợp lệ");
   const [idCardValidationMessage, setidCardValidationMessage] = useState("");
   const [departmentValidationMessage, setdepartmentValidationMessage] =
     useState("");
   const [positionValidationMessage, setpositionValidationMessage] =
     useState("");
 
-  const validateName = (email: string) => {
+  const validateName = (name: string) => {
     const regex = new RegExp(regexPatterns.REGEX_NAME);
-    return regex.test(email.trim());
+    return regex.test(name.trim());
   };
 
   const handleNameChange = (value: string) => {
@@ -59,19 +62,25 @@ const EditProfile = () => {
       setNameValidationMessage("Tên không hợp lệ");
     }
   };
-  const validateAddress = (email: string) => {
+  const validateAddress = (address: string) => {
     const regex = new RegExp(regexPatterns.REGEX_ADDRESS);
-    return regex.test(email.trim());
+    return regex.test(address.trim());
   };
 
   const handleAddressChange = (value: string) => {
     if (value.trim() === "") {
-      setNameValidationMessage("Trường 'Địa chỉ' để trống");
+      setAddressValidationMessage("Trường 'Địa chỉ' để trống");
     } else if (validateAddress(value)) {
-      setNameValidationMessage("Địa chỉ hợp lệ");
+      setAddressValidationMessage("Địa chỉ hợp lệ");
     } else {
-      setNameValidationMessage("Địa chỉ không hợp lệ");
+      setAddressValidationMessage("Địa chỉ không hợp lệ");
     }
+  };
+  const isFormValid = () => {
+    return (
+      nameValidationMessage === "Tên hợp lệ" &&
+      addressValidationMessage === "Địa chỉ hợp lệ"
+    );
   };
 
   type ProfileType = {
@@ -163,7 +172,7 @@ const EditProfile = () => {
 
   const mutation = useMutation(
     async (data: any) => {
-      console.log("u", userContext, data);
+      console.log("data", data);
 
       if (userContext) await updateProfile(userContext, data);
     },
@@ -191,6 +200,9 @@ const EditProfile = () => {
 
   const onSubmit = async (data: any) => {
     try {
+      if (!isFormValid()) {
+        return;
+      }
       if (date) {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -242,28 +254,6 @@ const EditProfile = () => {
       });
     }
   };
-
-  if (isLoading) {
-    return (
-      <View
-        style={{
-          alignItems: "center",
-          justifyContent: "center",
-          flex: 1,
-        }}
-      >
-        <LottieView
-          autoPlay
-          style={{
-            width: "80%",
-            height: "80%",
-            backgroundColor: "white",
-          }}
-          source={require("@/assets/load.json")}
-        />
-      </View>
-    );
-  }
 
   if (error) {
     return <Text>Error: {error?.message}</Text>;
@@ -407,10 +397,10 @@ const EditProfile = () => {
                       justifyContent: "center",
                       paddingLeft: 8,
                     }}
+                    disabled
                   >
                     <TextInput
                       value={value}
-                      editable={false}
                       onBlur={onBlur}
                       onChangeText={onChange}
                       keyboardType="email-address"
@@ -440,11 +430,11 @@ const EditProfile = () => {
                       justifyContent: "center",
                       paddingLeft: 8,
                     }}
+                    disabled
                   >
                     <TextInput
                       value={value}
                       keyboardType="phone-pad"
-                      editable={false}
                       onBlur={onBlur}
                       onChangeText={(text) => {
                         onChange(text);
@@ -684,6 +674,23 @@ const EditProfile = () => {
           )}
         </TouchableOpacity>
       </ScrollView>
+      <Modal transparent={true} visible={isLoading} animationType="fade">
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <LottieView
+            autoPlay
+            loop
+            style={{ width: 150, height: 150 }}
+            source={require("@/assets/load.json")}
+          />
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

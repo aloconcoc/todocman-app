@@ -455,27 +455,7 @@ export default function UploadOldContract() {
       // {/* </ScaleDecorator> */}
     );
   };
-  if (isLoading || loadingImages) {
-    return (
-      <View
-        style={{
-          alignItems: "center",
-          justifyContent: "center",
-          flex: 1,
-        }}
-      >
-        <LottieView
-          autoPlay
-          style={{
-            width: "80%",
-            height: "80%",
-            backgroundColor: "white",
-          }}
-          source={require("@/assets/load.json")}
-        />
-      </View>
-    );
-  }
+
   if (isError) {
     ToastAndroid.show("Không tìm thấy hợp đồng cũ", ToastAndroid.SHORT);
   }
@@ -774,6 +754,27 @@ export default function UploadOldContract() {
         renderItem={renderItem}
         keyExtractor={(item) => item}
       />
+      <Modal
+        transparent={true}
+        visible={isLoading || loadingImages}
+        animationType="fade"
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <LottieView
+            autoPlay
+            loop
+            style={{ width: 150, height: 150 }}
+            source={require("@/assets/load.json")}
+          />
+        </View>
+      </Modal>
 
       {uploading && (
         <View

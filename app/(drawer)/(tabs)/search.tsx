@@ -84,14 +84,7 @@ const SearchScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Button
-        title="ok"
-        onPress={() =>
-          fetch("https://jsonplaceholder.typicode.com/todos/1")
-            .then((response) => response.json())
-            .then((json) => console.log(json))
-        }
-      ></Button>
+      {/* <Button title="ok"></Button> */}
       <View style={styles.searchContainer}>
         <Ionicons
           name="search"

@@ -77,22 +77,6 @@ const ManageOldContract = () => {
     }
   }, [page, refetch, size]);
 
-  if (isLoading || typeContractLoading) {
-    return (
-      <View style={styles.loader}>
-        <LottieView
-          autoPlay
-          style={{
-            width: "80%",
-            height: "80%",
-            backgroundColor: "white",
-          }}
-          source={require("@/assets/load.json")}
-        />
-      </View>
-    );
-  }
-
   const openModal = (contract: any) => {
     setSelectedContract(contract);
     setModalVisible(true);
@@ -186,6 +170,27 @@ const ManageOldContract = () => {
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
       />
+      <Modal
+        transparent={true}
+        visible={isLoading || typeContractLoading}
+        animationType="fade"
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <LottieView
+            autoPlay
+            loop
+            style={{ width: 150, height: 150 }}
+            source={require("@/assets/load.json")}
+          />
+        </View>
+      </Modal>
 
       {data && data?.content?.length != 0 ? (
         <Pagination

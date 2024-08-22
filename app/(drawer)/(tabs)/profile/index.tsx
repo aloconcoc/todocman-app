@@ -8,6 +8,7 @@ import {
   Pressable,
   ToastAndroid,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import React, { useContext, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -71,28 +72,6 @@ const Profile = () => {
   const handleLogout = async () => {
     logoutQuery.mutate();
   };
-
-  if (isLoading || !data) {
-    return (
-      <View
-        style={{
-          alignItems: "center",
-          justifyContent: "center",
-          flex: 1,
-        }}
-      >
-        <LottieView
-          autoPlay
-          style={{
-            width: "80%",
-            height: "80%",
-            backgroundColor: "white",
-          }}
-          source={require("@/assets/load.json")}
-        />
-      </View>
-    );
-  }
 
   if (isError) {
     ToastAndroid.show("Không thể lấy thông tin người dùng", ToastAndroid.SHORT);
@@ -426,6 +405,23 @@ const Profile = () => {
           ))}
         </View>
       </View>
+      <Modal transparent={true} visible={isLoading} animationType="fade">
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <LottieView
+            autoPlay
+            loop
+            style={{ width: 150, height: 150 }}
+            source={require("@/assets/load.json")}
+          />
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
