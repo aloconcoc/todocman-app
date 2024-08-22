@@ -118,7 +118,7 @@ const NotifyProvider: React.FC<Props> = ({ children }) => {
     getNotifyQuery.mutate(0);
     const stompClient = Stomp.over(socket);
     stompClient.connect({}, (frame: any) => {
-      console.log("Connected: " + frame);
+      // console.log("Connected: " + frame);
       stompClient.subscribe(
         `/topic/notifications/${userInfoC?.email}`,
         (message) => {

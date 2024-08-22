@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Modal,
   Dimensions,
+  Button,
 } from "react-native";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery } from "react-query";
@@ -83,6 +84,14 @@ const SearchScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Button
+        title="ok"
+        onPress={() =>
+          fetch("https://jsonplaceholder.typicode.com/todos/1")
+            .then((response) => response.json())
+            .then((json) => console.log(json))
+        }
+      ></Button>
       <View style={styles.searchContainer}>
         <Ionicons
           name="search"

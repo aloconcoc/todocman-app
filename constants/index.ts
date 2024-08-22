@@ -1,8 +1,8 @@
-export const BASE_URL = "http://192.168.1.3:8080/";
-// export const BASE_URL = "http://api.tdocman.id.vn/api/";
-export const OCR_URL = "http://192.168.1.3:2002/ocr";
-// export const OCR_URL = "http://ocr.tdocman.id.vn/ocr";
-export const BASE_URL_FE = "http://tdocman.id.vn/";
+export const BASE_URL = "http://192.168.1.6:8080/";
+// export const BASE_URL = "https://api.tdocman.id.vn/";
+// export const OCR_URL = "http://192.168.1.3:2002/ocr";
+export const OCR_URL = "https://ocr.tdocman.id.vn/";
+export const BASE_URL_FE = "https://tdocman.id.vn/";
 
 export const INTERNAL_SERVER_ERROR = 500;
 export const NOT_FOUND = 404;
