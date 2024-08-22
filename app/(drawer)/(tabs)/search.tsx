@@ -20,6 +20,7 @@ import Pagination from "@/components/utils/pagination";
 import { getContractType } from "@/services/contract-type.service";
 import { Picker } from "@react-native-picker/picker";
 import Pdf from "react-native-pdf";
+import { router } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 
@@ -84,7 +85,6 @@ const SearchScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* <Button title="ok"></Button> */}
       <View style={styles.searchContainer}>
         <Ionicons
           name="search"

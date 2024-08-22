@@ -54,12 +54,13 @@ const NotifyScreen = () => {
     if (noti?.typeNotification == "CONTRACT") {
       console.log("noti", noti);
 
-      router.navigate("/(drawer)/new-contract/details/" + noti?.contractId);
+      router.navigate(
+        "/(drawer)/(tabs)/new-contract/details/" + noti?.contractId
+      );
     } else if (noti?.typeNotification == "APPENDICES CONTRACT") {
-      router.navigate({
-        pathname: "/(drawer)/new-contract/appendix",
-        params: { appendixId: JSON.stringify(noti?.contractId) },
-      });
+      router.navigate(
+        "/(drawer)(tabs)/new-contract/appendix" + noti?.contractId
+      );
     }
     if (!noti?.markRead) {
       setTotalNotRead((totalNotRead: any) => totalNotRead - 1);

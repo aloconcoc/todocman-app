@@ -28,8 +28,8 @@ type STATUS = "ADMIN" | "OFFICE_ADMIN" | "SALE" | "OFFICE_STAFF";
 const { width, height } = Dimensions.get("window");
 
 const ContractAppendix = () => {
-  const { appendixId } = useLocalSearchParams();
-  const appenId = JSON.parse(appendixId as string);
+  const { id } = useLocalSearchParams();
+  const appenId = JSON.parse(id as string);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const { realTime } = useNotification();

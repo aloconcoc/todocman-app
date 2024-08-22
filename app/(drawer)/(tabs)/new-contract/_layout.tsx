@@ -24,7 +24,7 @@ export default function _layout() {
         }}
       />
       <Stack.Screen
-        name="appendix"
+        name="appendix/[id]"
         options={{
           title: "Phụ lục hợp đồng",
         }}

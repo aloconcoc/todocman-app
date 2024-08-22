@@ -330,7 +330,7 @@ const NewContract = () => {
     } else if (action == "phụ lục") {
       router.navigate({
         pathname: "/new-contract/appendix",
-        params: { appendixId: JSON.stringify(selectedContract?.id) },
+        params: { id: JSON.stringify(selectedContract?.id) },
       });
     }
 

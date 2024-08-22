@@ -359,7 +359,7 @@ const EditProfile = () => {
               )}
               name="name"
             />
-            {nameValidationMessage && (
+            {nameValidationMessage != "Tên hợp lệ" && (
               <Text
                 style={{
                   opacity: 0.5,
@@ -386,7 +386,7 @@ const EditProfile = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <>
                   <Text>Email</Text>
-                  <TouchableOpacity
+                  <View
                     style={{
                       height: 44,
                       width: "100%",
@@ -397,15 +397,15 @@ const EditProfile = () => {
                       justifyContent: "center",
                       paddingLeft: 8,
                     }}
-                    disabled
                   >
                     <TextInput
                       value={value}
                       onBlur={onBlur}
+                      editable={false}
                       onChangeText={onChange}
                       keyboardType="email-address"
                     />
-                  </TouchableOpacity>
+                  </View>
                 </>
               )}
               name="email"
@@ -419,7 +419,7 @@ const EditProfile = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <>
                   <Text>CMND/CCCD</Text>
-                  <TouchableOpacity
+                  <View
                     style={{
                       height: 44,
                       width: "100%",
@@ -430,17 +430,17 @@ const EditProfile = () => {
                       justifyContent: "center",
                       paddingLeft: 8,
                     }}
-                    disabled
                   >
                     <TextInput
                       value={value}
+                      editable={false}
                       keyboardType="phone-pad"
                       onBlur={onBlur}
                       onChangeText={(text) => {
                         onChange(text);
                       }}
                     />
-                  </TouchableOpacity>
+                  </View>
                 </>
               )}
               name="identificationNumber"
@@ -556,7 +556,7 @@ const EditProfile = () => {
             )}
             name="address"
           />
-          {addressValidationMessage && (
+          {addressValidationMessage != "Địa chỉ hợp lệ" && (
             <Text
               style={{
                 opacity: 0.5,

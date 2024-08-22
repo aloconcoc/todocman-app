@@ -1,48 +1,53 @@
-import React, { useRef, useState, useEffect, useMemo, useContext } from "react";
-import { router, useLocalSearchParams } from "expo-router";
-import {
-  StyleSheet,
-  Dimensions,
-  View,
-  Text,
-  Modal,
-  Button,
-  TextInput,
-  SafeAreaView,
-  TouchableOpacity,
-  Platform,
-  TouchableWithoutFeedback,
-  ActivityIndicator,
-  ToastAndroid,
-} from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
-import Pdf from "react-native-pdf";
-import { Feather, FontAwesome5 } from "@expo/vector-icons";
-import Sign from "@/components/sign/signature";
-import {
-  deleteContract,
-  getNewContractByIdNotToken,
-} from "@/services/contract.service";
-import { useNotification } from "@/app/Context/NotifyContext";
 import { AppContext } from "@/app/Context/Context";
+import { useNotification } from "@/app/Context/NotifyContext";
+import Pagination from "@/components/utils/pagination";
 import { ADMIN, permissionObject } from "@/components/utils/permissions";
+import { statusObject } from "@/components/utils/statusRequest";
+import { getAppendicesContactAll } from "@/services/contract.service";
+import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
+import { AxiosError } from "axios";
+import { router, useLocalSearchParams } from "expo-router";
+import LottieView from "lottie-react-native";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Dimensions,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  ToastAndroid,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import Pdf from "react-native-pdf";
+import WebView from "react-native-webview";
+import { useQuery } from "react-query";
 
 type STATUS = "ADMIN" | "OFFICE_ADMIN" | "SALE" | "OFFICE_STAFF";
+const { width, height } = Dimensions.get("window");
 
-const NotiDetail = () => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [commentVisible, setCommentVisible] = useState(false);
-  const [value, onChangeText] = React.useState("");
-  const [signText, setSignText] = useState<string>("");
-  const [contractData, setContractData] = useState<any>(null);
+const ContractAppendix = () => {
   const { id } = useLocalSearchParams();
-  console.log("id", id);
-
+  const appenId = JSON.parse(id as string);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
   const { realTime } = useNotification();
-  const [deleteModal, setDeleteModal] = useState(false);
-  const [deleteloading, setDeleteloading] = useState(false);
   const { userInfoC }: any = useContext(AppContext);
+  const [totalPage, setTotalPage] = useState(1);
+  const prevPageRef = useRef(page);
+  const prevSizeRef = useRef(size);
+  const [selectedContract, setSelectedContract] = useState<any>(null);
+  const [statusModal, setStatusModal] = useState(false);
+  const [detail, setDetail] = useState(false);
+  const [download, setDownload] = useState(false);
 
+  const [popUp, setPopUp] = useState(false);
+  const [statusContract, setStatusContract] = useState<any>({
+    id: 1,
+    title: "Quản lí hợp đồng",
+    status: "MANAGER_CONTRACT",
+  });
   const permissionUser: STATUS = useMemo(() => {
     if (
       userInfoC?.role == ADMIN ||
@@ -150,424 +155,208 @@ const NotiDetail = () => {
     OFFICE_ADMIN: adminOfficeContract,
     OFFICE_STAFF: [],
   };
-
-  useEffect(() => {
-    const fetchContractData = async () => {
-      try {
-        const response = await getNewContractByIdNotToken(id);
-        if (response.object) setContractData(response.object);
-      } catch (error) {
-        console.error("Không tìm thấy hợp đồng", error);
-      }
-    };
-
-    fetchContractData();
-  }, [id]);
-
-  const openModal = () => {
-    setCommentVisible(false);
-    setModalVisible(true);
+  const openModal = (contract: any) => {
+    setSelectedContract(contract);
+    setPopUp(true);
   };
 
   const closeModal = () => {
-    setModalVisible(false);
-    setCommentVisible(false);
-    console.log("signText", signText.substring(0, 20));
-    setSignText("");
+    setPopUp(false);
+    setSelectedContract(null);
+    setStatusModal(false);
+    setDownload(false);
   };
 
-  const openComment = () => {
-    setCommentVisible(true);
-    setModalVisible(false);
+  const openStatus = () => {
+    setStatusModal(true);
   };
 
-  const closeComment = () => {
-    setCommentVisible(false);
-    setModalVisible(false);
+  const closeStatus = () => {
+    setStatusModal(false);
+    setPopUp(false);
   };
-  const openDeleteModal = (contract: any) => {
-    setCommentVisible(false);
-    setDeleteModal(true);
+  const openDetail = () => {
+    setDetail(true);
+    setPopUp(false);
+    setStatusModal(false);
   };
-  const closeDeleteModal = () => {
-    setDeleteModal(false);
-    setCommentVisible(false);
+  const closeDetail = () => {
+    setDetail(false);
+    setPopUp(false);
+    setStatusModal(false);
+    setSelectedContract(null);
+    setDownload(false);
   };
-  const handleAction = (action: string) => {
-    if (action == "Xem") {
-      const viewContractRole = {
-        ...contractData,
-        role: permissionUser,
-      };
-      router.navigate({
-        pathname: "/new-contract/view-contract",
-        params: { contract: JSON.stringify(viewContractRole) },
-      });
-    } else if (action == "Từ chối ký") {
-      const selectedContractWithStatus = {
-        ...contractData,
-        statuss: 6,
-      };
-      router.navigate({
-        pathname: "/new-contract/send-mail",
-        params: { contract: JSON.stringify(selectedContractWithStatus) },
-      });
-      console.log("sta6");
-    } else if (action == "Trình ký") {
-      const selectedContractWithStatus = {
-        ...contractData,
-        statuss: 4,
-      };
-      router.navigate({
-        pathname: "/new-contract/send-mail",
-        params: { contract: JSON.stringify(selectedContractWithStatus) },
-      });
-      console.log("sta4");
-    } else if (action == "Từ chối duyệt") {
-      const selectedContractWithStatus = {
-        ...contractData,
-        statuss: 3,
-      };
-      router.navigate({
-        pathname: "/new-contract/send-mail",
-        params: { contract: JSON.stringify(selectedContractWithStatus) },
-      });
-      console.log("sta3");
-    } else if (action == "Duyệt hợp đồng") {
-      const selectedContractWithStatus = {
-        ...contractData,
-        statuss: 2,
-      };
-      router.navigate({
-        pathname: "/new-contract/send-mail",
-        params: { contract: JSON.stringify(selectedContractWithStatus) },
-      });
-      console.log("sta2");
-    } else if (action == "Gửi cho khách hàng") {
-      const selectedContractWithStatus = {
-        ...contractData,
-        statuss: 7,
-      };
-      router.navigate({
-        pathname: "/new-contract/send-mail",
-        params: { contract: JSON.stringify(selectedContractWithStatus) },
-      });
-      console.log("sta7");
-    } else if (action === "Trình duyệt") {
-      const selectedContractWithStatus = {
-        ...contractData,
-        statuss: 1,
-      };
-      router.navigate({
-        pathname: "/new-contract/send-mail",
-        params: { contract: JSON.stringify(selectedContractWithStatus) },
-      });
-      console.log("sta1");
-    } else if (action == "phụ lục") {
-      router.navigate({
-        pathname: "/new-contract/appendix",
-        params: { appendixId: JSON.stringify(contractData?.id) },
-      });
+  const downloadModal = () => {
+    setDownload(true);
+    setTimeout(() => {
+      setDownload(false);
+      closeModal();
+    }, 1000);
+  };
+
+  const handlePageChange = (page: any) => {
+    setPage(page - 1);
+  };
+
+  const { data, isLoading, refetch, isFetching } = useQuery(
+    ["contract-appendices", userInfoC?.id, statusContract?.status, realTime],
+    () => getAppendicesContactAll(appenId, page, size, statusContract?.status),
+    {
+      onSuccess: (response) => {
+        setTotalPage(response?.object?.totalPages);
+      },
+      onError: (error: AxiosError<{ message: string }>) => {
+        ToastAndroid.show("Không thể lấy dữ liệu", ToastAndroid.SHORT);
+      },
     }
-
-    closeModal();
-  };
-  const adSignDisabled = (d: any) => {
-    const statusPL =
-      userInfoC?.email === d.createdBy ? ["NEW"] : ["WAIT_SIGN_A"];
-    return !statusPL.includes(d?.statusCurrent);
-  };
-
-  const adRejectDisabled = (d: any) => {
-    const statusPL = userInfoC?.email == d.createdBy ? [] : ["WAIT_SIGN_A"];
-    return !statusPL.includes(d?.statusCurrent);
-  };
-  const adSendCustomerDisabled = (d: any) => {
-    const statusPL = userInfoC?.email == d.createdBy ? ["SIGN_A_OK"] : [""];
-    return !statusPL.includes(d?.statusCurrent);
-  };
-  const adDeleteDisabled = (d: any) => {
-    const statusPL =
-      userInfoC?.email == d.createdBy
-        ? ["NEW", "SIGN_B_FAIL"]
-        : ["SIGN_A_FAIL"];
-    return !statusPL.includes(d?.statusCurrent);
-  };
-  const handleDeleteContract = async () => {
-    try {
-      setDeleteloading(true);
-      if (contractData?.id) {
-        const res = await deleteContract(contractData?.id);
-        if (res.code == "00") {
-          closeDeleteModal();
-          ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
-          router.navigate("/new-contract");
-        } else ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
-      }
-    } catch (error) {
-      ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
-      console.log(error);
-    } finally {
-      setDeleteloading(false);
+  );
+  useEffect(() => {
+    if (prevPageRef.current !== page || prevSizeRef.current !== size) {
+      prevPageRef.current = page;
+      prevSizeRef.current = size;
+      refetch();
     }
-  };
+  }, [page, refetch, size]);
 
   return (
     <View style={styles.container}>
-      {contractData && (
-        <Pdf
-          trustAllCerts={false}
-          source={{
-            uri: contractData.file,
-            cache: true,
-          }}
-          onLoadComplete={(numberOfPages, filePath) => {
-            console.log(`Number of pages: ${numberOfPages}`);
-          }}
-          onPageChanged={(page, numberOfPages) => {
-            console.log(`Current page: ${page}`);
-          }}
-          onError={(error) => {
-            console.log(error);
-          }}
-          onPressLink={(uri) => {
-            console.log(`Link pressed: ${uri}`);
-          }}
-          style={styles.pdf}
-        />
-      )}
-      {commentVisible && (
-        <Modal
-          animationType="fade"
-          transparent={true}
-          onRequestClose={closeModal}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginHorizontal: 20,
+          marginVertical: 10,
+        }}
+      >
+        <TouchableOpacity style={styles.contractStatus} onPress={openStatus}>
+          <Text
+            style={{
+              padding: 5,
+            }}
+          >
+            Trạng thái hợp đồng ▼
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.header}>
+        <Text
+          style={[
+            styles.headerCell,
+            { flex: 0.15, fontSize: 12.5, textAlign: "center" },
+          ]}
         >
-          <TouchableWithoutFeedback onPress={closeModal}>
-            <View style={styles.modalOverlay} />
-          </TouchableWithoutFeedback>
-          <View style={styles.modalContent1}>
-            <View style={styles.seperator} />
-            {userInfoC?.role == "ADMIN" && (
-              <>
-                <TouchableOpacity
-                  disabled={adSignDisabled(contractData)}
-                  onPress={() => handleAction("Xem")}
-                >
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text style={[styles.menuOptionText, { color: "teal" }]}>
-                      ✍🏼 Ký hợp đồng
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-
-                <View style={[styles.seperator]} />
-                <TouchableOpacity
-                  disabled={adRejectDisabled(contractData)}
-                  onPress={() => handleAction("Từ chối ký")}
-                >
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text
-                      style={[styles.menuOptionText, { color: "royalblue" }]}
-                    >
-                      ↩️ Từ chối ký
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-                <View style={styles.seperator} />
-                <TouchableOpacity
-                  onPress={() => handleAction("Gửi cho khách hàng")}
-                  disabled={adSendCustomerDisabled(contractData)}
-                >
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text style={[styles.menuOptionText, { color: "orchid" }]}>
-                      📧 Gửi khách hàng
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-                <View style={styles.seperator} />
-                {(contractData?.status == "SUCCESS" ||
-                  contractData?.statusCurrent == "SUCCESS") && (
-                  <>
-                    <TouchableOpacity onPress={() => handleAction("phụ lục")}>
-                      <View
-                        style={{
-                          display: "flex",
-                          flexDirection: "row",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Text
-                          style={[styles.menuOptionText, { color: "orange" }]}
-                        >
-                          🏷️ Phụ lục
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                    <View style={styles.seperator} />
-                  </>
-                )}
-
-                <TouchableOpacity
-                  disabled={adDeleteDisabled(contractData)}
-                  onPress={() => openDeleteModal(contractData)}
-                >
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text style={[styles.menuOptionText, { color: "red" }]}>
-                      🚨 Xoá
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </>
-            )}
-            {userInfoC?.role == "USER" &&
-              userInfoC?.permissions.includes("OFFICE_ADMIN") && (
-                <>
-                  <TouchableOpacity
-                    onPress={() => handleAction("Duyệt hợp đồng")}
-                    disabled={!contractData.canApprove}
-                  >
-                    <View
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text style={[styles.menuOptionText, { color: "green" }]}>
-                        ✅ Xác nhận duyệt
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                  <View style={styles.seperator} />
-                  <TouchableOpacity
-                    onPress={() => handleAction("Từ chối duyệt")}
-                    disabled={!contractData.canApprove}
-                  >
-                    <View
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text
-                        style={[styles.menuOptionText, { color: "royalblue" }]}
-                      >
-                        ↩️ Từ chối duyệt
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                  <View style={styles.seperator} />
-                  <TouchableOpacity
-                    onPress={() => handleAction("Trình ký")}
-                    disabled={!contractData?.canSendForMng}
-                  >
-                    <View
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text
-                        style={[styles.menuOptionText, { color: "goldenrod" }]}
-                      >
-                        ✍️ Trình ký
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => handleAction("Gửi cho khách hàng")}
-                    disabled={!contractData?.canSendForCustomer}
-                  >
-                    <View
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text
-                        style={[styles.menuOptionText, { color: "orchid" }]}
-                      >
-                        📧 Gửi khách hàng
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                  {(contractData?.status == "SUCCESS" ||
-                    contractData?.statusCurrent == "SUCCESS") && (
-                    <>
-                      <TouchableOpacity onPress={() => handleAction("phụ lục")}>
-                        <View
-                          style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Text
-                            style={[styles.menuOptionText, { color: "orange" }]}
-                          >
-                            🏷️ Phụ lục
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                      <View style={styles.seperator} />
-                    </>
-                  )}
-                  <TouchableOpacity
-                    disabled={!contractData?.canDelete}
-                    onPress={() => openDeleteModal(contractData)}
-                  >
-                    <View
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text style={[styles.menuOptionText, { color: "red" }]}>
-                        🚨 Xóa
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </>
-              )}
-            {userInfoC?.role == "USER" &&
-              userInfoC?.permissions.includes("SALE") && (
-                <>
-                  <TouchableOpacity
-                    disabled={
-                      !contractData?.canSend ||
-                      contractData?.status == "SUCCESS" ||
-                      contractData?.statusCurrent == "SUCCESS"
-                    }
-                    onPress={() => handleAction("Trình duyệt")}
-                  >
+          STT
+        </Text>
+        <Text style={[styles.headerCell, { flex: 0.38, paddingRight: 0 }]}>
+          Tên hợp đồng
+        </Text>
+        <Text
+          style={[
+            styles.headerCell,
+            {
+              flex: 0.35,
+              textAlign: "center",
+              paddingHorizontal: 0,
+            },
+          ]}
+        >
+          Người tạo
+        </Text>
+        <Text
+          style={[
+            styles.headerCell,
+            {
+              flex: 0.3,
+              textAlign: "left",
+              paddingLeft: 0,
+            },
+          ]}
+        >
+          Trạng thái
+        </Text>
+        <Text style={[styles.headerCell, { flex: 0.15 }]}>Hành động</Text>
+      </View>
+      {/* <FlatList
+        data={data?.object?.content}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+      /> */}
+      <ScrollView>
+        {data?.object?.content.map((item: any, index: number) => (
+          <View style={styles.row} key={item.id}>
+            <Text
+              style={[
+                styles.cell,
+                { flex: 0.15, textAlign: "center", padding: 2 },
+              ]}
+            >
+              {(index + 1).toString()}
+            </Text>
+            <Text style={[styles.cell, { flex: 0.38, paddingRight: 0 }]}>
+              {item.name}
+              {item?.status != "SUCCESS" && item?.urgent && "❗"}
+            </Text>
+            <View style={[styles.cell, { flex: 0.35, padding: 2 }]}>
+              {/* <Text style={{ fontSize: 12.5 }}>
+                {item.user.email.split("").length > 9
+                  ? item.user.email.split("").slice(0, 9).join("") + "..."
+                  : item.user.email}
+              </Text> */}
+              <Text
+                // selectable
+                style={{
+                  fontSize: 12.5,
+                  paddingRight: 10,
+                }}
+              >
+                {item?.createdBy}
+              </Text>
+            </View>
+            <Text
+              style={[
+                styles.cell,
+                {
+                  color: statusObject[item?.statusCurrent]?.color,
+                  flex: 0.25,
+                  textAlign: "left",
+                  fontWeight: "bold",
+                  paddingHorizontal: 0,
+                },
+              ]}
+            >
+              {item.statusCurrent
+                ? statusObject[item?.statusCurrent]?.title?.[permissionUser]
+                : ""}
+            </Text>
+            <TouchableOpacity
+              onPress={() => openModal(item)}
+              style={[
+                styles.cell,
+                {
+                  flex: 0.15,
+                  marginHorizontal: "auto",
+                },
+              ]}
+            >
+              <MaterialCommunityIcons
+                name="dots-vertical"
+                size={24}
+                color="black"
+                style={{ textAlign: "center", alignItems: "center" }}
+              />
+            </TouchableOpacity>
+            {popUp && selectedContract === item && (
+              <Modal
+                animationType="fade"
+                transparent={true}
+                onRequestClose={closeModal}
+              >
+                <TouchableWithoutFeedback onPress={closeModal}>
+                  <View style={styles.modalOverlay} />
+                </TouchableWithoutFeedback>
+                <View style={styles.modalContent1}>
+                  <TouchableOpacity onPress={() => openDetail()}>
                     <View
                       style={{
                         display: "flex",
@@ -578,22 +367,15 @@ const NotiDetail = () => {
                       <Text
                         style={[
                           styles.menuOptionText,
-                          { color: "mediumturquoise" },
+                          { color: "forestgreen" },
                         ]}
                       >
-                        📤 Trình duyệt
+                        🔎 Xem hợp đồng
                       </Text>
                     </View>
                   </TouchableOpacity>
                   <View style={styles.seperator} />
-                  <TouchableOpacity
-                    onPress={() => handleAction("Gửi cho khách hàng")}
-                    disabled={
-                      !contractData?.canSendForCustomer ||
-                      contractData?.status == "SUCCESS" ||
-                      contractData?.statusCurrent == "SUCCESS"
-                    }
-                  >
+                  <TouchableOpacity onPress={downloadModal}>
                     <View
                       style={{
                         display: "flex",
@@ -602,157 +384,264 @@ const NotiDetail = () => {
                       }}
                     >
                       <Text
-                        style={[styles.menuOptionText, { color: "orchid" }]}
+                        style={[styles.menuOptionText, { color: "dodgerblue" }]}
                       >
-                        📧 Gửi khách hàng
+                        📥 Tải hợp đồng
                       </Text>
                     </View>
                   </TouchableOpacity>
-                  {(contractData?.status == "SUCCESS" ||
-                    contractData?.statusCurrent == "SUCCESS") && (
-                    <>
-                      <TouchableOpacity onPress={() => handleAction("phụ lục")}>
-                        <View
-                          style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Text
-                            style={[styles.menuOptionText, { color: "orange" }]}
-                          >
-                            🏷️ Phụ lục
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                      <View style={styles.seperator} />
-                    </>
-                  )}
-
-                  <TouchableOpacity
-                    disabled={!contractData?.canDelete}
-                    onPress={() => openDeleteModal(contractData)}
-                  >
-                    <View
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text style={[styles.menuOptionText, { color: "red" }]}>
-                        🚨 Xóa
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </>
-              )}
+                </View>
+              </Modal>
+            )}
           </View>
-        </Modal>
-      )}
-      {deleteModal && (
+        ))}
+      </ScrollView>
+      <Modal transparent={true} visible={isLoading} animationType="fade">
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <LottieView
+            autoPlay
+            loop
+            style={{ width: 150, height: 150 }}
+            source={require("@/assets/load.json")}
+          />
+        </View>
+      </Modal>
+      {statusModal && (
         <Modal
           animationType="fade"
           transparent={true}
-          onRequestClose={closeDeleteModal}
+          onRequestClose={closeStatus}
         >
-          <TouchableWithoutFeedback onPress={closeDeleteModal}>
+          <TouchableWithoutFeedback onPress={closeStatus}>
             <View style={styles.modalOverlay} />
           </TouchableWithoutFeedback>
-          <View style={styles.modalContentDelete}>
-            <TouchableOpacity onPress={closeDeleteModal}>
-              <Text
-                style={{
-                  fontSize: 20,
-                  marginBottom: 10,
-                  alignSelf: "flex-end",
-                }}
-              >
-                ✘
-              </Text>
-            </TouchableOpacity>
-            <Text
+          <View
+            style={{
+              alignItems: "center",
+              justifyContent: "flex-start",
+              backgroundColor: "white",
+              position: "absolute",
+              width: "80%",
+              height: "auto",
+              borderRadius: 10,
+              top: "50%",
+              left: "50%",
+              transform: [
+                { translateX: -(Dimensions.get("window").width * 0.4) },
+                { translateY: -(Dimensions.get("window").height * 0.2) },
+              ],
+            }}
+          >
+            <View
               style={{
-                textAlign: "center",
-                fontSize: 20,
-                marginBottom: 20,
+                width: "100%",
+                flexDirection: "row",
+                justifyContent: "space-between",
               }}
             >
-              Xác nhận xoá hợp đồng{" "}
-              <Text
-                style={{
-                  fontWeight: "bold",
-                  fontSize: 25,
-                  fontStyle: "italic",
-                }}
-              >
-                {contractData?.name}
-              </Text>
-            </Text>
-            <TouchableOpacity
-              style={{
-                backgroundColor: "crimson",
-                padding: 10,
-                borderRadius: 20,
-                width: 80,
-                alignSelf: "flex-end",
-              }}
-              onPress={handleDeleteContract}
-              disabled={deleteloading}
-            >
-              {deleteloading ? (
-                <ActivityIndicator size="small" color="white" />
-              ) : (
-                <Text style={{ color: "white", textAlign: "center" }}>
-                  <FontAwesome5 name="trash" size={14} />
-                  <Text> </Text>
-                  Xoá
+              <Text></Text>
+              <TouchableOpacity onPress={closeModal}>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    // marginBottom: 5,
+                    paddingRight: 15,
+                  }}
+                >
+                  ✘
                 </Text>
-              )}
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </View>
+            <View style={{ paddingHorizontal: 2 }}>
+              {menuContract[permissionUser]?.map((item: any) => (
+                <TouchableOpacity
+                  key={item.id}
+                  onPress={() => {
+                    setStatusContract(item);
+                    closeStatus();
+                  }}
+                >
+                  <Text
+                    key={item.id}
+                    style={{
+                      fontSize: 20,
+                      padding: 5,
+                      borderBottomWidth: 1,
+                      borderBottomColor: "gainsboro",
+                      fontWeight: "bold",
+                      marginVertical: 5,
+                    }}
+                  >
+                    {item.title}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         </Modal>
       )}
+      <Modal
+        transparent={true}
+        animationType="fade"
+        visible={detail}
+        onRequestClose={closeDetail}
+      >
+        <View style={styles.modalContainer}>
+          <View>
+            <TouchableOpacity onPress={closeDetail}>
+              <AntDesign
+                style={styles.closeButton}
+                name="closecircle"
+                size={28}
+                color="black"
+              />
+            </TouchableOpacity>
 
-      <View style={styles.signButton}>
-        <TouchableOpacity onPress={openComment}>
-          <Feather name="list" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
+            <Pdf
+              trustAllCerts={false}
+              source={{
+                uri: selectedContract?.file,
+                cache: true,
+              }}
+              style={styles.pdf}
+            />
+          </View>
+          <View style={{ height: 20 }}></View>
+        </View>
+      </Modal>
+      <Modal transparent={true} visible={download} animationType="fade">
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <LottieView
+            autoPlay
+            loop
+            style={{ width: 150, height: 150 }}
+            source={require("@/assets/load.json")}
+          />
+
+          <WebView
+            style={{ display: "none" }}
+            source={{ uri: selectedContract?.file }}
+          />
+        </View>
+      </Modal>
+      {data && data?.object.content?.length != 0 ? (
+        <Pagination
+          totalPages={totalPage}
+          currentPage={page + 1}
+          size={size}
+          setSize={setSize}
+          setPage={setPage}
+          onPageChange={handlePageChange}
+        />
+      ) : (
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
+          <Text
+            style={{
+              fontSize: 18,
+              color: "gray",
+              opacity: 0.5,
+              fontWeight: "bold",
+            }}
+          >
+            Không có hợp đồng
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
-
-export default NotiDetail;
-
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "flex-start",
+    maxHeight: "99.9%",
+    paddingVertical: 5,
+    backgroundColor: "#fff",
+  },
+  header: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    // borderTopWidth: 1,
+    borderBottomColor: "#000",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 0,
   },
-  pdf: {
+  headerCell: {
+    flex: 0.2,
+    fontWeight: "bold",
+    fontSize: 12.5,
+    padding: 5,
+    textAlign: "left",
+  },
+  textGap: {
+    marginVertical: 2,
+  },
+  row: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+    textAlign: "center",
+    alignItems: "center",
+  },
+  cell: {
+    flex: 0.2,
+    fontSize: 12.5,
+    padding: 8,
+    textAlign: "left",
+    alignItems: "center",
+  },
+
+  linkText: {
+    color: "blue",
+    textAlign: "center",
+  },
+  loader: {
+    alignItems: "center",
+    justifyContent: "center",
     flex: 1,
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height,
   },
-  signButton: {
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
     position: "absolute",
-    right: 20,
+    left: "10%",
+    width: "80%",
+    padding: 20,
+    paddingTop: 0,
+    backgroundColor: "white",
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  closeButton: {
+    marginTop: 20,
+    marginBottom: 5,
+    color: "#03ecfc",
+    width: 50,
+    borderRadius: 50,
     textAlign: "center",
     alignContent: "center",
     alignItems: "center",
-    justifyContent: "center",
-    bottom: 20,
-    elevation: 1,
-    backgroundColor: "mediumturquoise",
-    width: 50,
-    height: 50,
-    zIndex: 1,
-    shadowColor: "darkgray",
-    borderRadius: 50,
+    alignSelf: "center",
   },
   modalOverlay: {
     flex: 1,
@@ -774,7 +663,7 @@ const styles = StyleSheet.create({
     left: "50%",
     transform: [
       { translateX: -(Dimensions.get("window").width * 0.4) },
-      { translateY: -(Dimensions.get("window").height * 0.2) },
+      { translateY: -(Dimensions.get("window").height * 0.1) },
     ],
   },
   menuOptionText: {
@@ -784,19 +673,24 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
+
+  pdf: {
+    width: width * 0.99,
+    height: height * 0.92,
+  },
   seperator: {
     borderBottomWidth: 1,
     borderColor: "#ccc",
     width: "82%",
   },
-  modalContentDelete: {
-    position: "absolute",
-    bottom: "38%",
-    left: "10%",
-    width: "80%",
-    padding: 20,
-    paddingTop: 0,
-    backgroundColor: "red",
-    borderRadius: 10,
+  contractStatus: {
+    borderRadius: 5,
+    borderWidth: 1,
+    borderBlockColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+    margin: "auto",
+    width: 180,
   },
 });
+export default ContractAppendix;
