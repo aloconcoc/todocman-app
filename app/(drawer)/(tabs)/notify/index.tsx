@@ -59,7 +59,7 @@ const NotifyScreen = () => {
       );
     } else if (noti?.typeNotification == "APPENDICES CONTRACT") {
       router.navigate(
-        "/(drawer)(tabs)/new-contract/appendix" + noti?.contractId
+        "/(drawer)(tabs)/new-contract/appendix/" + noti?.contractId
       );
     }
     if (!noti?.markRead) {

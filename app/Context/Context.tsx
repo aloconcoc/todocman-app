@@ -13,6 +13,7 @@ export const AppProvider = ({ children }: any) => {
   const [userInfoC, setUserInfoC] = useState("");
   const [loadingPopupVisible, setLoadingPopupVisible] = useState(false);
   const [oldName, setOldName] = useState("");
+  const [realTime, setRealTime] = useState<any>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -60,6 +61,8 @@ export const AppProvider = ({ children }: any) => {
           setLoadingPopupVisible,
           oldName,
           setOldName,
+          realTime,
+          setRealTime,
         } as any
       }
     >

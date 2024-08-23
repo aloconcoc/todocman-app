@@ -44,6 +44,10 @@ const Sign = ({
   const getSMSQuery = useMutation(getSMSCode);
 
   const openOTP = () => {
+    if (!signText) {
+      ToastAndroid.show("Vui lòng ký trước khi xác nhận!", ToastAndroid.SHORT);
+      return;
+    }
     setCheckOTP(true);
   };
   const closeOTP = () => {
@@ -85,11 +89,18 @@ const Sign = ({
           "Xác thực người dùng thành công!",
           ToastAndroid.SHORT
         );
-        setCheckOTP(false);
         await handleExport();
-      } else ToastAndroid.show("OTP không chính xác", ToastAndroid.SHORT);
+        setCheckOTP(false);
+        router.navigate(
+          "/(drawer)/(tabs)/new-contract/details/" + contractData?.id
+        );
+      } else {
+        ToastAndroid.show("OTP không chính xác", ToastAndroid.SHORT);
+        setCheckOTP(false);
+      }
     } catch (e) {
       ToastAndroid.show("Có lỗi xảy ra", ToastAndroid.SHORT);
+      setCheckOTP(false);
     }
   };
 
@@ -117,10 +128,6 @@ const Sign = ({
   });
 
   const handleExport = async () => {
-    if (!signText) {
-      ToastAndroid.show("Vui lòng ký trước khi xác nhận!", ToastAndroid.SHORT);
-      return;
-    }
     const dataRequest = {
       contractId: contractData?.id,
       signImage: signText,

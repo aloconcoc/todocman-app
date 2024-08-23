@@ -62,14 +62,13 @@ const NotifyContext = createContext<MyContextValue>({
 });
 
 const NotifyProvider: React.FC<Props> = ({ children }) => {
-  const { userInfoC }: any = useContext(AppContext);
+  const { userInfoC, realTime, setRealTime }: any = useContext(AppContext);
   const [notifications, setNotifications] = useState<NotificationData[] | []>(
     []
   );
   const [totalNotRead, setTotalNotRead] = useState<number | 0>(0);
   const page = useRef<number>(0);
   const totalPages = useRef<number>(0);
-  const [realTime, setRealTime] = useState<any>();
 
   const readNotifyQuery = useMutation(readNotify);
   const getNotifyDataQuery = useMutation(getNotification, {
@@ -129,7 +128,6 @@ const NotifyProvider: React.FC<Props> = ({ children }) => {
               ...prevNotifications,
             ]);
             setRealTime(new Date());
-            console.log("da set");
           }
         }
       );
