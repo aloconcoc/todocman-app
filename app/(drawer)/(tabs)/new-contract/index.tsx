@@ -48,11 +48,11 @@ const NewContract = () => {
   const prevPageRef = useRef(page);
   const prevSizeRef = useRef(size);
   const [popUp, setPopUp] = useState(false);
-  const { userInfoC }: any = useContext(AppContext);
+  const { userInfoC, realTime }: any = useContext(AppContext);
   const [deleteModal, setDeleteModal] = useState(false);
   const [statusModal, setStatusModal] = useState(false);
   const [deleteloading, setDeleteloading] = useState(false);
-  const { realTime } = useNotification();
+
   const [statusContract, setStatusContract] = useState<any>({
     id: 1,
     title: "Quản lí hợp đồng",
@@ -166,19 +166,8 @@ const NewContract = () => {
     OFFICE_STAFF: [],
   };
 
-  // useEffect(() => {
-  //   const checkUser = async () => {
-  //     const c = await getUserInfo();
-  //     if (!c) {
-  //       router.navigate("(auth/signin)");
-  //     }
-  //     setUserInfo(c);
-  //   };
-  //   checkUser();
-  // }, []);
-
-  const { data, isLoading, isError, refetch, error } = useQuery(
-    ["new-contract", userInfoC?.id, statusContract?.status, realTime],
+  const { data, isLoading, isFetching, refetch, error } = useQuery(
+    ["new-contract", userInfoC?.id, statusContract?.status],
     () => getNewContract(page, size, statusContract?.status),
     {
       onSuccess: (response) => {
@@ -193,7 +182,9 @@ const NewContract = () => {
       },
     }
   );
-
+  useEffect(() => {
+    refetch();
+  }, [realTime]);
   useEffect(() => {
     if (prevPageRef.current !== page || prevSizeRef.current !== size) {
       prevPageRef.current = page;
@@ -329,7 +320,7 @@ const NewContract = () => {
       console.log("sta1");
     } else if (action == "phụ lục") {
       router.navigate({
-        pathname: "/new-contract/appendix",
+        pathname: "/new-contract/appendix/[id]",
         params: { id: JSON.stringify(selectedContract?.id) },
       });
     }
@@ -1348,6 +1339,19 @@ const NewContract = () => {
           />
         </View>
       </Modal>
+      <Modal transparent={true} visible={isFetching} animationType="fade">
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "transparent",
+          }}
+        >
+          <ActivityIndicator size="large" color="gray" />
+        </View>
+      </Modal>
+
       {statusModal && (
         <Modal
           animationType="fade"
