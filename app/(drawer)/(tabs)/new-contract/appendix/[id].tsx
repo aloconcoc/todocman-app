@@ -32,8 +32,7 @@ const ContractAppendix = () => {
   const appenId = JSON.parse(id as string);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
-  const { realTime } = useNotification();
-  const { userInfoC }: any = useContext(AppContext);
+  const { userInfoC, realTime }: any = useContext(AppContext);
   const [totalPage, setTotalPage] = useState(1);
   const prevPageRef = useRef(page);
   const prevSizeRef = useRef(size);
