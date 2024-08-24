@@ -26,6 +26,7 @@ import { getContractType } from "@/services/contract-type.service";
 import { router } from "expo-router";
 import LoadingPopup from "@/components/contract/loadingOldContract";
 import { AppContext } from "@/app/Context/Context";
+import WebView from "react-native-webview";
 
 const { width, height } = Dimensions.get("window");
 
@@ -41,6 +42,7 @@ const ManageOldContract = () => {
   const prevSizeRef = useRef(size);
   const [deleteModal, setDeleteModal] = useState(false);
   const [deleteloading, setDeleteloading] = useState(false);
+  const [download, setDownload] = useState(false);
   const { loadingPopupVisible, setLoadingPopupVisible, oldName }: any =
     useContext(AppContext);
 
@@ -94,7 +96,7 @@ const ManageOldContract = () => {
   };
   const closeActionModal = () => {
     setActionModal(false);
-    setSelectedContract(null);
+    // setSelectedContract(null);
     setModalVisible(false);
   };
 
@@ -109,6 +111,13 @@ const ManageOldContract = () => {
     setDeleteModal(false);
     setSelectedContract(null);
   };
+  const downloadModal = () => {
+    setDownload(true);
+    setTimeout(() => {
+      setDownload(false);
+      closeModal();
+    }, 1000);
+  };
   const handleDeleteContract = async () => {
     try {
       if (selectedContract?.id) {
@@ -117,7 +126,7 @@ const ManageOldContract = () => {
         if (res) {
           ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
           refetch();
-          closeDeleteModal();
+          setTimeout(() => closeDeleteModal(), 1000);
         } else ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
       }
     } catch (error) {
@@ -231,14 +240,14 @@ const ManageOldContract = () => {
               justifyContent: "flex-start",
               backgroundColor: "white",
               position: "absolute",
-              width: "80%",
+              width: "70%",
               height: "auto",
               borderRadius: 10,
               top: "50%",
               left: "50%",
               transform: [
-                { translateX: -(Dimensions.get("window").width * 0.4) },
-                { translateY: -Dimensions.get("window").height * 0.1 },
+                { translateX: -(Dimensions.get("window").width * 0.35) },
+                { translateY: -Dimensions.get("window").height * 0.15 },
               ],
             }}
           >
@@ -277,7 +286,7 @@ const ManageOldContract = () => {
                     borderBottomColor: "gainsboro",
                     fontWeight: "bold",
                     marginVertical: 5,
-                    color: "dodgerblue",
+                    color: "green",
                   }}
                 >
                   🔎 Xem chi tiết
@@ -286,10 +295,7 @@ const ManageOldContract = () => {
               <TouchableOpacity
                 onPress={() => {
                   closeActionModal();
-                  router.push({
-                    pathname: "/(tabs)/download-contract",
-                    params: { contract: JSON.stringify(selectedContract) },
-                  });
+                  downloadModal();
                 }}
               >
                 <Text
@@ -300,17 +306,16 @@ const ManageOldContract = () => {
                     borderBottomColor: "gainsboro",
                     fontWeight: "bold",
                     marginVertical: 5,
-                    color: "#fabf1b",
+                    color: "dodgerblue",
                   }}
                 >
-                  📥 Tải về máy
+                  📥 Tải hợp đồng
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={openDeleteModal}
                 style={{
                   padding: 5,
-                  borderBottomWidth: 1,
                   borderBottomColor: "gainsboro",
                   marginVertical: 5,
                 }}
@@ -424,6 +429,29 @@ const ManageOldContract = () => {
           </View>
         </Modal>
       )}
+      <Modal transparent={true} visible={download} animationType="fade">
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            marginVertical: "auto",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <LottieView
+            autoPlay
+            loop
+            style={{ width: 150, height: 150 }}
+            source={require("@/assets/load.json")}
+          />
+
+          <WebView
+            style={{ display: "none" }}
+            source={{ uri: selectedContract?.file }}
+          />
+        </View>
+      </Modal>
       <LoadingPopup
         visible={loadingPopupVisible}
         setVisible={setLoadingPopupVisible}

@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   footer: {
-    borderTopWidth: 2,
+    borderTopWidth: 1,
     borderTopColor: "#000",
     paddingVertical: 10,
     alignItems: "center",
