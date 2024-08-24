@@ -112,9 +112,7 @@ const Sign = ({
 
       client.invalidateQueries("new-contract");
       setSignText("");
-      setTimeout(() => {
-        setModalVisible(false);
-      }, 1000);
+      setModalVisible(false);
     },
     onError: (error: any) => {
       console.log(error);
