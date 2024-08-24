@@ -5,8 +5,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
 
 export default function MultiSelect2({ value2, setValue2, optionCC }: any) {
-  // console.log("value2", value2);
-  // console.log("optionCC2", optionCC);
+  console.log("value2", value2);
+  console.log("optionCC2", optionCC);
 
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState(optionCC);
