@@ -28,7 +28,7 @@ import regexPatterns from "@/constants/regex.json";
 
 const LoginScreen = () => {
   const [secureEntery, setSecureEntery] = useState(true);
-  const { setUserContext }: any = useContext(AppContext);
+  const { setUserContext, setProfileDrawer }: any = useContext(AppContext);
   const [expoPushToken, setExpoPushToken] = useState("");
   const [emailValidationMessage, setEmailValidationMessage] = useState("");
 
@@ -134,7 +134,11 @@ const LoginScreen = () => {
           tokenDevice: expoPushToken,
         };
         setUserInfo(JSON.stringify(userInfoWithToken));
-
+        setProfileDrawer({
+          avatar: response?.object?.user?.avatar,
+          name: response?.object?.user?.name,
+          email: response?.object?.user?.email,
+        });
         setUserContext(response?.object?.user.id);
         ToastAndroid.show("Đăng nhập thành công!", ToastAndroid.SHORT);
         router.push("(drawer)/(tabs)/search");

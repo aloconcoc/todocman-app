@@ -67,8 +67,6 @@ const Salary = () => {
     },
     {
       onSuccess: (result) => {
-        console.log(result);
-
         setTotalPage(result?.object?.totalPages);
       },
       onError: (error: AxiosError<{ message: string }>) => {
@@ -186,14 +184,20 @@ const Salary = () => {
         <Picker
           style={{ height: 50, width: 150 }}
           selectedValue={month}
-          onValueChange={(itemValue) => setMonth(itemValue)}
+          onValueChange={(itemValue) => {
+            if (itemValue === 100) {
+              setMonth(0);
+            } else {
+              setMonth(itemValue);
+            }
+          }}
         >
-          <Picker.Item
+          {/* <Picker.Item
             label="Chọn tháng"
             value=""
             enabled={false}
             style={{ color: "gray" }}
-          />
+          /> */}
 
           <Picker.Item label="Tất cả" value={100} />
           {months.map((m) => (
@@ -285,7 +289,23 @@ const Salary = () => {
           </TouchableWithoutFeedback>
 
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Thông tin phiếu lương</Text>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <Text style={styles.modalTitle}>Thông tin phiếu lương</Text>
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  fontStyle: "italic",
+                  fontSize: 18,
+                }}
+              >
+                (VND)
+              </Text>
+            </View>
             <View style={styles.detailRow}>
               <Text style={[styles.bold, styles.label]}>Tên: </Text>
               <Text style={styles.value}>{selectedEmployee?.user.name}</Text>
@@ -297,12 +317,14 @@ const Salary = () => {
             <View style={styles.detailRow}>
               <Text style={[styles.bold, styles.label]}>Tổng doanh số </Text>
               <Text style={styles.value}>
-                {selectedEmployee?.totalValueContract}
+                {selectedEmployee?.totalValueContract.toLocaleString()}
               </Text>
             </View>
             <View style={styles.detailRow}>
               <Text style={[styles.bold, styles.label]}>Lương cứng </Text>
-              <Text style={styles.value}>{selectedEmployee?.baseSalary}</Text>
+              <Text style={styles.value}>
+                {selectedEmployee?.baseSalary.toLocaleString()}
+              </Text>
             </View>
             <View style={styles.detailRow}>
               <Text style={[styles.bold, styles.label]}>% Doanh số </Text>
@@ -321,24 +343,26 @@ const Salary = () => {
                 Thưởng đạt ngưỡng{" "}
               </Text>
               <Text style={styles.value}>
-                {selectedEmployee?.bonusReachesThreshold}
+                {selectedEmployee?.bonusReachesThreshold.toLocaleString()}
               </Text>
             </View>
             <View style={styles.detailRow}>
               <Text style={[styles.bold, styles.label]}>Trợ cấp ăn </Text>
               <Text style={styles.value}>
-                {selectedEmployee?.foodAllowance}
+                {selectedEmployee?.foodAllowance.toLocaleString()}
               </Text>
             </View>
             <View style={styles.detailRow}>
               <Text style={[styles.bold, styles.label]}>Phụ cấp </Text>
               <Text style={styles.value}>
-                {selectedEmployee?.transportationOrPhoneAllowance}
+                {selectedEmployee?.transportationOrPhoneAllowance.toLocaleString()}
               </Text>
             </View>
             <View style={[styles.detailRow, { borderBottomWidth: 0 }]}>
               <Text style={[styles.bold, styles.label]}>Tiền lương </Text>
-              <Text style={styles.value}>{selectedEmployee?.totalSalary}</Text>
+              <Text style={styles.value}>
+                {selectedEmployee?.totalSalary.toLocaleString()}
+              </Text>
             </View>
           </View>
         </Modal>
