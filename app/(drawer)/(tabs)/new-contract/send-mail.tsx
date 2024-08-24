@@ -63,24 +63,24 @@ const SendMail = () => {
     "getUserByRoleSale",
     () => getUserByPermission("SALE"),
     {
-      // onSuccess: (data) => console.log("dmSale", data),
+      onSuccess: (data) => console.log("dmSale", data),
     }
   );
   const { isLoading: loadingAdmin, data: dataAdmin } = useQuery(
     "getUserByRoleAdmin",
-    () => getUserByPermission("MANAGER")
-    // { onSuccess: (data) => console.log("dmAdmin", data) }
+    () => getUserByPermission("MANAGER"),
+    { onSuccess: (data) => console.log("dmAdmin", data) }
   );
   const { isLoading: loadingAO, data: dataAO } = useQuery(
     "getUserByRoleAdminOfficer",
-    () => getUserByPermission("OFFICE_ADMIN")
-    // { onSuccess: (data) => console.log("dmAO", data) }
+    () => getUserByPermission("OFFICE_ADMIN"),
+    { onSuccess: (data) => console.log("dmAO", data) }
   );
   const { data: dataParty } = useQuery("party-data", getParty);
   const { data: dataReason } = useQuery(
     "reason-data",
     () => getListReason(0, 50),
-    { onSuccess: (data) => setReason(data.content[0].id) }
+    { onSuccess: (data) => setReason(data.content[0]?.id) }
   );
   const { isLoading: loading, data: dataContract } = useQuery(
     "getContractDetail",
@@ -127,7 +127,10 @@ const SendMail = () => {
       contractData?.statuss == 6
     )
       return dataSale;
-    else if (contractData?.statuss == 4) return dataAdmin;
+    else if (contractData?.statuss == 4)
+      return [
+        { label: dataParty?.object?.email, value: dataParty?.object?.email },
+      ];
     else return [];
   }, [contractData?.statuss, dataAO, dataAdmin, dataSale]);
 

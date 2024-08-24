@@ -37,6 +37,7 @@ import { useNotification } from "@/app/Context/NotifyContext";
 import { ScrollView } from "react-native-gesture-handler";
 import { statusObject } from "@/components/utils/statusRequest";
 import { AppContext } from "@/app/Context/Context";
+import WebView from "react-native-webview";
 
 type STATUS = "ADMIN" | "OFFICE_ADMIN" | "SALE" | "OFFICE_STAFF";
 
@@ -52,6 +53,7 @@ const NewContract = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [statusModal, setStatusModal] = useState(false);
   const [deleteloading, setDeleteloading] = useState(false);
+  const [download, setDownload] = useState(false);
 
   const [statusContract, setStatusContract] = useState<any>({
     id: 1,
@@ -167,7 +169,7 @@ const NewContract = () => {
   };
 
   const { data, isLoading, isFetching, refetch, error } = useQuery(
-    ["new-contract", userInfoC?.id, statusContract?.status],
+    ["new-contract", statusContract?.status],
     () => getNewContract(page, size, statusContract?.status),
     {
       onSuccess: (response) => {
@@ -235,7 +237,7 @@ const NewContract = () => {
       if (selectedContract?.id) {
         const res = await deleteContract(selectedContract?.id);
         if (res.code == "00") {
-          closeDeleteModal();
+          setTimeout(() => closeDeleteModal(), 1000);
           ToastAndroid.show("Xoá hợp đồng thành công", ToastAndroid.SHORT);
           setTimeout(() => refetch(), 100);
         } else ToastAndroid.show("Xoá hợp đồng thất bại", ToastAndroid.SHORT);
@@ -348,419 +350,13 @@ const NewContract = () => {
         : ["SIGN_A_FAIL"];
     return !statusPL.includes(d?.statusCurrent);
   };
-  // const renderItem = ({ item, index }: any) => (
-  //   <View style={styles.row}>
-  //     <Text
-  //       style={[styles.cell, { flex: 0.15, textAlign: "center", padding: 2 }]}
-  //     >
-  //       {(index + 1).toString()}
-  //     </Text>
-  //     <Text
-  //       selectable={true}
-  //       style={[styles.cell, { flex: 0.38, paddingRight: 0 }]}
-  //     >
-  //       {item.name}
-  //       {item?.status != "SUCCESS" && item?.urgent && (
-  //         <Entypo name="warning" size={20} color="red" />
-  //       )}
-  //     </Text>
-
-  //     <View
-  //       style={[
-  //         styles.cell,
-  //         {
-  //           flex: 0.35,
-  //           padding: 2,
-  //         },
-  //       ]}
-  //     >
-  //       <Text selectable={true} style={{ fontSize: 12.5 }}>
-  //         {item.user.email.split("").length > 50
-  //           ? item.user.email.split("").slice(0, 50).join("") + "..."
-  //           : item.user.email}
-  //       </Text>
-  //       <Text
-  //         selectable
-  //         style={{ fontSize: 12.5, color: "green", fontWeight: "bold" }}
-  //       >
-  //         {item.user.phone}
-  //       </Text>
-  //     </View>
-
-  //     <Text
-  //       style={[
-  //         styles.cell,
-  //         {
-  //           color: item.status === "SUCCESS" ? "green" : "red",
-  //           flex: 0.25,
-  //           textAlign: "right",
-  //           fontWeight: "bold",
-  //         },
-  //       ]}
-  //     >
-  //       {item.status === "SUCCESS" ? "Thành công" : "Thất bại"}
-  //     </Text>
-
-  //     <TouchableOpacity
-  //       onPress={() => openModal(item)}
-  //       style={[
-  //         styles.cell,
-  //         {
-  //           flex: 0.15,
-  //           marginHorizontal: "auto",
-  //         },
-  //       ]}
-  //     >
-  //       <MaterialCommunityIcons
-  //         name="dots-vertical"
-  //         size={24}
-  //         color="black"
-  //         style={{ textAlign: "center", alignItems: "center" }}
-  //       />
-  //     </TouchableOpacity>
-
-  //     {popUp && selectedContract === item && (
-  //       <Modal
-  //         animationType="fade"
-  //         transparent={true}
-  //         onRequestClose={closeModal}
-  //       >
-  //         <TouchableWithoutFeedback onPress={closeModal}>
-  //           <View style={styles.modalOverlay} />
-  //         </TouchableWithoutFeedback>
-  //         <View style={styles.modalContent1}>
-  //           <TouchableOpacity onPress={() => handleAction("Xem")}>
-  //             <View
-  //               style={{
-  //                 display: "flex",
-  //                 flexDirection: "row",
-  //                 alignItems: "center",
-  //               }}
-  //             >
-  //               <Text style={[styles.menuOptionText, { color: "forestgreen" }]}>
-  //                 🔎 Xem hợp đồng
-  //               </Text>
-  //             </View>
-  //           </TouchableOpacity>
-  //           <View style={styles.seperator} />
-  //           {userInfo?.role == "ADMIN" && (
-  //             <>
-  //               <TouchableOpacity onPress={() => handleAction("Xem")}>
-  //                 <View
-  //                   style={{
-  //                     display: "flex",
-  //                     flexDirection: "row",
-  //                     alignItems: "center",
-  //                   }}
-  //                 >
-  //                   <Text
-  //                     disabled={
-  //                       (!item?.canSign && userInfo?.email != item.createdBy) ||
-  //                       item?.status == "SUCCESS" ||
-  //                       item?.statusCurrent == "SUCCESS"
-  //                     }
-  //                     style={[styles.menuOptionText, { color: "#fcb103" }]}
-  //                   >
-  //                     ✍️ Ký hợp đồng
-  //                   </Text>
-  //                 </View>
-  //               </TouchableOpacity>
-
-  //               <View style={[styles.seperator]} />
-  //               <TouchableOpacity onPress={() => handleAction("Từ chối ký")}>
-  //                 <View
-  //                   style={{
-  //                     display: "flex",
-  //                     flexDirection: "row",
-  //                     alignItems: "center",
-  //                   }}
-  //                 >
-  //                   <Text
-  //                     disabled={
-  //                       !item?.canRejectSign ||
-  //                       userInfo?.email == item.createdBy ||
-  //                       item?.status == "SUCCESS" ||
-  //                       item?.statusCurrent == "SUCCESS"
-  //                     }
-  //                     style={[styles.menuOptionText, { color: "royalblue" }]}
-  //                   >
-  //                     ↩️ Từ chối ký
-  //                   </Text>
-  //                 </View>
-  //               </TouchableOpacity>
-  //               <View style={styles.seperator} />
-  //               <TouchableOpacity
-  //                 onPress={() => handleAction("Gửi cho khách hàng")}
-  //                 disabled={!item?.canSendForCustomer}
-  //               >
-  //                 <View
-  //                   style={{
-  //                     display: "flex",
-  //                     flexDirection: "row",
-  //                     alignItems: "center",
-  //                   }}
-  //                 >
-  //                   <Text style={[styles.menuOptionText, { color: "orchid" }]}>
-  //                     📧 Gửi khách hàng
-  //                   </Text>
-  //                 </View>
-  //               </TouchableOpacity>
-  //               <View style={styles.seperator} />
-
-  //               <TouchableOpacity onPress={() => openDeleteModal(item)}>
-  //                 <View
-  //                   style={{
-  //                     display: "flex",
-  //                     flexDirection: "row",
-  //                     alignItems: "center",
-  //                   }}
-  //                 >
-  //                   <Text
-  //                     disabled={!item.canDelete}
-  //                     style={[styles.menuOptionText, { color: "red" }]}
-  //                   >
-  //                     🚨 Xoá
-  //                   </Text>
-  //                 </View>
-  //               </TouchableOpacity>
-  //             </>
-  //           )}
-  //           {userInfo?.role == "USER" &&
-  //             userInfo?.permissions.includes("OFFICE_ADMIN") && (
-  //               <>
-  //                 <TouchableOpacity
-  //                   onPress={() => handleAction("Duyệt hợp đồng")}
-  //                 >
-  //                   <View
-  //                     style={{
-  //                       display: "flex",
-  //                       flexDirection: "row",
-  //                       alignItems: "center",
-  //                     }}
-  //                   >
-  //                     <Entypo name="check" size={24} color="black" />
-  //                     <Text
-  //                       disabled={!item.canApprove}
-  //                       style={[styles.menuOptionText, { color: "green" }]}
-  //                     >
-  //                       ✅ Xác nhận duyệt
-  //                     </Text>
-  //                   </View>
-  //                 </TouchableOpacity>
-  //                 <View style={styles.seperator} />
-  //                 <TouchableOpacity
-  //                   onPress={() => handleAction("Từ chối duyệt")}
-  //                 >
-  //                   <View
-  //                     style={{
-  //                       display: "flex",
-  //                       flexDirection: "row",
-  //                       alignItems: "center",
-  //                     }}
-  //                   >
-  //                     <FontAwesome name="close" size={24} color="black" />
-  //                     <Text
-  //                       disabled={!item.canApprove}
-  //                       style={[styles.menuOptionText, { color: "royalblue" }]}
-  //                     >
-  //                       ↩️ Từ chối duyệt
-  //                     </Text>
-  //                   </View>
-  //                 </TouchableOpacity>
-  //                 <View style={styles.seperator} />
-  //                 <TouchableOpacity onPress={() => handleAction("Trình ký")}>
-  //                   <View
-  //                     style={{
-  //                       display: "flex",
-  //                       flexDirection: "row",
-  //                       alignItems: "center",
-  //                     }}
-  //                   >
-  //                     <FontAwesome5 name="signature" size={24} color="black" />
-  //                     <Text
-  //                       disabled={!item?.canSendForMng}
-  //                       style={[styles.menuOptionText, { color: "goldenrod" }]}
-  //                     >
-  //                       ✍️ Trình ký
-  //                     </Text>
-  //                   </View>
-  //                 </TouchableOpacity>
-  //                 <TouchableOpacity
-  //                   onPress={() => handleAction("Gửi cho khách hàng")}
-  //                   disabled={!item?.canSendForCustomer}
-  //                 >
-  //                   <View
-  //                     style={{
-  //                       display: "flex",
-  //                       flexDirection: "row",
-  //                       alignItems: "center",
-  //                     }}
-  //                   >
-  //                     <Text
-  //                       style={[styles.menuOptionText, { color: "orchid" }]}
-  //                     >
-  //                       📧 Gửi khách hàng
-  //                     </Text>
-  //                   </View>
-  //                 </TouchableOpacity>
-  //                 <TouchableOpacity onPress={() => openDeleteModal(item)}>
-  //                   <View
-  //                     style={{
-  //                       display: "flex",
-  //                       flexDirection: "row",
-  //                       alignItems: "center",
-  //                     }}
-  //                   >
-  //                     <FontAwesome5 name="signature" size={24} color="black" />
-  //                     <Text
-  //                       disabled={!item?.canDelete}
-  //                       style={[styles.menuOptionText, { color: "red" }]}
-  //                     >
-  //                       🚨 Xóa
-  //                     </Text>
-  //                   </View>
-  //                 </TouchableOpacity>
-  //               </>
-  //             )}
-  //           {userInfo?.role == "USER" &&
-  //             userInfo?.permissions.includes("SALE") && (
-  //               <>
-  //                 <TouchableOpacity
-  //                   disabled={
-  //                     !item?.canSend ||
-  //                     item?.status == "SUCCESS" ||
-  //                     item?.statusCurrent == "SUCCESS"
-  //                   }
-  //                   onPress={() => handleAction("Trình duyệt")}
-  //                 >
-  //                   <View
-  //                     style={{
-  //                       display: "flex",
-  //                       flexDirection: "row",
-  //                       alignItems: "center",
-  //                     }}
-  //                   >
-  //                     <FontAwesome5 name="signature" size={24} color="black" />
-  //                     <Text
-  //                       style={[
-  //                         styles.menuOptionText,
-  //                         { color: "mediumturquoise" },
-  //                       ]}
-  //                     >
-  //                       📤 Trình duyệt
-  //                     </Text>
-  //                   </View>
-  //                 </TouchableOpacity>
-  //                 <View style={styles.seperator} />
-  //                 <TouchableOpacity
-  //                   onPress={() => handleAction("Gửi cho khách hàng")}
-  //                   disabled={
-  //                     !item?.canSendForCustomer ||
-  //                     item?.status == "SUCCESS" ||
-  //                     item?.statusCurrent == "SUCCESS"
-  //                   }
-  //                 >
-  //                   <View
-  //                     style={{
-  //                       display: "flex",
-  //                       flexDirection: "row",
-  //                       alignItems: "center",
-  //                     }}
-  //                   >
-  //                     <Text
-  //                       style={[styles.menuOptionText, { color: "orchid" }]}
-  //                     >
-  //                       📧 Gửi khách hàng
-  //                     </Text>
-  //                   </View>
-  //                 </TouchableOpacity>
-  //                 <TouchableOpacity onPress={() => openDeleteModal(item)}>
-  //                   <View
-  //                     style={{
-  //                       display: "flex",
-  //                       flexDirection: "row",
-  //                       alignItems: "center",
-  //                     }}
-  //                   >
-  //                     <MaterialIcons name="delete" size={24} color="black" />
-  //                     <Text
-  //                       disabled={!item?.canDelete}
-  //                       style={[styles.menuOptionText, { color: "red" }]}
-  //                     >
-  //                       🚨 Xóa
-  //                     </Text>
-  //                   </View>
-  //                 </TouchableOpacity>
-  //               </>
-  //             )}
-  //         </View>
-  //       </Modal>
-  //     )}
-  //     {deleteModal && selectedContract && (
-  //       <Modal
-  //         animationType="fade"
-  //         transparent={true}
-  //         onRequestClose={closeModal}
-  //       >
-  //         <TouchableWithoutFeedback onPress={closeDeleteModal}>
-  //           <View style={styles.modalOverlay} />
-  //         </TouchableWithoutFeedback>
-  //         <View style={styles.modalContent}>
-  //           <TouchableOpacity onPress={closeDeleteModal}>
-  //             <Text
-  //               style={{
-  //                 fontSize: 20,
-  //                 marginBottom: 10,
-  //                 alignSelf: "flex-end",
-  //               }}
-  //             >
-  //               ✘
-  //             </Text>
-  //           </TouchableOpacity>
-  //           <Text
-  //             style={{
-  //               textAlign: "center",
-  //               fontSize: 20,
-  //               marginBottom: 20,
-  //             }}
-  //           >
-  //             Xác nhận xoá hợp đồng{" "}
-  //             <Text
-  //               style={{
-  //                 fontWeight: "bold",
-  //                 fontSize: 25,
-  //                 fontStyle: "italic",
-  //               }}
-  //             >
-  //               {selectedContract?.name}
-  //             </Text>
-  //           </Text>
-  //           <TouchableOpacity
-  //             style={{
-  //               backgroundColor: "crimson",
-  //               padding: 10,
-  //               borderRadius: 20,
-  //               width: 80,
-  //               alignSelf: "flex-end",
-  //             }}
-  //             onPress={handleDeleteContract}
-  //             disabled={deleteloading}
-  //           >
-  //             {deleteloading ? (
-  //               <ActivityIndicator size="small" color="white" />
-  //             ) : (
-  //               <Text style={{ color: "white", textAlign: "center" }}>
-  //                 <FontAwesome5 name="trash" size={14} />
-  //                 <Text> </Text>
-  //                 Xoá
-  //               </Text>
-  //             )}
-  //           </TouchableOpacity>
-  //         </View>
-  //       </Modal>
-  //     )}
-  //   </View>
-  // );
+  const downloadModal = () => {
+    setDownload(true);
+    setTimeout(() => {
+      setDownload(false);
+      closeModal();
+    }, 1000);
+  };
 
   return (
     <View style={styles.container}>
@@ -963,7 +559,7 @@ const NewContract = () => {
                           }}
                         >
                           <Text
-                            style={[styles.menuOptionText, { color: "orchid" }]}
+                            style={[styles.menuOptionText, { color: "orange" }]}
                           >
                             📧 Gửi khách hàng
                           </Text>
@@ -1099,7 +695,7 @@ const NewContract = () => {
                             <Text
                               style={[
                                 styles.menuOptionText,
-                                { color: "orchid" },
+                                { color: "orange" },
                               ]}
                             >
                               📧 Gửi khách hàng
@@ -1171,12 +767,9 @@ const NewContract = () => {
                             }}
                           >
                             <Text
-                              style={[
-                                styles.menuOptionText,
-                                { color: "mediumturquoise" },
-                              ]}
+                              style={[styles.menuOptionText, { color: "teal" }]}
                             >
-                              📤 Trình duyệt
+                              ↪️ Trình duyệt
                             </Text>
                           </View>
                         </TouchableOpacity>
@@ -1199,13 +792,14 @@ const NewContract = () => {
                             <Text
                               style={[
                                 styles.menuOptionText,
-                                { color: "orchid" },
+                                { color: "orange" },
                               ]}
                             >
                               📧 Gửi khách hàng
                             </Text>
                           </View>
                         </TouchableOpacity>
+                        <View style={styles.seperator} />
                         {(item?.status == "SUCCESS" ||
                           item?.statusCurrent == "SUCCESS") && (
                           <>
@@ -1251,11 +845,49 @@ const NewContract = () => {
                             </Text>
                           </View>
                         </TouchableOpacity>
+                        <View style={styles.seperator} />
                       </>
                     )}
+                  <TouchableOpacity onPress={downloadModal}>
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={[styles.menuOptionText, { color: "dodgerblue" }]}
+                      >
+                        📥 Tải hợp đồng
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
                 </View>
               </Modal>
             )}
+            <Modal transparent={true} visible={download} animationType="fade">
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                }}
+              >
+                <LottieView
+                  autoPlay
+                  loop
+                  style={{ width: 150, height: 150 }}
+                  source={require("@/assets/load.json")}
+                />
+
+                <WebView
+                  style={{ display: "none" }}
+                  source={{ uri: selectedContract?.file }}
+                />
+              </View>
+            </Modal>
             {deleteModal && selectedContract && (
               <Modal
                 animationType="fade"
@@ -1322,13 +954,13 @@ const NewContract = () => {
           </View>
         ))}
       </ScrollView>
-      <Modal transparent={true} visible={isLoading} animationType="fade">
+      {/* <Modal transparent={true} visible={isLoading} animationType="fade">
         <View
           style={{
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backgroundColor: "transparent",
           }}
         >
           <LottieView
@@ -1338,7 +970,7 @@ const NewContract = () => {
             source={require("@/assets/load.json")}
           />
         </View>
-      </Modal>
+      </Modal> */}
       <Modal transparent={true} visible={isFetching} animationType="fade">
         <View
           style={{
@@ -1348,7 +980,7 @@ const NewContract = () => {
             backgroundColor: "transparent",
           }}
         >
-          <ActivityIndicator size="large" color="gray" />
+          <ActivityIndicator size="large" color="#ccc" />
         </View>
       </Modal>
 
@@ -1513,7 +1145,7 @@ const styles = StyleSheet.create({
     width: "80%",
     padding: 20,
     paddingTop: 0,
-    backgroundColor: "red",
+    backgroundColor: "white",
     borderRadius: 10,
   },
   modalTitle: {
