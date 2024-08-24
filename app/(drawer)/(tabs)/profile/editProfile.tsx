@@ -28,12 +28,15 @@ import RNDateTimePicker from "@react-native-community/datetimepicker";
 import mime from "mime";
 import { AxiosError } from "axios";
 import regexPatterns from "@/constants/regex.json";
+import moment from "moment";
 
 const EditProfile = () => {
   const client = useQueryClient();
   const [avatar, setAvatar] = useState<any>();
   const [datePickerState, setDatePickerState] = useState(false);
   const [date, setDate] = useState<Date>(new Date());
+  console.log("1date", date);
+
   const { userContext }: any = useContext(AppContext);
   const [ocr, setOcr] = useState<any>();
   const [gender, setGender] = useState<string>("");
@@ -109,7 +112,10 @@ const EditProfile = () => {
         if (response.object) {
           reset({
             ...response.object,
-
+            dob:
+              response.object?.dob != null || response.object?.dob != "null"
+                ? moment(response.object?.dob).format("YYYY-MM-DD")
+                : response.object?.dob,
             address:
               response.object?.address != null ||
               response.object?.address != "null"
@@ -154,9 +160,19 @@ const EditProfile = () => {
   );
   useEffect(() => {
     if (data?.object) {
+      console.log("dumalala: ", data?.object);
+
       reset({
         ...data.object,
+        dob:
+          data.object?.dob != null
+            ? moment(data.object?.dob).format("YYYY-MM-DD")
+            : data.object?.dob,
       });
+      console.log("dddd:", data.object?.dob);
+
+      setDate(new Date(data.object?.dob));
+
       setAvatar(data.object?.avatar == null ? avatar : data.object?.avatar);
     }
   }, [data, reset]);
@@ -164,6 +180,8 @@ const EditProfile = () => {
   const onChangeDate = (selectedDate: any) => {
     setDatePickerState(false);
     if (selectedDate) {
+      console.log("chon ngay", selectedDate);
+
       setDate(selectedDate);
     } else {
       setDate(new Date());
@@ -209,10 +227,11 @@ const EditProfile = () => {
         const day = String(date.getDate()).padStart(2, "0");
         data.dob = `${day}/${month}/${year}`;
       }
-      data = {
-        gender: gender === "male" ? true : gender === "female" ? false : null,
-      };
-
+      if (data.gender === "male") {
+        data.gender = true;
+      } else if (data.gender === "female") {
+        data.gender = false;
+      }
       const formData = new FormData();
       for (const key in data) {
         formData.append(key, data[key]);
@@ -223,6 +242,7 @@ const EditProfile = () => {
       }
 
       mutation.mutate(formData);
+      console.log("Mutation", formData);
     } catch (error) {
       console.log("error", error);
     }
