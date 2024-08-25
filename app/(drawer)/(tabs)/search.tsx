@@ -85,6 +85,7 @@ const SearchScreen = () => {
 
   return (
     <View style={styles.container}>
+      {/* <Button title="ok" onPress={() => router.navigate("home")}></Button> */}
       <View style={styles.searchContainer}>
         <Ionicons
           name="search"

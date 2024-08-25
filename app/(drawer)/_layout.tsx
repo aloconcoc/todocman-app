@@ -27,14 +27,14 @@ const CustomDrawerContent = (props: any) => {
   const pathname = usePathname();
   const { userContext, setUserContext, userInfoC, setUserInfoC }: any =
     useContext(AppContext);
-  console.log("ddd", userContext);
+  // console.log("ddd", userContext);
 
   const { data } = useQuery(
     ["userDetail", userContext],
     () => getProfile(userContext),
     {
       onSuccess: (response) => {
-        console.log("responseeeee", response);
+        // console.log("responseeeee", response);
         setUserInfoC(response?.object);
       },
       onError: (error: AxiosError<{ message: string }>) => {
@@ -48,7 +48,7 @@ const CustomDrawerContent = (props: any) => {
   useEffect(() => {
     const checkUser = async () => {
       const c = await getToken();
-      console.log("aaa", c);
+      // console.log("aaa", c);
 
       if (!c) {
         router.navigate("(auth)/signin");

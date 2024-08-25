@@ -342,8 +342,8 @@ export default function UploadOldContract() {
     } catch (error) {
       console.error("Lỗi OCR", error);
     } finally {
-      setLoadingOcr(false);
       handleCreateOldContract.mutate(formData);
+      setLoadingOcr(false);
     }
   };
 
@@ -722,7 +722,12 @@ export default function UploadOldContract() {
       {selectedPdf?.name && (
         <View>
           <Text
-            style={{ fontSize: 20, fontWeight: "bold", marginVertical: 10 }}
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              marginVertical: 10,
+              marginLeft: 10,
+            }}
           >
             Tệp PDF
           </Text>
@@ -739,6 +744,9 @@ export default function UploadOldContract() {
             </Text>
             <Ionicons.Button
               name="trash"
+              iconStyle={{
+                paddingLeft: 5,
+              }}
               onPress={() => {
                 setIspdf(false);
                 setSelectedPdf(null);

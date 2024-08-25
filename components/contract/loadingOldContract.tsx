@@ -49,7 +49,7 @@ const LoadingPopup = ({ visible, setVisible, oldName }: any) => {
           <Text style={styles.closeText}>x</Text>
         </TouchableOpacity>
         <View style={styles.content}>
-          <Text numberOfLines={1} ellipsizeMode="tail">
+          <Text numberOfLines={2} ellipsizeMode="tail">
             {oldName}
           </Text>
           <ActivityIndicator size="small" color="dodgerblue" />
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
   activityIndicatorWrapper: {
     backgroundColor: "#FFFFFF",
-    height: 100,
+    height: 80,
     width: 200,
     borderRadius: 12,
     alignItems: "center",
@@ -83,12 +83,15 @@ const styles = StyleSheet.create({
     bottom: 10,
     right: 10,
     elevation: 4,
-    padding: 10,
+    paddingHorizontal: 10,
   },
   closeButton: {
     alignSelf: "flex-end",
+    position: "absolute",
+    top: 0,
+    right: 0,
+    paddingHorizontal: 8,
     borderRadius: 12,
-    marginTop: -10,
   },
   closeText: {
     fontSize: 20,
@@ -98,6 +101,7 @@ const styles = StyleSheet.create({
   content: {
     flexDirection: "row",
     alignItems: "center",
+    paddingHorizontal: 10,
   },
   progressText: {
     marginTop: 10,
