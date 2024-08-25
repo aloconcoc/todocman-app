@@ -1,4 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import { ToastAndroid } from "react-native";
 export interface UserData {
   id: string;
   address: string;
@@ -12,23 +14,54 @@ export interface UserData {
   phone: string;
   position: string;
 }
-export const getToken = async () => {
+export const getToken = async (): Promise<string | null> => {
   try {
-    const value = await AsyncStorage.getItem("token");
-    if (value !== null) {
-      // console.log("token: ", value);
+    const tokenDataString = await AsyncStorage.getItem("token");
 
-      return value;
+    if (tokenDataString !== null) {
+      const tokenData = JSON.parse(tokenDataString);
+      const now = new Date().getTime();
+
+      // Kiểm tra xem token đã hết hạn chưa
+      if (now > tokenData.expiry) {
+        console.log("Token đã hết hạn");
+        ToastAndroid.showWithGravity(
+          "Phiên đăng nhập đã hết hạn",
+          ToastAndroid.SHORT,
+          ToastAndroid.CENTER
+        );
+        await clearAll(); // Xóa token hết hạn
+        router.navigate("(auth)/signin");
+
+        return null;
+      }
+
+      return tokenData.token; // Trả về token nếu còn hợp lệ
     }
+
+    return null; // Không có token nào được lưu
   } catch (e) {
-    console.log(e);
+    console.log("Lỗi khi lấy token: ", e);
+    return null;
   }
 };
-export const setToken = async (token: string) => {
+
+export const setToken = async (
+  token: string,
+  ttl: number = 10 * 24 * 60 * 60 * 1000
+) => {
   try {
-    await AsyncStorage.setItem("token", token);
+    const now = new Date().getTime();
+    const expiryTime = now + ttl;
+
+    const tokenData = {
+      token: token,
+      expiry: expiryTime,
+    };
+
+    await AsyncStorage.setItem("token", JSON.stringify(tokenData));
   } catch (e) {
-    console.log(e);
+    console.log("Lỗi khi lưu token: ", e);
   }
 };
 export const setUser = async (user: any) => {
