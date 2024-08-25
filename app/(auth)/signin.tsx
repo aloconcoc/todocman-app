@@ -125,7 +125,7 @@ const LoginScreen = () => {
     mutationFn: login,
     onSuccess: async (response) => {
       if (response?.code == "00") {
-        console.log("user: ", JSON.stringify(response?.object?.user));
+        console.log("user: ", JSON.stringify(response?.object));
         setToken(response?.object?.access_token);
         setUser(response?.object?.user?.id);
 

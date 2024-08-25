@@ -15,7 +15,7 @@ import {
 } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { getUserInfo } from "@/config/tokenUser";
+import { getToken, getUserInfo } from "@/config/tokenUser";
 import { AppContext } from "../Context/Context";
 import NotificationProvider from "@/utils/useNotification";
 import NotifyProvider from "../Context/NotifyContext";
@@ -27,12 +27,16 @@ const CustomDrawerContent = (props: any) => {
   const pathname = usePathname();
   const { userContext, setUserContext, userInfoC, setUserInfoC }: any =
     useContext(AppContext);
+  console.log("ddd", userContext);
 
-  const { data, isLoading, isError, error } = useQuery(
+  const { data } = useQuery(
     ["userDetail", userContext],
     () => getProfile(userContext),
     {
-      onSuccess: (response) => {},
+      onSuccess: (response) => {
+        console.log("responseeeee", response);
+        setUserInfoC(response?.object);
+      },
       onError: (error: AxiosError<{ message: string }>) => {
         ToastAndroid.show(
           error.response?.data?.message || "Lỗi drawer",
@@ -43,14 +47,12 @@ const CustomDrawerContent = (props: any) => {
   );
   useEffect(() => {
     const checkUser = async () => {
-      const c = await getUserInfo();
+      const c = await getToken();
+      console.log("aaa", c);
 
       if (!c) {
-        router.navigate("(auth/signin)");
+        router.navigate("(auth)/signin");
       }
-      console.log("ccc", c);
-
-      setUserInfoC(c);
     };
     checkUser();
   }, []);
