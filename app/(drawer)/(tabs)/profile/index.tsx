@@ -50,7 +50,7 @@ const Profile = () => {
 
   const logoutQuery = useMutation(
     async () => {
-      if (userInfoC.email) await logout(userInfoC.email);
+      if (data?.object?.email) await logout(data?.object?.email);
     },
     {
       onSuccess: async () => {

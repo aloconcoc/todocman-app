@@ -812,7 +812,7 @@ export default function UploadOldContract() {
                 >
                   <Ionicons
                     name="close"
-                    size={35}
+                    size={32}
                     color="papayawhip"
                     style={{ backgroundColor: "turquoise", borderRadius: 50 }}
                   />
@@ -850,7 +850,6 @@ const styles = StyleSheet.create({
     resizeMode: "stretch",
   },
   closeButton: {
-    width: 36,
     marginBottom: 10,
     marginHorizontal: "auto",
   },
