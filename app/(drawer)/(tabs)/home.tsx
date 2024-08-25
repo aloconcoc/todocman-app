@@ -23,13 +23,14 @@ async function sendPushNotification(expoPushToken: string) {
     data: { someData: "goes here" },
   };
 
-  await fetch("https://exp.host/--/api/v2/push/send", {
+  await fetch("https://exp.host/--/api/v2/push/send?useFcmV1=true", {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Accept-encoding": "gzip, deflate",
       "Content-Type": "application/json",
     },
+
     body: JSON.stringify(message),
   });
   console.log("2");
