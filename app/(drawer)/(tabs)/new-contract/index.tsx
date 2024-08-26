@@ -414,7 +414,7 @@ const NewContract = () => {
         keyExtractor={(item) => item.id.toString()}
       /> */}
       <ScrollView>
-        {data?.object?.content.map((item: any, index: number) => (
+        {data?.object?.content?.map((item: any, index: number) => (
           <View style={styles.row} key={item.id}>
             <Text
               style={[
@@ -422,7 +422,9 @@ const NewContract = () => {
                 { flex: 0.15, textAlign: "center", padding: 2 },
               ]}
             >
-              {(index + 1).toString()}
+              {page * size + index + 1 < 10
+                ? `0${page * size + index + 1}`
+                : page * size + index + 1}
             </Text>
             <Text style={[styles.cell, { flex: 0.38, paddingRight: 0 }]}>
               {item.draft ? `${item.name} (Bản nháp)` : item.name}
@@ -492,12 +494,7 @@ const NewContract = () => {
                         alignItems: "center",
                       }}
                     >
-                      <Text
-                        style={[
-                          styles.menuOptionText,
-                          { color: "forestgreen" },
-                        ]}
-                      >
+                      <Text style={[styles.menuOptionText, { color: "teal" }]}>
                         🔎 Xem hợp đồng
                       </Text>
                     </View>
@@ -517,9 +514,14 @@ const NewContract = () => {
                           }}
                         >
                           <Text
-                            style={[styles.menuOptionText, { color: "teal" }]}
+                            style={[
+                              styles.menuOptionText,
+                              {
+                                color: adSignDisabled(item) ? "gray" : "green",
+                              },
+                            ]}
                           >
-                            ✍🏼 Ký hợp đồng
+                            ✅ Ký hợp đồng
                           </Text>
                         </View>
                       </TouchableOpacity>
@@ -539,7 +541,11 @@ const NewContract = () => {
                           <Text
                             style={[
                               styles.menuOptionText,
-                              { color: "royalblue" },
+                              {
+                                color: adRejectDisabled(item)
+                                  ? "gray"
+                                  : "royalblue",
+                              },
                             ]}
                           >
                             ↩️ Từ chối ký
@@ -559,7 +565,14 @@ const NewContract = () => {
                           }}
                         >
                           <Text
-                            style={[styles.menuOptionText, { color: "orange" }]}
+                            style={[
+                              styles.menuOptionText,
+                              {
+                                color: adSendCustomerDisabled(item)
+                                  ? "gray"
+                                  : "orange",
+                              },
+                            ]}
                           >
                             📧 Gửi khách hàng
                           </Text>
@@ -605,7 +618,12 @@ const NewContract = () => {
                           }}
                         >
                           <Text
-                            style={[styles.menuOptionText, { color: "red" }]}
+                            style={[
+                              styles.menuOptionText,
+                              {
+                                color: adDeleteDisabled(item) ? "gray" : "red",
+                              },
+                            ]}
                           >
                             🚨 Xoá
                           </Text>
@@ -613,6 +631,7 @@ const NewContract = () => {
                       </TouchableOpacity>
                     </>
                   )}
+
                   {userInfoC?.role == "USER" &&
                     userInfoC?.permissions.includes("OFFICE_ADMIN") && (
                       <>
@@ -630,7 +649,7 @@ const NewContract = () => {
                             <Text
                               style={[
                                 styles.menuOptionText,
-                                { color: "green" },
+                                { color: !item.canApprove ? "gray" : "green" },
                               ]}
                             >
                               ✅ Xác nhận duyệt
@@ -652,7 +671,11 @@ const NewContract = () => {
                             <Text
                               style={[
                                 styles.menuOptionText,
-                                { color: "royalblue" },
+                                {
+                                  color: !item.canApprove
+                                    ? "gray"
+                                    : "royalblue",
+                                },
                               ]}
                             >
                               ↩️ Từ chối duyệt
@@ -674,13 +697,18 @@ const NewContract = () => {
                             <Text
                               style={[
                                 styles.menuOptionText,
-                                { color: "goldenrod" },
+                                {
+                                  color: !item?.canSendForMng
+                                    ? "gray"
+                                    : "orchid",
+                                },
                               ]}
                             >
-                              ✍️ Trình ký
+                              📝 Trình ký
                             </Text>
                           </View>
                         </TouchableOpacity>
+                        <View style={styles.seperator} />
                         <TouchableOpacity
                           onPress={() => handleAction("Gửi cho khách hàng")}
                           disabled={!item?.canSendForCustomer}
@@ -695,13 +723,18 @@ const NewContract = () => {
                             <Text
                               style={[
                                 styles.menuOptionText,
-                                { color: "orange" },
+                                {
+                                  color: !item?.canSendForCustomer
+                                    ? "gray"
+                                    : "orange",
+                                },
                               ]}
                             >
                               📧 Gửi khách hàng
                             </Text>
                           </View>
                         </TouchableOpacity>
+                        <View style={styles.seperator} />
                         {(item?.status == "SUCCESS" ||
                           item?.statusCurrent == "SUCCESS") && (
                           <>
@@ -740,7 +773,10 @@ const NewContract = () => {
                             }}
                           >
                             <Text
-                              style={[styles.menuOptionText, { color: "red" }]}
+                              style={[
+                                styles.menuOptionText,
+                                { color: !item?.canDelete ? "gray" : "red" },
+                              ]}
                             >
                               🚨 Xóa
                             </Text>
@@ -748,6 +784,7 @@ const NewContract = () => {
                         </TouchableOpacity>
                       </>
                     )}
+
                   {userInfoC?.role == "USER" &&
                     userInfoC?.permissions.includes("SALE") && (
                       <>
@@ -767,7 +804,17 @@ const NewContract = () => {
                             }}
                           >
                             <Text
-                              style={[styles.menuOptionText, { color: "teal" }]}
+                              style={[
+                                styles.menuOptionText,
+                                {
+                                  color:
+                                    !item?.canSend ||
+                                    item?.status == "SUCCESS" ||
+                                    item?.statusCurrent == "SUCCESS"
+                                      ? "gray"
+                                      : "dodgerblue",
+                                },
+                              ]}
                             >
                               ↪️ Trình duyệt
                             </Text>
@@ -792,7 +839,14 @@ const NewContract = () => {
                             <Text
                               style={[
                                 styles.menuOptionText,
-                                { color: "orange" },
+                                {
+                                  color:
+                                    !item?.canSendForCustomer ||
+                                    item?.status == "SUCCESS" ||
+                                    item?.statusCurrent == "SUCCESS"
+                                      ? "gray"
+                                      : "orange",
+                                },
                               ]}
                             >
                               📧 Gửi khách hàng
@@ -826,7 +880,6 @@ const NewContract = () => {
                             <View style={styles.seperator} />
                           </>
                         )}
-
                         <TouchableOpacity
                           disabled={!item?.canDelete}
                           onPress={() => openDeleteModal(item)}
@@ -839,15 +892,19 @@ const NewContract = () => {
                             }}
                           >
                             <Text
-                              style={[styles.menuOptionText, { color: "red" }]}
+                              style={[
+                                styles.menuOptionText,
+                                { color: !item?.canDelete ? "gray" : "red" },
+                              ]}
                             >
                               🚨 Xóa
                             </Text>
                           </View>
                         </TouchableOpacity>
-                        <View style={styles.seperator} />
                       </>
                     )}
+
+                  <View style={styles.seperator} />
                   <TouchableOpacity onPress={downloadModal}>
                     <View
                       style={{
@@ -1058,7 +1115,7 @@ const NewContract = () => {
           </View>
         </Modal>
       )}
-      {data && data?.object.content?.length != 0 ? (
+      {data && data?.object?.content?.length != 0 ? (
         <Pagination
           totalPages={totalPage}
           currentPage={page + 1}
@@ -1177,7 +1234,7 @@ const styles = StyleSheet.create({
     left: "50%",
     transform: [
       { translateX: -(Dimensions.get("window").width * 0.4) },
-      { translateY: -(Dimensions.get("window").height * 0.2) },
+      { translateY: -(Dimensions.get("window").height * 0.25) },
     ],
   },
   menuOptionText: {

@@ -38,7 +38,7 @@ const SearchScreen = () => {
 
   const searchQuery = useMutation(getSearchContract, {
     onSuccess: (result) => {
-      setData(result.object);
+      setData(result?.object);
       setTotalPage(result?.object?.totalPages);
     },
   });
@@ -184,6 +184,7 @@ const SearchScreen = () => {
                 contractType === "contract" ? (
                   <ItemNewContract
                     data={item}
+                    selectedContract={selectedContract}
                     setSelectedContract={setSelectedContract}
                     setModalVisible={setModalVisible}
                   />

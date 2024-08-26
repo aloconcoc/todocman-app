@@ -309,7 +309,7 @@ const ContractAppendix = () => {
                   paddingRight: 10,
                 }}
               >
-                {item?.createdBy}
+                {item?.createdBy} - {item?.phone}
               </Text>
             </View>
             <Text

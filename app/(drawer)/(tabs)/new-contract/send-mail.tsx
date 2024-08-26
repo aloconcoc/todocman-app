@@ -91,26 +91,26 @@ const SendMail = () => {
           contractData?.rejectedBy != null &&
             setSelectedTo([contractData?.rejectedBy]);
         } else if (contractData?.statuss == 2 || contractData?.statuss == 3) {
-          response.object.createdBy != null &&
-            setSelectedTo([response.object.createdBy]);
+          response?.object?.createdBy != null &&
+            setSelectedTo([response?.object?.createdBy]);
         } else if (contractData?.statuss == 4) {
           setSelectedTo([dataParty?.object?.email]);
-          response.object.createdBy != null &&
-            setSelectedCc([response.object.createdBy]);
+          response?.object?.createdBy != null &&
+            setSelectedCc([response?.object?.createdBy]);
         } else if (contractData?.statuss == 6) {
-          response.object.createdBy != null &&
-            setSelectedTo([response.object.createdBy]);
-          response.object.approvedBy != null &&
-            setSelectedCc([response.object.approvedBy]);
+          response?.object?.createdBy != null &&
+            setSelectedTo([response?.object?.createdBy]);
+          response?.object?.approvedBy != null &&
+            setSelectedCc([response?.object?.approvedBy]);
         } else if (contractData?.statuss == 7) {
           const mailCC = [];
-          response.object.approvedBy != null &&
-            mailCC.push(response.object.approvedBy);
+          response?.object.approvedBy != null &&
+            mailCC.push(response?.object?.approvedBy);
           setSelectedCc(mailCC);
-          response.object.partyB != null &&
-            setSelectedTo([response.object.partyB.email]);
+          response?.object?.partyB != null &&
+            setSelectedTo([response?.object?.partyB.email]);
         }
-        const fileUrl = response.object.file;
+        const fileUrl = response?.object?.file;
         const fileData = await fetch(fileUrl);
         const blob = await fileData.blob();
         contractFile.current = blob;
@@ -127,11 +127,15 @@ const SendMail = () => {
       contractData?.statuss == 6
     )
       return dataSale;
-    else if (contractData?.statuss == 4)
+    else if (contractData?.statuss == 4) {
+      console.log("dataParty", dataParty?.object?.email);
+
       return [
         { label: dataParty?.object?.email, value: dataParty?.object?.email },
       ];
-    else return [];
+    } else if (contractData?.statuss == 7) {
+      return null;
+    } else return [];
   }, [contractData?.statuss, dataAO, dataAdmin, dataSale]);
 
   const optionCC = useMemo(() => {
@@ -145,13 +149,16 @@ const SendMail = () => {
       return dataSale;
     else if (contractData?.statuss == 4)
       return [
-        // ...(dataAdmin || []),
         {
           label: contractData.createdBy,
           value: contractData.createdBy,
         },
       ];
-    else return [];
+    else if (contractData?.statuss == 7) {
+      console.log("dataContractdumacc", dataContract);
+
+      return null;
+    } else return [];
   }, [contractData?.statuss, dataAO, dataAdmin, dataSale]);
 
   const handleSubmit = async () => {
@@ -249,8 +256,8 @@ const SendMail = () => {
         <LottieView
           autoPlay
           style={{
-            width: "80%",
-            height: "80%",
+            width: "50%",
+            height: "50%",
             backgroundColor: "white",
           }}
           source={require("@/assets/load.json")}

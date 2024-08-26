@@ -1,9 +1,10 @@
+import { router } from "expo-router";
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
 const ItemNewContract = ({
   data,
-  setModalVisible,
+  selectedContract,
   setSelectedContract,
 }: any) => {
   return (
@@ -12,9 +13,10 @@ const ItemNewContract = ({
         <TouchableOpacity
           style={styles.touchable}
           onPress={() => {
-            console.log("dau: ", data.file);
             setSelectedContract(data);
-            setModalVisible(true);
+            router.navigate(
+              "/(drawer)/(tabs)/new-contract/details/" + selectedContract?.id
+            );
           }}
         >
           <Text style={styles.title}>

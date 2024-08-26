@@ -34,33 +34,21 @@ const NotifyScreen = () => {
     totalPages,
   } = useNotification();
   const [activeButton, setActiveButton] = useState("all");
-  // const { data, isLoading, isError, error } = useQuery(
-  //   ["notify"],
-  //   () => getUnreadNotification(),
-  //   {
-  //     onSuccess: (response) => {
-  //       console.log("okla: " + response);
-  //     },
-  //     onError: (error: AxiosError<{ message: string }>) => {
-  //       ToastAndroid.show(
-  //         error.response?.data?.message || "Lỗi hệ thống",
-  //         ToastAndroid.SHORT
-  //       );
-  //     },
-  //   }
-  // );
+  // console.log("notifications", notifications);
 
   const handleReadNotify = (noti: any) => {
     if (noti?.typeNotification == "CONTRACT") {
       console.log("noti", noti);
-
       router.navigate(
         "/(drawer)/(tabs)/new-contract/details/" + noti?.contractId
       );
     } else if (noti?.typeNotification == "APPENDICES CONTRACT") {
-      router.navigate(
-        "/(drawer)(tabs)/new-contract/appendix/" + noti?.contractId
-      );
+      console.log("notiapen", noti);
+
+      router.navigate({
+        pathname: "/new-contract/appendix/[id]",
+        params: { id: JSON.stringify(noti?.contractId) },
+      });
     }
     if (!noti?.markRead) {
       setTotalNotRead((totalNotRead: any) => totalNotRead - 1);
@@ -93,7 +81,6 @@ const NotifyScreen = () => {
         <TouchableOpacity onPress={() => handleReadNotify(item)}>
           <View style={[styles.card, !item.markRead && styles.unreadCard]}>
             <Image
-              // source={{ uri: "https://i.ibb.co/ZXkVtJD/logo-noti.png" }}
               source={require("@/assets/images/logo-noti.png")}
               style={styles.image}
             />
@@ -203,7 +190,7 @@ const NotifyScreen = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.container}
         ListFooterComponent={() =>
-          page.current + 1 !== totalPages.current && (
+          page.current + 1 != totalPages.current && (
             <View style={styles.footer}>
               <TouchableOpacity onPress={viewMoreNotify}>
                 <Text style={styles.viewMoreText}>Xem thêm</Text>

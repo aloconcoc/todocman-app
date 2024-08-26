@@ -109,37 +109,37 @@ const EditProfile = () => {
     {
       enabled: !!userContext,
       onSuccess: (response: any) => {
-        if (response.object) {
+        if (response?.object) {
           reset({
-            ...response.object,
+            ...response?.object,
             dob:
-              response.object?.dob != null || response.object?.dob != "null"
-                ? moment(response.object?.dob).format("YYYY-MM-DD")
-                : response.object?.dob,
+              response?.object?.dob != null || response?.object?.dob != "null"
+                ? moment(response?.object?.dob).format("YYYY-MM-DD")
+                : response?.object?.dob,
             address:
-              response.object?.address != null ||
-              response.object?.address != "null"
-                ? response.object?.address
+              response?.object?.address != null ||
+              response?.object?.address != "null"
+                ? response?.object?.address
                 : "",
             department:
-              response.object?.department != null ||
-              response.object?.department != "null"
-                ? response.object?.department
+              response?.object?.department != null ||
+              response?.object?.department != "null"
+                ? response?.object?.department
                 : "",
             identificationNumber:
-              response.object?.identificationNumber != null ||
-              response.object?.identificationNumber != "null"
-                ? response.object?.identificationNumber
+              response?.object?.identificationNumber != null ||
+              response?.object?.identificationNumber != "null"
+                ? response?.object?.identificationNumber
                 : "",
             position:
-              response.object?.position != null ||
-              response.object?.position != "null"
-                ? response.object?.position
+              response?.object?.position != null ||
+              response?.object?.position != "null"
+                ? response?.object?.position
                 : "",
           });
 
           setAvatar(
-            response.object?.avatar == null ? avatar : response.object?.avatar
+            response?.object?.avatar == null ? avatar : response?.object?.avatar
           );
           const gender =
             response?.object?.gender === true
@@ -163,17 +163,17 @@ const EditProfile = () => {
       console.log("dumalala: ", data?.object);
 
       reset({
-        ...data.object,
+        ...data?.object,
         dob:
-          data.object?.dob != null
-            ? moment(data.object?.dob).format("YYYY-MM-DD")
-            : data.object?.dob,
+          data?.object?.dob != null
+            ? moment(data?.object?.dob).format("YYYY-MM-DD")
+            : data?.object?.dob,
       });
-      console.log("dddd:", data.object?.dob);
+      console.log("dddd:", data?.object?.dob);
 
-      setDate(new Date(data.object?.dob));
+      setDate(new Date(data?.object?.dob));
 
-      setAvatar(data.object?.avatar == null ? avatar : data.object?.avatar);
+      setAvatar(data?.object?.avatar == null ? avatar : data?.object?.avatar);
     }
   }, [data, reset]);
 

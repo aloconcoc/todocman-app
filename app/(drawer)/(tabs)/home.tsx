@@ -7,8 +7,8 @@ import Constants from "expo-constants";
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
   }),
 });
 
@@ -23,7 +23,7 @@ async function sendPushNotification(expoPushToken: string) {
     data: { someData: "goes here" },
   };
 
-  await fetch("https://exp.host/--/api/v2/push/send?useFcmV1=true", {
+  await fetch("https://exp.host/--/api/v2/push/send", {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -95,32 +95,32 @@ export default function App() {
   const notificationListener = useRef<Notifications.Subscription>();
   const responseListener = useRef<Notifications.Subscription>();
 
-  useEffect(() => {
-    registerForPushNotificationsAsync()
-      .then((token) => setExpoPushToken(token ?? ""))
-      .catch((error: any) => setExpoPushToken(`${error}`));
+  // useEffect(() => {
+  //   registerForPushNotificationsAsync()
+  //     .then((token) => setExpoPushToken(token ?? ""))
+  //     .catch((error: any) => setExpoPushToken(`${error}`));
 
-    notificationListener.current =
-      Notifications.addNotificationReceivedListener((notification) => {
-        console.log("forground");
-        setNotification(notification);
-      });
+  //   notificationListener.current =
+  //     Notifications.addNotificationReceivedListener((notification) => {
+  //       console.log("forground");
+  //       setNotification(notification);
+  //     });
 
-    responseListener.current =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log("background");
-        console.log(response);
-      });
+  //   responseListener.current =
+  //     Notifications.addNotificationResponseReceivedListener((response) => {
+  //       console.log("background");
+  //       console.log(response);
+  //     });
 
-    return () => {
-      notificationListener.current &&
-        Notifications.removeNotificationSubscription(
-          notificationListener.current
-        );
-      responseListener.current &&
-        Notifications.removeNotificationSubscription(responseListener.current);
-    };
-  }, []);
+  //   return () => {
+  //     notificationListener.current &&
+  //       Notifications.removeNotificationSubscription(
+  //         notificationListener.current
+  //       );
+  //     responseListener.current &&
+  //       Notifications.removeNotificationSubscription(responseListener.current);
+  //   };
+  // }, []);
 
   return (
     <View

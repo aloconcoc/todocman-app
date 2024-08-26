@@ -304,7 +304,7 @@ export default function UploadOldContract() {
 
   const handleCreateOldContract = useMutation(createOldContract, {
     onSuccess: async (res) => {
-      if (res.code === "00" && res.object) {
+      if (res?.code === "00" && res?.object) {
         ToastAndroid.show("Tạo hợp đồng thành công!", ToastAndroid.SHORT);
         await queryClient.refetchQueries("old-contract-list");
       } else {

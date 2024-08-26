@@ -27,12 +27,14 @@ export default function _layout() {
         name="appendix/[id]"
         options={{
           title: "Phụ lục hợp đồng",
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="details/[id]"
         options={{
           title: "Chi tiết hợp đồng",
+          headerShown: false,
         }}
       />
     </Stack>

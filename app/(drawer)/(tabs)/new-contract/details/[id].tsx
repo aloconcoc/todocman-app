@@ -26,6 +26,8 @@ import {
 import { useNotification } from "@/app/Context/NotifyContext";
 import { AppContext } from "@/app/Context/Context";
 import { ADMIN, permissionObject } from "@/components/utils/permissions";
+import LottieView from "lottie-react-native";
+import WebView from "react-native-webview";
 
 type STATUS = "ADMIN" | "OFFICE_ADMIN" | "SALE" | "OFFICE_STAFF";
 
@@ -36,6 +38,8 @@ const NotiDetail = () => {
   const [signText, setSignText] = useState<string>("");
   const [contractData, setContractData] = useState<any>(null);
   const { id } = useLocalSearchParams();
+  const [download, setDownload] = useState(false);
+
   console.log("id", id);
 
   const [deleteModal, setDeleteModal] = useState(false);
@@ -154,7 +158,7 @@ const NotiDetail = () => {
     const fetchContractData = async () => {
       try {
         const response = await getNewContractByIdNotToken(id);
-        if (response.object) setContractData(response.object);
+        if (response?.object) setContractData(response?.object);
       } catch (error) {
         console.error("Không tìm thấy hợp đồng", error);
       }
@@ -190,6 +194,13 @@ const NotiDetail = () => {
   const closeDeleteModal = () => {
     setDeleteModal(false);
     setCommentVisible(false);
+  };
+  const downloadModal = () => {
+    setDownload(true);
+    setTimeout(() => {
+      setDownload(false);
+      closeModal();
+    }, 1000);
   };
   const handleAction = (action: string) => {
     if (action == "Xem") {
@@ -358,13 +369,20 @@ const NotiDetail = () => {
                       alignItems: "center",
                     }}
                   >
-                    <Text style={[styles.menuOptionText, { color: "teal" }]}>
+                    <Text
+                      style={[
+                        styles.menuOptionText,
+                        {
+                          color: adSignDisabled(contractData) ? "gray" : "teal",
+                        },
+                      ]}
+                    >
                       ✍🏼 Ký hợp đồng
                     </Text>
                   </View>
                 </TouchableOpacity>
 
-                <View style={[styles.seperator]} />
+                <View style={styles.seperator} />
                 <TouchableOpacity
                   disabled={adRejectDisabled(contractData)}
                   onPress={() => handleAction("Từ chối ký")}
@@ -377,12 +395,20 @@ const NotiDetail = () => {
                     }}
                   >
                     <Text
-                      style={[styles.menuOptionText, { color: "royalblue" }]}
+                      style={[
+                        styles.menuOptionText,
+                        {
+                          color: adRejectDisabled(contractData)
+                            ? "gray"
+                            : "royalblue",
+                        },
+                      ]}
                     >
                       ↩️ Từ chối ký
                     </Text>
                   </View>
                 </TouchableOpacity>
+
                 <View style={styles.seperator} />
                 <TouchableOpacity
                   onPress={() => handleAction("Gửi cho khách hàng")}
@@ -395,12 +421,21 @@ const NotiDetail = () => {
                       alignItems: "center",
                     }}
                   >
-                    <Text style={[styles.menuOptionText, { color: "orchid" }]}>
+                    <Text
+                      style={[
+                        styles.menuOptionText,
+                        {
+                          color: adSendCustomerDisabled(contractData)
+                            ? "gray"
+                            : "orchid",
+                        },
+                      ]}
+                    >
                       📧 Gửi khách hàng
                     </Text>
                   </View>
                 </TouchableOpacity>
-                <View style={styles.seperator} />
+
                 {(contractData?.status == "SUCCESS" ||
                   contractData?.statusCurrent == "SUCCESS") && (
                   <>
@@ -434,13 +469,23 @@ const NotiDetail = () => {
                       alignItems: "center",
                     }}
                   >
-                    <Text style={[styles.menuOptionText, { color: "red" }]}>
+                    <Text
+                      style={[
+                        styles.menuOptionText,
+                        {
+                          color: adDeleteDisabled(contractData)
+                            ? "gray"
+                            : "red",
+                        },
+                      ]}
+                    >
                       🚨 Xoá
                     </Text>
                   </View>
                 </TouchableOpacity>
               </>
             )}
+
             {userInfoC?.role == "USER" &&
               userInfoC?.permissions.includes("OFFICE_ADMIN") && (
                 <>
@@ -455,11 +500,19 @@ const NotiDetail = () => {
                         alignItems: "center",
                       }}
                     >
-                      <Text style={[styles.menuOptionText, { color: "green" }]}>
+                      <Text
+                        style={[
+                          styles.menuOptionText,
+                          {
+                            color: !contractData.canApprove ? "gray" : "green",
+                          },
+                        ]}
+                      >
                         ✅ Xác nhận duyệt
                       </Text>
                     </View>
                   </TouchableOpacity>
+
                   <View style={styles.seperator} />
                   <TouchableOpacity
                     onPress={() => handleAction("Từ chối duyệt")}
@@ -473,12 +526,20 @@ const NotiDetail = () => {
                       }}
                     >
                       <Text
-                        style={[styles.menuOptionText, { color: "royalblue" }]}
+                        style={[
+                          styles.menuOptionText,
+                          {
+                            color: !contractData.canApprove
+                              ? "gray"
+                              : "royalblue",
+                          },
+                        ]}
                       >
                         ↩️ Từ chối duyệt
                       </Text>
                     </View>
                   </TouchableOpacity>
+
                   <View style={styles.seperator} />
                   <TouchableOpacity
                     onPress={() => handleAction("Trình ký")}
@@ -492,12 +553,21 @@ const NotiDetail = () => {
                       }}
                     >
                       <Text
-                        style={[styles.menuOptionText, { color: "goldenrod" }]}
+                        style={[
+                          styles.menuOptionText,
+                          {
+                            color: !contractData?.canSendForMng
+                              ? "gray"
+                              : "goldenrod",
+                          },
+                        ]}
                       >
                         ✍️ Trình ký
                       </Text>
                     </View>
                   </TouchableOpacity>
+
+                  <View style={styles.seperator} />
                   <TouchableOpacity
                     onPress={() => handleAction("Gửi cho khách hàng")}
                     disabled={!contractData?.canSendForCustomer}
@@ -510,102 +580,20 @@ const NotiDetail = () => {
                       }}
                     >
                       <Text
-                        style={[styles.menuOptionText, { color: "orchid" }]}
-                      >
-                        📧 Gửi khách hàng
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                  {(contractData?.status == "SUCCESS" ||
-                    contractData?.statusCurrent == "SUCCESS") && (
-                    <>
-                      <TouchableOpacity onPress={() => handleAction("phụ lục")}>
-                        <View
-                          style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Text
-                            style={[styles.menuOptionText, { color: "orange" }]}
-                          >
-                            🏷️ Phụ lục
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                      <View style={styles.seperator} />
-                    </>
-                  )}
-                  <TouchableOpacity
-                    disabled={!contractData?.canDelete}
-                    onPress={() => openDeleteModal(contractData)}
-                  >
-                    <View
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text style={[styles.menuOptionText, { color: "red" }]}>
-                        🚨 Xóa
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </>
-              )}
-            {userInfoC?.role == "USER" &&
-              userInfoC?.permissions.includes("SALE") && (
-                <>
-                  <TouchableOpacity
-                    disabled={
-                      !contractData?.canSend ||
-                      contractData?.status == "SUCCESS" ||
-                      contractData?.statusCurrent == "SUCCESS"
-                    }
-                    onPress={() => handleAction("Trình duyệt")}
-                  >
-                    <View
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text
                         style={[
                           styles.menuOptionText,
-                          { color: "mediumturquoise" },
+                          {
+                            color: !contractData?.canSendForCustomer
+                              ? "gray"
+                              : "orchid",
+                          },
                         ]}
-                      >
-                        📤 Trình duyệt
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                  <View style={styles.seperator} />
-                  <TouchableOpacity
-                    onPress={() => handleAction("Gửi cho khách hàng")}
-                    disabled={
-                      !contractData?.canSendForCustomer ||
-                      contractData?.status == "SUCCESS" ||
-                      contractData?.statusCurrent == "SUCCESS"
-                    }
-                  >
-                    <View
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text
-                        style={[styles.menuOptionText, { color: "orchid" }]}
                       >
                         📧 Gửi khách hàng
                       </Text>
                     </View>
                   </TouchableOpacity>
+
                   {(contractData?.status == "SUCCESS" ||
                     contractData?.statusCurrent == "SUCCESS") && (
                     <>
@@ -639,16 +627,174 @@ const NotiDetail = () => {
                         alignItems: "center",
                       }}
                     >
-                      <Text style={[styles.menuOptionText, { color: "red" }]}>
+                      <Text
+                        style={[
+                          styles.menuOptionText,
+                          { color: !contractData?.canDelete ? "gray" : "red" },
+                        ]}
+                      >
                         🚨 Xóa
                       </Text>
                     </View>
                   </TouchableOpacity>
                 </>
               )}
+
+            {userInfoC?.role == "USER" &&
+              userInfoC?.permissions.includes("SALE") && (
+                <>
+                  <TouchableOpacity
+                    disabled={
+                      !contractData?.canSend ||
+                      contractData?.status == "SUCCESS" ||
+                      contractData?.statusCurrent == "SUCCESS"
+                    }
+                    onPress={() => handleAction("Trình duyệt")}
+                  >
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.menuOptionText,
+                          {
+                            color:
+                              !contractData?.canSend ||
+                              contractData?.status == "SUCCESS" ||
+                              contractData?.statusCurrent == "SUCCESS"
+                                ? "gray"
+                                : "mediumturquoise",
+                          },
+                        ]}
+                      >
+                        📤 Trình duyệt
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  <View style={styles.seperator} />
+                  <TouchableOpacity
+                    onPress={() => handleAction("Gửi cho khách hàng")}
+                    disabled={
+                      !contractData?.canSendForCustomer ||
+                      contractData?.status == "SUCCESS" ||
+                      contractData?.statusCurrent == "SUCCESS"
+                    }
+                  >
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.menuOptionText,
+                          {
+                            color:
+                              !contractData?.canSendForCustomer ||
+                              contractData?.status == "SUCCESS" ||
+                              contractData?.statusCurrent == "SUCCESS"
+                                ? "gray"
+                                : "orchid",
+                          },
+                        ]}
+                      >
+                        📧 Gửi khách hàng
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  {(contractData?.status == "SUCCESS" ||
+                    contractData?.statusCurrent == "SUCCESS") && (
+                    <>
+                      <TouchableOpacity onPress={() => handleAction("phụ lục")}>
+                        <View
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text
+                            style={[styles.menuOptionText, { color: "orange" }]}
+                          >
+                            🏷️ Phụ lục
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                      <View style={styles.seperator} />
+                    </>
+                  )}
+
+                  <TouchableOpacity
+                    disabled={!contractData?.canDelete}
+                    onPress={() => openDeleteModal(contractData)}
+                  >
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.menuOptionText,
+                          { color: !contractData?.canDelete ? "gray" : "red" },
+                        ]}
+                      >
+                        🚨 Xóa
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </>
+              )}
+
+            <View style={styles.seperator} />
+            <TouchableOpacity onPress={downloadModal}>
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={[styles.menuOptionText, { color: "dodgerblue" }]}>
+                  📥 Tải hợp đồng
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
         </Modal>
       )}
+      <Modal transparent={true} visible={download} animationType="fade">
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <LottieView
+            autoPlay
+            loop
+            style={{ width: 150, height: 150 }}
+            source={require("@/assets/load.json")}
+          />
+
+          <WebView
+            style={{ display: "none" }}
+            source={{ uri: contractData?.file }}
+          />
+        </View>
+      </Modal>
       {deleteModal && (
         <Modal
           animationType="fade"
