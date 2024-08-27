@@ -22,8 +22,8 @@ export const deleteNotify = async (id: string) => {
 };
 
 export const getNotificationByAppenId = async (id: string) => {
-  const response = await axiosInstance.get(
-    `api/contract-appendices/user/${id}`
-  );
+  console.log("loid", id);
+
+  const response = await axiosInstance.get(`/api/contract-appendices/${id}`);
   return response?.data;
 };

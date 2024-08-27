@@ -162,37 +162,11 @@ const PDFExample = () => {
         </View>
       </Modal>
 
-      {contractData?.role == "ADMIN" ? (
+      {contractData?.role == "ADMIN" && contractData?.action != "xem" ? (
         <View
           style={styles.signButton}
           // onPress={openComment}
         >
-          {/* <MenuView
-          isAnchoredToRight={true}
-          onPressAction={({ nativeEvent }) => {
-            if (nativeEvent.event === "sign") {
-              openModal();
-            } else if (nativeEvent.event === "cmt") {
-              openComment();
-            }
-          }}
-          actions={[
-            {
-              id: "cmt",
-              title: "Nhận xét",
-              titleColor: "#008B8B",
-              subtitle: "Share action on SNS",
-              image: Platform.select({
-                ios: "square.and.arrow.up",
-                android: "sym_action_chat",
-              }),
-              imageColor: "#008B8B",
-              state: "on",
-            },
-          ]}
-          shouldOpenOnLongPress={false}
-        > */}
-
           <TouchableOpacity onPress={openComment}>
             <Feather name="list" size={24} color="black" />
           </TouchableOpacity>

@@ -23,13 +23,16 @@ import { getNotificationByAppenId } from "@/services/notification.service";
 
 const PDFExample = () => {
   const { id } = useLocalSearchParams();
+  const idData = JSON.parse(id as string);
+
   const [notiapen, setNotiapen] = useState<any>();
 
   useEffect(() => {
     async function fetchData() {
       try {
         if (id) {
-          const response = await getNotificationByAppenId(id as string);
+          const response = await getNotificationByAppenId(idData);
+
           setNotiapen(response.object);
         }
       } catch (error) {

@@ -255,6 +255,7 @@ const NewContract = () => {
       const viewContractRole = {
         ...selectedContract,
         role: permissionUser,
+        action: "xem",
       };
       router.navigate({
         pathname: "/new-contract/view-contract",

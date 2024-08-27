@@ -174,12 +174,11 @@ const Sign = ({
         <Button title="Xóa" onPress={handleClear} />
         <Button
           title="Xác nhận"
-          // onPress={() => {
-
-          //   openOTP();
-          //   getSMSQuery.mutate(phoneData?.object?.phone);
-          // }}
-          onPress={handleExport}
+          onPress={() => {
+            openOTP();
+            getSMSQuery.mutate(phoneData?.object?.phone);
+          }}
+          // onPress={handleExport}
         />
       </View>
       {signQuery.isLoading && (

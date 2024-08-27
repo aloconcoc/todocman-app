@@ -40,7 +40,7 @@ import { Picker } from "@react-native-picker/picker";
 import { OCR_URL } from "@/constants";
 import { AppContext } from "@/app/Context/Context";
 import regexPatterns from "@/constants/regex.json";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import DraggableGrid from "react-native-draggable-grid";
 import { ScrollView } from "react-native-gesture-handler";
 
@@ -72,129 +72,6 @@ export default function UploadOldContract() {
   const { setOldName, setLoadingPopupVisible }: any = useContext(AppContext);
   const nameInputRef = useRef<any>(null);
   const [arrangeModal, setModalArrange] = useState(false);
-  const [data1, setData1] = useState([
-    {
-      key: "1",
-      name: "15e349f5-8bb7-457d-8a13-b29f7d6bcc2e.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/15e349f5-8bb7-457d-8a13-b29f7d6bcc2e.jpg",
-    },
-    {
-      key: "2",
-      name: "553751db-420c-45e2-a5cf-9fcb1824e531.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/553751db-420c-45e2-a5cf-9fcb1824e531.jpg",
-    },
-    {
-      key: "3",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "4",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "5",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "6",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "7",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "8",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "9",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "10",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "11",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "12",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "13",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "14",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "15",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "16",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "17",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "18",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "19",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-    {
-      key: "20",
-      name: "29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-      type: "image/jpeg",
-      uri: "file:///data/user/0/com.kimasa.tdocman1/cache/29f62f77-522d-453a-a227-f6ceaaf624a1.jpg",
-    },
-  ]);
-
   const [scrollEnabled, setScrollEnabled] = useState(true);
 
   const handleDragStart = () => {
@@ -451,6 +328,7 @@ export default function UploadOldContract() {
       if (res?.code === "00" && res?.object) {
         ToastAndroid.show("Tạo hợp đồng thành công!", ToastAndroid.SHORT);
         await queryClient.refetchQueries("old-contract-list");
+        setLoadingOcr(false);
       } else {
         ToastAndroid.show(
           "Xảy ra lỗi trong quá trình tải hợp đồng!",
@@ -472,7 +350,6 @@ export default function UploadOldContract() {
     try {
       setLoadingOcr(true);
 
-      // const response = await fetch("http://ocr.tdocman.id.vn/ocr", {
       const response = await fetch(OCR_URL, {
         method: "POST",
         body: formData,
@@ -487,7 +364,6 @@ export default function UploadOldContract() {
       console.error("Lỗi OCR", error);
     } finally {
       handleCreateOldContract.mutate(formData);
-      setLoadingOcr(false);
     }
   };
 
@@ -564,17 +440,10 @@ export default function UploadOldContract() {
   };
 
   // Render image list item
-  const renderItem = ({ item, drag, isActive }: any) => {
-    const filename = item.split("/").pop();
+  const renderItem = ({ item, isActive }: any) => {
+    const filename = item?.name?.split("/").pop();
 
     return (
-      // {/* <ScaleDecorator> */}
-      // {/* <TouchableOpacity
-      //   onLongPress={drag}
-      //   onPress={() => openModal(item)}
-      //   disabled={isActive}
-      //   style={{ overflow: "scroll" }}
-      // > */}
       <TouchableOpacity
         onPress={() => openModal(item)}
         style={{
@@ -586,25 +455,23 @@ export default function UploadOldContract() {
           backgroundColor: isActive ? "gainsboro" : "transparent",
         }}
       >
-        <Image style={{ width: 80, height: 100 }} source={{ uri: item }} />
+        <Image style={{ width: 80, height: 100 }} source={{ uri: item?.uri }} />
         <Text style={{ flex: 1 }}>
           {filename.length > 14
             ? `Ảnh hợp đồng ${filename.substring(0, 5)}...jpeg`
             : filename}
         </Text>
 
-        <Ionicons.Button name="trash" onPress={() => deleteImage(item)} />
+        <Ionicons.Button name="trash" onPress={() => deleteImage(item?.uri)} />
       </TouchableOpacity>
-      // {/* </TouchableOpacity> */}
-      // {/* </ScaleDecorator> */}
     );
   };
 
   const renderArrange = (item: any) => (
-    <View style={{ padding: 10 }}>
+    <View>
       <Image
         source={{ uri: item.uri }}
-        style={{ width: 100, height: 100 }}
+        style={{ width: 110, height: 110 }}
         resizeMode="contain"
       />
     </View>
@@ -917,15 +784,23 @@ export default function UploadOldContract() {
         }}
       >
         <Text style={{ fontWeight: "bold", fontSize: 16 }}>Sắp xếp</Text>
-        <Pressable onPress={openArrange}>
-          <Text>🔁</Text>
+        <Pressable
+          onPress={openArrange}
+          style={{
+            backgroundColor: "dodgerblue",
+            paddingHorizontal: 5,
+            paddingVertical: 2,
+            borderRadius: 5,
+          }}
+        >
+          <FontAwesome5 name="exchange-alt" size={24} color="white" />
         </Pressable>
       </View>
 
       <FlatList
-        data={images}
+        data={allImages}
         renderItem={renderItem}
-        keyExtractor={(item) => item}
+        keyExtractor={(item) => item?.uri}
       />
       <Modal
         transparent={true}
@@ -954,19 +829,23 @@ export default function UploadOldContract() {
         visible={arrangeModal}
         onRequestClose={closeArrange}
       >
-        <ScrollView scrollEnabled={scrollEnabled}>
+        <ScrollView
+          scrollEnabled={scrollEnabled}
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
           <View
             style={{
               backgroundColor: "white",
               width: "100%",
+              marginTop: 20,
             }}
           >
             <TouchableOpacity onPress={closeArrange}>
               <AntDesign
                 style={styles.closeButton}
-                name="closecircle"
+                name="checkcircle"
                 size={28}
-                color="black"
+                color="green"
               />
             </TouchableOpacity>
             <DraggableGrid
