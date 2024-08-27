@@ -46,8 +46,8 @@ const NotifyScreen = () => {
       console.log("notiapen", noti);
 
       router.navigate({
-        pathname: "/new-contract/appendix/[id]",
-        params: { id: JSON.stringify(noti?.contractId) },
+        pathname: "/new-contract/notiAppen/[id]",
+        params: { id: JSON.stringify(noti?.contractAppendicesId) },
       });
     }
     if (!noti?.markRead) {

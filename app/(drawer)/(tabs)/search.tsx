@@ -133,37 +133,6 @@ const SearchScreen = () => {
           <Text style={styles.buttonText}>Hợp đồng cũ</Text>
         </TouchableOpacity>
       </View>
-      {/* <View
-        style={{
-          width: 200,
-          height: 40,
-          borderWidth: 1,
-          justifyContent: "center",
-          marginHorizontal: "auto",
-          borderRadius: 5,
-        }}
-      >
-        <Picker
-          selectedValue={typeContr}
-          onValueChange={(itemValue) => setTypeContr(itemValue as string)}
-          enabled={true}
-        >
-          <Picker.Item
-            style={{ color: typeContr === "all" ? "green" : "black" }}
-            label="Tất cả"
-            value="all"
-            key="all"
-          />
-          {typeData?.content.map((d: any) => (
-            <Picker.Item
-              label={d.title}
-              value={d.id}
-              key={d.id}
-              style={{ color: typeContr === d.id ? "green" : "black" }}
-            />
-          ))}
-        </Picker>
-      </View> */}
 
       {searchQuery.isLoading ? (
         <ActivityIndicator size="large" color="lightseagreen" />

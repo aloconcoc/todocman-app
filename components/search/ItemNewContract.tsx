@@ -13,9 +13,10 @@ const ItemNewContract = ({
         <TouchableOpacity
           style={styles.touchable}
           onPress={() => {
-            setSelectedContract(data);
+            // setSelectedContract(data);
+
             router.navigate(
-              "/(drawer)/(tabs)/new-contract/details/" + selectedContract?.id
+              "/(drawer)/(tabs)/new-contract/details/" + data?.id
             );
           }}
         >

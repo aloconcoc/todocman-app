@@ -83,14 +83,15 @@ export default function NotificationProvider({ children }: any) {
     // Check if there's a notification that triggered the app launch
     Notifications.getLastNotificationResponseAsync().then((response) => {
       if (response) {
-        const dataString = response.notification.request.content.dataString;
+        const dataString = response.notification.request.content;
         console.log("quit: ", response.notification.request.content);
 
         if (dataString) {
-          const data = JSON.parse(dataString);
-          const screen = data.screen;
+          const screen = response.notification.request.content.data.screen;
           if (screen) {
-            router.push(screen);
+            console.log("screen: ", screen);
+
+            router.push("(drawer)/(tabs)/search");
           }
         }
       }

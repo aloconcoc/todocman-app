@@ -20,3 +20,10 @@ export const deleteNotify = async (id: string) => {
   const response = await axiosInstance.delete(`notification/${id}`);
   return response.data;
 };
+
+export const getNotificationByAppenId = async (id: string) => {
+  const response = await axiosInstance.get(
+    `api/contract-appendices/user/${id}`
+  );
+  return response?.data;
+};

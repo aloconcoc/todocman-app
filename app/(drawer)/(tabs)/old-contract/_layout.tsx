@@ -23,6 +23,12 @@ export default function _layout() {
           title: "Tạo hợp đồng",
         }}
       />
+      <Stack.Screen
+        name="arrange"
+        options={{
+          title: "Kéo thả để sắp xếp ảnh",
+        }}
+      />
     </Stack>
   );
 }
