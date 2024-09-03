@@ -4,15 +4,19 @@ export type LoginRequest = {
   email: string;
   password: string;
   tokenDevice: string;
+  tokenDevice: string;
 };
 
 export const login = async ({ email, password, tokenDevice }: LoginRequest) => {
+export const login = async ({ email, password, tokenDevice }: LoginRequest) => {
   try {
+    console.log({ email, password, tokenDevice });
     console.log({ email, password, tokenDevice });
 
     const response = await axiosInstance.post("public/auth/login", {
       email,
       password,
+      tokenDevice,
       tokenDevice,
     });
 

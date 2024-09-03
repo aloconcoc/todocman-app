@@ -4,6 +4,7 @@ import {
   Image,
   ImageBackground,
   Platform,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -12,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
 import React, { useContext, useEffect, useState } from "react";
 import Colors from "@/constants/Colors";
 import { MaterialCommunityIcons, Feather } from "@expo/vector-icons";
